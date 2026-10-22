@@ -6,6 +6,7 @@ import 'progress/progress_store.dart';
 import 'screens/intro_screen.dart';
 import 'screens/level1_screen.dart';
 import 'screens/level2_screen.dart';
+import 'screens/level3_screen.dart';
 import 'screens/level_menu_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -31,24 +32,9 @@ class BridgeItApp extends StatelessWidget {
           '/levels': (_) => const LevelMenuScreen(),
           '/level/1': (_) => const Level1Screen(),
           '/level/2': (_) => const Level2Screen(),
-          // Task 8 replaces this placeholder with the real level.
-          '/level/3': (_) => const _ComingSoonScreen(level: 3),
+          '/level/3': (_) => const Level3Screen(),
         },
       ),
-    );
-  }
-}
-
-class _ComingSoonScreen extends StatelessWidget {
-  const _ComingSoonScreen({required this.level});
-
-  final int level;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(child: Text('Level $level is coming soon')),
     );
   }
 }

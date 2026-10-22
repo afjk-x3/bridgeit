@@ -5,9 +5,12 @@ import '../theme/app_theme.dart';
 /// Shown when a level is finished: a check, the teacher-code message and a
 /// way back to the level menu.
 class LevelDonePanel extends StatelessWidget {
-  const LevelDonePanel({super.key, required this.level});
+  const LevelDonePanel({super.key, required this.level, this.message});
 
   final int level;
+
+  /// Replaces the default "Level N done!" text.
+  final String? message;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +23,7 @@ class LevelDonePanel extends StatelessWidget {
           const Icon(Icons.check_circle, size: 72, color: AppColors.correct),
           const SizedBox(height: 16),
           Text(
-            'Level $level done! Ask your teacher for the code.',
+            message ?? 'Level $level done! Ask your teacher for the code.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineSmall,
           ),

@@ -1,13 +1,18 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-enum BridgeState { open, cracked, built, broken, reinforced }
+/// [wobbly] is a complete bridge on dashed supports: the vehicle waits until
+/// it is [reinforced].
+enum BridgeState { open, cracked, built, wobbly, broken, reinforced }
 
 const _labels = {
   BridgeState.open: 'Bridge open',
   BridgeState.cracked: 'Bridge cracked',
   BridgeState.built: 'Bridge built',
+  BridgeState.wobbly: 'Bridge wobbly',
   BridgeState.broken: 'Bridge broken',
   BridgeState.reinforced: 'Bridge reinforced',
 };
@@ -37,7 +42,7 @@ class BridgeScene extends StatelessWidget {
   final String left;
   final String right;
 
-  /// Shown in the bridge once it is built or reinforced.
+  /// Shown in the bridge once it is complete (built, wobbly or reinforced).
   final String? placedWord;
 
   /// Fills a 64x48 slot centered over the missing bridge section. Hidden
@@ -48,6 +53,7 @@ class BridgeScene extends StatelessWidget {
   Widget build(BuildContext context) {
     final crossed =
         state == BridgeState.built || state == BridgeState.reinforced;
+    final complete = crossed || state == BridgeState.wobbly;
     final word = placedWord;
     return Center(
       child: ConstrainedBox(
@@ -102,7 +108,7 @@ class BridgeScene extends StatelessWidget {
                           child: Center(
                             child: SizedBox.fromSize(
                               size: _gapSize,
-                              child: crossed && word != null
+                              child: complete && word != null
                                   ? _PlacedWord(word)
                                   : gap,
                             ),
@@ -219,14 +225,19 @@ class _ScenePainter extends CustomPainter {
       thick,
     );
     switch (state) {
-      case BridgeState.built || BridgeState.reinforced:
+      case BridgeState.built || BridgeState.wobbly || BridgeState.reinforced:
         _plank(
           canvas,
           Rect.fromLTRB(left.left, deck, right.right, deck + thick),
           paint,
         );
-        if (state == BridgeState.reinforced) {
-          _supports(canvas, size, deck + thick);
+        if (state != BridgeState.built) {
+          _supports(
+            canvas,
+            size,
+            deck + thick,
+            dashed: state == BridgeState.wobbly,
+          );
         }
       case BridgeState.broken:
         _plank(canvas, left, paint, pivot: left.topLeft, angle: 0.8);
@@ -276,17 +287,41 @@ class _ScenePainter extends CustomPainter {
     );
   }
 
-  /// A V of braces under the deck, resting on a pillar in the river.
-  void _supports(Canvas canvas, Size size, double under) {
+  /// A V of braces under the deck, resting on a pillar in the river. Dashed
+  /// braces mean the bridge is not strong yet.
+  void _supports(
+    Canvas canvas,
+    Size size,
+    double under, {
+    bool dashed = false,
+  }) {
     final apex = Offset(size.width / 2, under + size.height * 0.1);
     final brace = Paint()
       ..color = AppColors.bridge
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(size.width * 0.3, under), apex, brace);
-    canvas.drawLine(Offset(size.width * 0.7, under), apex, brace);
-    canvas.drawLine(apex, Offset(apex.dx, size.height * _waterTop), brace);
+      // Round caps would close the gaps between the dashes.
+      ..strokeCap = dashed ? StrokeCap.butt : StrokeCap.round;
+    final lines = [
+      (Offset(size.width * 0.3, under), apex),
+      (Offset(size.width * 0.7, under), apex),
+      (apex, Offset(apex.dx, size.height * _waterTop)),
+    ];
+    for (final (from, to) in lines) {
+      if (!dashed) {
+        canvas.drawLine(from, to, brace);
+        continue;
+      }
+      final path = Path()
+        ..moveTo(from.dx, from.dy)
+        ..lineTo(to.dx, to.dy);
+      for (final metric in path.computeMetrics()) {
+        for (var at = 0.0; at < metric.length; at += 12) {
+          final end = math.min(at + 6, metric.length);
+          canvas.drawPath(metric.extractPath(at, end), brace);
+        }
+      }
+    }
   }
 
   @override

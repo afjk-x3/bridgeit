@@ -14,7 +14,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Choose a level'), findsOneWidget);
-    expect(find.text('Level 3 is coming soon'), findsNothing);
+    expect(find.textContaining('LEVEL 3'), findsNothing);
   });
 
   testWidgets('unlocked level opens its route', (tester) async {
