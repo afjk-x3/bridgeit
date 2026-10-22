@@ -5,6 +5,7 @@ import 'content/models.dart';
 import 'progress/progress_store.dart';
 import 'screens/intro_screen.dart';
 import 'screens/level1_screen.dart';
+import 'screens/level2_screen.dart';
 import 'screens/level_menu_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -29,9 +30,9 @@ class BridgeItApp extends StatelessWidget {
           '/': (_) => const IntroScreen(),
           '/levels': (_) => const LevelMenuScreen(),
           '/level/1': (_) => const Level1Screen(),
-          // Tasks 7 and 8 replace these placeholders with the real levels.
-          for (final level in [2, 3])
-            '/level/$level': (_) => _ComingSoonScreen(level: level),
+          '/level/2': (_) => const Level2Screen(),
+          // Task 8 replaces this placeholder with the real level.
+          '/level/3': (_) => const _ComingSoonScreen(level: 3),
         },
       ),
     );
