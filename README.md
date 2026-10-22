@@ -47,6 +47,5 @@ Create a keystore and `android/key.properties` (`storeFile`, `storePassword`, `k
 
 - [Project notes](docs/PROJECT_NOTES.md): decisions, palette, open questions, next steps
 - [Phase 1 plan](docs/plans/2026-10-22-phase1.md)
-- Client documents: [PRD](docs/client/BridgeIt-PRD.pdf), [wireframes](docs/client/BridgeIt-Wireframes.pdf)
 
 Fonts: Nunito and Abril Fatface, under the SIL Open Font License (`assets/fonts/*-OFL.txt`).
