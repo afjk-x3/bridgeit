@@ -23,12 +23,7 @@ class IntroScreen extends StatelessWidget {
                   semanticsLabel: 'BridgeIt lotus logo',
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'BridgeIt',
-                  style: text.displaySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text('BridgeIt', style: text.displaySmall),
                 const SizedBox(height: 24),
                 Card(
                   color: AppColors.card,

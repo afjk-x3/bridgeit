@@ -28,6 +28,11 @@ ThemeData buildAppTheme() {
   );
   return ThemeData(
     colorScheme: scheme,
+    fontFamily: 'Nunito',
+    // The wordmark style; AbrilFatface has no bold, so never add fontWeight to it.
+    textTheme: const TextTheme(
+      displaySmall: TextStyle(fontFamily: 'AbrilFatface'),
+    ),
     scaffoldBackgroundColor: AppColors.sky,
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
