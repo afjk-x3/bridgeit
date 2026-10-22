@@ -5,6 +5,8 @@ gradle-wrapper.jar
 /gradlew.bat
 /local.properties
 GeneratedPluginRegistrant.java
+# Written by Android Studio's Gradle sync; Flutter picks the JDK itself.
+/gradle/gradle-daemon-jvm.properties
 .cxx/
 
 # Remember to never publicly share your keystore.
