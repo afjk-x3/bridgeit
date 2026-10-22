@@ -1,45 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
+import 'content/models.dart';
+import 'progress/progress_store.dart';
+import 'screens/intro_screen.dart';
+import 'screens/level_menu_screen.dart';
 import 'theme/app_theme.dart';
 
 class BridgeItApp extends StatelessWidget {
-  const BridgeItApp({super.key, this.home});
+  const BridgeItApp({super.key, required this.content, required this.progress});
 
-  /// Replaced by named routes in Task 4.
-  final Widget? home;
+  final GameContent content;
+  final ProgressStore progress;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'BridgeIt',
-      debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(),
-      home: home ?? const _PlaceholderHome(),
+    return MultiProvider(
+      providers: [
+        Provider<GameContent>.value(value: content),
+        ChangeNotifierProvider<ProgressStore>.value(value: progress),
+      ],
+      child: MaterialApp(
+        title: 'BridgeIt',
+        debugShowCheckedModeBanner: false,
+        theme: buildAppTheme(),
+        routes: {
+          '/': (_) => const IntroScreen(),
+          '/levels': (_) => const LevelMenuScreen(),
+          // Tasks 5, 7 and 8 replace these placeholders with the real levels.
+          for (final level in [1, 2, 3])
+            '/level/$level': (_) => _ComingSoonScreen(level: level),
+        },
+      ),
     );
   }
 }
 
-class _PlaceholderHome extends StatelessWidget {
-  const _PlaceholderHome();
+class _ComingSoonScreen extends StatelessWidget {
+  const _ComingSoonScreen({required this.level});
+
+  final int level;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              'assets/images/logo_placeholder.svg',
-              width: 230,
-              semanticsLabel: 'BridgeIt lotus logo',
-            ),
-            const SizedBox(height: 8),
-            Text('BridgeIt', style: Theme.of(context).textTheme.displaySmall),
-          ],
-        ),
-      ),
+      appBar: AppBar(),
+      body: Center(child: Text('Level $level is coming soon')),
     );
   }
 }
