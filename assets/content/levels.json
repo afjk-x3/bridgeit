@@ -1,0 +1,93 @@
+{
+  "_note": "PLACEHOLDER content until the client answers Q4, Q6, Q8.",
+  "unlockCodes": {
+    "2": "BRIDGE2",
+    "3": "BRIDGE3"
+  },
+  "level1": {
+    "audioAsset": null,
+    "verses": [
+      {
+        "title": "Verse 2: The FANBOYS",
+        "lines": [
+          "F is {for}, and A is {and},",
+          "N is {nor}, now understand!",
+          "B is {but}, O is {or},",
+          "Y is {yet}, S is {so}!"
+        ]
+      },
+      {
+        "title": "Verse 3: Build the Bridge",
+        "lines": [
+          "{And} adds ideas, {but} contrasts,",
+          "{Or} gives choices, make them last!",
+          "{So} shows results, {for} gives a reason,",
+          "{Nor} and {yet} have roles to reason!"
+        ]
+      }
+    ]
+  },
+  "level2": {
+    "maxWrongAnswers": 3,
+    "sentences": [
+      {
+        "left": "I'm very tired,",
+        "right": "I will sleep.",
+        "answers": ["so"],
+        "hints": {
+          "but": "\"But\" shows a contrast, but sleeping is a result of being tired.",
+          "for": "\"For\" gives a reason, but sleeping is not the reason you are tired."
+        },
+        "defaultHint": "That word doesn't connect these ideas. Think about how they relate."
+      },
+      {
+        "left": "I studied for hours,",
+        "right": "I still felt nervous.",
+        "answers": ["but", "yet"],
+        "hints": {
+          "so": "\"So\" shows a result, but feeling nervous is not a result of studying.",
+          "and": "\"And\" adds a similar idea, but these two ideas clash."
+        },
+        "defaultHint": "Do these two ideas agree, or do they clash? Pick the word that fits."
+      },
+      {
+        "left": "I can walk to school,",
+        "right": "I can take the bus.",
+        "answers": ["or"],
+        "hints": {
+          "and": "\"And\" adds one more idea, but here you can only pick one way to go.",
+          "but": "\"But\" shows a contrast, but these are not opposites. They are two options."
+        },
+        "defaultHint": "Look at the two ideas again. Is it adding, contrasting, or giving a choice?"
+      }
+    ]
+  },
+  "level3": {
+    "maxWrongAnswers": 3,
+    "sentences": [
+      {
+        "left": "I'm very tired,",
+        "right": "I will sleep.",
+        "answers": ["so"],
+        "hints": {
+          "but": "\"But\" shows a contrast, but sleeping is a result of being tired."
+        },
+        "defaultHint": "That word doesn't connect these ideas. Think about how they relate.",
+        "synonymChoices": ["therefore", "however", "also", "or else"],
+        "synonymAnswer": "therefore"
+      },
+      {
+        "left": "I like pizza,",
+        "right": "I don't like onions.",
+        "answers": ["but"],
+        "hints": {
+          "so": "\"So\" shows a result, but not liking onions is not a result of liking pizza.",
+          "and": "\"And\" adds a similar idea, but these two ideas clash."
+        },
+        "defaultHint": "Do these two ideas agree, or do they clash? Pick the word that fits.",
+        "synonymChoices": ["however", "therefore", "also", "otherwise"],
+        "synonymAnswer": "however"
+      }
+    ]
+  }
+}
