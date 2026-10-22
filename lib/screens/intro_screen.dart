@@ -31,7 +31,7 @@ class IntroScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Card(
-                  color: Colors.white,
+                  color: AppColors.card,
                   margin: EdgeInsets.zero,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),

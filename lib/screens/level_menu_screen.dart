@@ -83,7 +83,7 @@ class _LevelCard extends StatelessWidget {
         ? (Icons.check_circle, 'Completed')
         : (Icons.lock_open, 'Unlocked');
     return Card(
-      color: Colors.white,
+      color: AppColors.card,
       margin: const EdgeInsets.only(bottom: 12),
       shape: _cardShape,
       clipBehavior: Clip.antiAlias,
@@ -99,7 +99,7 @@ class _LevelCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.card,
                   child: Text('$level'),
                 ),
                 const SizedBox(width: 16),
@@ -186,7 +186,7 @@ class _CodeSectionState extends State<_CodeSection> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white,
+      color: AppColors.card,
       margin: EdgeInsets.zero,
       shape: _cardShape,
       child: Padding(

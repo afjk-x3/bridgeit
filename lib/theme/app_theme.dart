@@ -13,6 +13,8 @@ abstract final class AppColors {
   static const vehicle = Color(0xFFF59E0B);
   static const correct = Color(0xFF22C55E);
   static const wrong = Color(0xFFDC2626);
+  // White surfaces (cards) and text on dark fills.
+  static const card = Color(0xFFFFFFFF);
 }
 
 ThemeData buildAppTheme() {
@@ -30,7 +32,7 @@ ThemeData buildAppTheme() {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: AppColors.ink,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.card,
         minimumSize: const Size.fromHeight(56),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
