@@ -8,6 +8,7 @@ import '../theme/app_theme.dart';
 import '../widgets/bridge_scene.dart';
 import '../widgets/conjunction_piece.dart';
 import '../widgets/hint_card.dart';
+import '../widgets/level_done_panel.dart';
 
 /// Level 2: drag the right conjunction into the gap to build the bridge.
 class Level2Screen extends StatefulWidget {
@@ -85,7 +86,7 @@ class _Level2ScreenState extends State<Level2Screen> {
       appBar: AppBar(),
       body: SafeArea(
         child: _done
-            ? const _DonePanel()
+            ? const LevelDonePanel(level: 2)
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
@@ -102,6 +103,8 @@ class _Level2ScreenState extends State<Level2Screen> {
                   ),
                   const SizedBox(height: 12),
                   BridgeScene(
+                    // New sentence, new scene: the vehicle must not drive back.
+                    key: ValueKey(_index),
                     state: _bridgeState,
                     left: _sentence.left,
                     right: _sentence.right,
@@ -243,35 +246,6 @@ class _Level2ScreenState extends State<Level2Screen> {
                 setState(() => _selected = _selected == word ? null : word),
           ),
       ],
-    );
-  }
-}
-
-class _DonePanel extends StatelessWidget {
-  const _DonePanel();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Icon(Icons.check_circle, size: 72, color: AppColors.correct),
-          const SizedBox(height: 16),
-          Text(
-            'Level 2 done! Ask your teacher for the code.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 24),
-          FilledButton(
-            onPressed: () => Navigator.maybePop(context),
-            child: const Text('Back to levels'),
-          ),
-        ],
-      ),
     );
   }
 }

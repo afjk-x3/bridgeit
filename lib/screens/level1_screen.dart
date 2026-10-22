@@ -5,6 +5,7 @@ import '../content/models.dart';
 import '../game/blanks_round.dart';
 import '../progress/progress_store.dart';
 import '../theme/app_theme.dart';
+import '../widgets/level_done_panel.dart';
 import '../widgets/song_player.dart';
 
 /// Level 1: listen to the song, then fill the FANBOYS words into its lyrics.
@@ -71,7 +72,7 @@ class _Level1ScreenState extends State<Level1Screen> {
       appBar: AppBar(title: const Text('Level 1')),
       body: SafeArea(
         child: _done
-            ? const _DonePanel()
+            ? const LevelDonePanel(level: 1)
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
@@ -273,35 +274,6 @@ class _Tile extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _DonePanel extends StatelessWidget {
-  const _DonePanel();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Icon(Icons.check_circle, size: 72, color: AppColors.correct),
-          const SizedBox(height: 16),
-          Text(
-            'Level 1 done! Ask your teacher for the code.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 24),
-          FilledButton(
-            onPressed: () => Navigator.maybePop(context),
-            child: const Text('Back to levels'),
-          ),
-        ],
       ),
     );
   }

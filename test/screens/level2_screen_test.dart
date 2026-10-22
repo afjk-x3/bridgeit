@@ -221,6 +221,25 @@ void main() {
     expect(find.byIcon(Icons.lightbulb), findsNothing);
   });
 
+  testWidgets('the next sentence starts with the vehicle on the left cliff', (
+    tester,
+  ) async {
+    await _openLevel2(tester);
+    final car = find.descendant(
+      of: find.byType(AnimatedAlign),
+      matching: find.byType(CustomPaint),
+    );
+    final sceneCenter = tester.getCenter(find.byType(BridgeScene)).dx;
+    final answer = _content(tester).sentences.first.answers.first;
+    await _tapPlace(tester, answer);
+    expect(tester.getCenter(car).dx, greaterThan(sceneCenter));
+
+    await tester.tap(find.text('Next sentence'));
+    await tester.pump(); // one frame: no time for a drive back across the gap
+
+    expect(tester.getCenter(car).dx, lessThan(sceneCenter));
+  });
+
   testWidgets('finishing all sentences marks level 2 completed', (
     tester,
   ) async {
