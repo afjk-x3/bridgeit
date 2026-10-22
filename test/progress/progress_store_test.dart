@@ -45,6 +45,17 @@ void main() {
     expect(store.isUnlocked(3), isFalse);
   });
 
+  test('blank code in the map never unlocks', () {
+    final store = ProgressStore(prefs, const {2: '', 3: '  '});
+    expect(store.tryUnlock(2, ''), isFalse);
+    expect(store.tryUnlock(2, '   '), isFalse);
+    expect(store.tryUnlock(3, ''), isFalse);
+    expect(store.tryUnlock(3, '  '), isFalse);
+    expect(store.isUnlocked(2), isFalse);
+    expect(store.isUnlocked(3), isFalse);
+    expect(prefs.getStringList('unlocked_levels'), isNull);
+  });
+
   test('level 1 and out-of-range levels are not unlockable or writable', () {
     final store = ProgressStore(prefs, codes);
     expect(store.tryUnlock(1, 'anything'), isFalse);

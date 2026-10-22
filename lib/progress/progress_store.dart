@@ -35,7 +35,9 @@ class ProgressStore extends ChangeNotifier {
   bool tryUnlock(int level, String code) {
     final expected = _unlockCodes[level];
     if (level == 1 || !_validLevel(level) || expected == null) return false;
-    if (_normalize(code) != _normalize(expected)) return false;
+    final want = _normalize(expected);
+    // A blank configured code means "no code": never unlockable.
+    if (want.isEmpty || _normalize(code) != want) return false;
     if (!_unlocked.add(level)) return false;
     _prefs.setStringList(_unlockedKey, _sorted(_unlocked));
     notifyListeners();
