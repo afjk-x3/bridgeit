@@ -54,7 +54,9 @@ void main() {
     expect(find.text('Play level 2'), findsNothing);
   });
 
-  testWidgets('code only unlocks the lowest locked level', (tester) async {
+  testWidgets('a level 3 code unlocks level 3 while level 2 stays locked', (
+    tester,
+  ) async {
     await pumpApp(tester);
     await openMenu(tester);
 
@@ -62,8 +64,30 @@ void main() {
     await tester.tap(find.text('Unlock'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Play level 3'), findsOneWidget);
+    expect(find.text('Play level 2'), findsNothing);
+    expect(find.text('Level 3 unlocked!'), findsOneWidget);
+    expect(find.text(wrongCode), findsNothing);
+    expect(find.byType(TextField), findsOneWidget);
+  });
+
+  testWidgets('a code for an already unlocked level is reported as wrong', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      prefs: {
+        'unlocked_levels': ['2'],
+      },
+    );
+    await openMenu(tester);
+
+    await tester.enterText(find.byType(TextField), 'BRIDGE2');
+    await tester.tap(find.text('Unlock'));
+    await tester.pumpAndSettle();
+
     expect(find.text(wrongCode), findsOneWidget);
-    expect(find.text('Play level 3'), findsNothing);
+    expect(find.text('Level 2 unlocked!'), findsNothing);
   });
 
   testWidgets('code section is hidden once levels 2 and 3 are unlocked', (

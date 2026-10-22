@@ -16,8 +16,7 @@ class LevelMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = context.watch<ProgressStore>();
-    // A code always targets the lowest locked level; null when none is left.
-    final nextLocked = [2, 3].where((l) => !progress.isUnlocked(l)).firstOrNull;
+    final anyLocked = [2, 3].any((l) => !progress.isUnlocked(l));
     return Scaffold(
       body: SafeArea(
         child: ListView(
@@ -48,7 +47,7 @@ class LevelMenuScreen extends StatelessWidget {
                 locked: !progress.isUnlocked(level),
                 completed: progress.isCompleted(level),
               ),
-            if (nextLocked != null) _CodeSection(level: nextLocked),
+            if (anyLocked) const _CodeSection(),
           ],
         ),
       ),
@@ -151,9 +150,7 @@ class _LevelCard extends StatelessWidget {
 }
 
 class _CodeSection extends StatefulWidget {
-  const _CodeSection({required this.level});
-
-  final int level;
+  const _CodeSection();
 
   @override
   State<_CodeSection> createState() => _CodeSectionState();
@@ -170,17 +167,21 @@ class _CodeSectionState extends State<_CodeSection> {
   }
 
   void _submit() {
-    final level = widget.level;
     final messenger = ScaffoldMessenger.of(context);
-    final unlocked = context.read<ProgressStore>().tryUnlock(
-      level,
-      _controller.text,
-    );
-    if (unlocked) {
+    final progress = context.read<ProgressStore>();
+    // Try the code against each locked level, lowest first; first match wins.
+    int? level;
+    for (final l in [2, 3]) {
+      if (!progress.isUnlocked(l) && progress.tryUnlock(l, _controller.text)) {
+        level = l;
+        break;
+      }
+    }
+    if (level != null) {
       _controller.clear();
       messenger.showSnackBar(SnackBar(content: Text('Level $level unlocked!')));
     }
-    setState(() => _failed = !unlocked);
+    setState(() => _failed = level == null);
   }
 
   @override
