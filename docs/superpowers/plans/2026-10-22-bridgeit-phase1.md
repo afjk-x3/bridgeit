@@ -125,7 +125,7 @@ Fill Level 1 with Verses 2 and 3 of the client's lyrics (from the Canva PDF), wi
 - Consumes: `GameContent`, `ProgressStore`, `loadGameContent`, `ContentException`.
 - Produces: named routes `/` (intro), `/levels`, `/level/1`, `/level/2`, `/level/3`. `BridgeItApp({required GameContent content, required ProgressStore progress})` provides both with `MultiProvider`. `ContentErrorScreen({required String message})` is shown by `main()` when loading throws `ContentException`. Level screens are pushed by route, and each calls `context.read<ProgressStore>().markCompleted(n)` when finished.
 
-Layout follows `BridgeIt-Wireframes.pdf` screens 1–2. On the intro, a "[Character art]" placeholder box, the client's greeting text, and a "Let's start" button that goes to `/levels`. The menu has three level cards (done / unlocked / locked with "Ask your teacher for the code") and a code field with an "Unlock" button. Which level a code unlocks: the lowest locked level.
+Layout follows `BridgeIt-Wireframes.pdf` screens 1–2. On the intro, a "[Character art]" placeholder box, the client's greeting text, and a "Let's start" button that goes to `/levels`. The menu has three level cards (done / unlocked / locked with "Ask your teacher for the code") and a code field with an "Unlock" button. Which level a code unlocks: the entered code is tried against every locked level in ascending order; the first match unlocks (amended after the final review so a valid level 3 code works while level 2 is still locked).
 
 - [ ] **Step 1: Write failing widget tests:**
   - `locked level cannot be opened`: tapping the Level 3 card stays on the menu.

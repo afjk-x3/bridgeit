@@ -39,7 +39,7 @@ Last updated: 22 October 2026
     - `flutter_lints` and `flutter_test` (both default)
   - Built-in `Draggable`/`DragTarget` and Flutter animations. No Rive or Lottie unless the client's art needs it.
   - Fonts Nunito and Abril Fatface bundled as asset TTFs (works offline; no `google_fonts` package).
-  - `assets/levels.json` for sentences, answers, hints, synonyms, attempt limits and codes.
+  - `assets/content/levels.json` for sentences, answers, hints, synonyms, attempt limits and codes.
   - Release: `flutter build apk --release`, signed with a keystore. `key.jks` and `key.properties` stay out of git and are copied to the other machine by hand.
   - Testing on a real Android phone over USB. The emulator is optional.
   - Not needed: Visual Studio, Xcode.
@@ -49,6 +49,7 @@ Last updated: 22 October 2026
   - winget can't upgrade Android Studio on this PC. Use the official installer from the winget manifest URL and check its SHA256.
 - **Backend:** none for now. If the researchers want results logged, choose between Supabase and Firebase later. Keep attempt logging behind one small interface.
 - **Wrong answer:** the bridge cracks and a short hint explains why. Level 1 allows unlimited retries. The Level 2–3 attempt limit is pending, and the user is asking the client.
+- **Unlock codes:** the teacher codes are in `assets/content/levels.json` (`unlockCodes`, placeholders). Level 1 is always open. The code field tries the entered code against every locked level, lowest first, and the first match unlocks. A level 3 code therefore works while level 2 is still locked. A code for a level that is already unlocked counts as wrong. Codes ignore case and surrounding spaces.
 - **Level 1 input:** tap a word, then tap a blank. This is our proposal; the brief says "type or select".
 - **Audio:** the client will supply the song later. Use a placeholder until then.
 - **Our proposals, not confirmed:** works offline with no login, and a mute button.
@@ -95,7 +96,7 @@ Last updated: 22 October 2026
 - Waiting on client answers.
 - **App repo:** `C:\Users\garaz\Documents\bridgeit` (GitHub `afjk-x3/bridgeit`), work branch `setup/flutter-scaffold`.
 - **Plan:** `docs/superpowers/plans/2026-10-22-bridgeit-phase1.md`, 9 tasks.
-- **Task 1 done (not committed yet):** Flutter project (`com.bridgeit.bridgeit`, Android only), packages, portrait lock, `AppColors` placeholder theme, placeholder lotus logo and smoke test. `flutter analyze` is clean, the test passes, and the debug APK builds. The first Gradle build auto-installed SDK Platform 35, which Flutter's default compileSdk uses.
+- **Phase 1 is implemented on branch `setup/flutter-scaffold` (not merged yet):** all 3 levels, the unlock flow, bundled fonts and the release build config. `flutter test` runs 89 tests, all passing, `flutter analyze` is clean and the debug APK builds. The app has not been run on a real phone yet. Content in `assets/content/levels.json` is placeholder until the client answers. The first Gradle build auto-installed SDK Platform 35, which Flutter's default compileSdk uses.
 - The ProBook setup is not verified yet.
 
 ## Client answers so far
@@ -129,10 +130,33 @@ Also pending: confirming the meanings in Section 8 (nor = "adds a second not ide
 
 ## Next steps
 
-1. When the client answers, update the PRD (HTML, then regenerate the PDF; DOCX via the script) and the wireframes if needed.
-2. Get the PRD approved. The brainstorming hard gate applies: no app code before approval.
-3. Then write the implementation plan (superpowers:writing-plans).
-4. Run `flutter doctor` and scaffold the Flutter project in a real project folder, not this scratch folder.
+1. Review and merge `setup/flutter-scaffold`.
+2. Do the device check on a real phone:
+   - a 360×640 phone: Next/Finish visible after a correct answer; Level 1 word bank vs blanks
+   - dragging a piece while the list can scroll
+   - Nunito weights render
+   - OS text scale 1.3×
+   - Android back gesture during a drag
+   - TalkBack on the level cards and bridge
+3. Before any APK leaves the dev machine: settle `applicationId` (currently `com.bridgeit.bridgeit`), create the release keystore, and write `android/key.properties` with `storeFile`, `storePassword`, `keyAlias` and `keyPassword`.
+   - Never commit the keystore or `key.properties`.
+   - An incomplete `key.properties` fails every build.
+   - Without `key.properties` the release build is signed with the debug key (Gradle prints a warning). Debug-signed APKs from the PC and the laptop can't update each other.
+4. When the client sends the song: put it in `assets/audio/` and set `level1.audioAsset` in `levels.json`.
+5. When the client answers Q4/Q5/Q6/Q8: edit `assets/content/levels.json`. Swap the placeholder sentence "I studied for hours," (it uses `for` as a preposition).
+6. When the final logo and colors arrive, change only `AppColors` in `lib/theme/app_theme.dart` and replace `assets/images/logo_placeholder.svg`.
+7. When the client answers, also update the PRD (HTML, then regenerate the PDF; DOCX via the script) and the wireframes if needed.
+
+## Commands
+
+Run these in the repo root (`C:UsersgarazDocumentsridgeit`):
+
+```
+flutter test
+flutter analyze
+flutter build apk --release
+flutter build apk --release --split-per-abi   # smaller APKs, one per CPU type
+```
 
 ## Environment notes (Windows)
 
