@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import '../content/models.dart';
 import '../game/bridge_round.dart';
 import '../progress/progress_store.dart';
-import '../theme/app_theme.dart';
+import '../widgets/bridge_gap.dart';
 import '../widgets/bridge_scene.dart';
-import '../widgets/conjunction_piece.dart';
 import '../widgets/hint_card.dart';
 import '../widgets/level_done_panel.dart';
+import '../widgets/piece_tray.dart';
+import '../widgets/strength_bar.dart';
 
 /// Level 2: drag the right conjunction into the gap to build the bridge.
 class Level2Screen extends StatefulWidget {
@@ -109,14 +110,24 @@ class _Level2ScreenState extends State<Level2Screen> {
                     left: _sentence.left,
                     right: _sentence.right,
                     placedWord: _placed,
-                    gap: _buildGap(),
+                    gap: BridgeGap(selected: _selected, onDrop: _drop),
                   ),
                   const SizedBox(height: 12),
-                  _buildStrength(context),
+                  StrengthBar(
+                    wrongCount: _round.wrongCount,
+                    max: _content.maxWrongAnswers,
+                  ),
                   const SizedBox(height: 12),
                   _buildFeedback(),
                   const SizedBox(height: 12),
-                  _buildPieces(),
+                  PieceTray(
+                    enabled: !_round.isBuilt && !_round.isBroken,
+                    tried: _round.triedWrong,
+                    selected: _selected,
+                    onToggle: (word) => setState(
+                      () => _selected = _selected == word ? null : word,
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   if (_round.isBroken)
                     FilledButton(
@@ -134,73 +145,6 @@ class _Level2ScreenState extends State<Level2Screen> {
                     ),
                 ],
               ),
-      ),
-    );
-  }
-
-  Widget _buildGap() {
-    return DragTarget<String>(
-      onAcceptWithDetails: (details) => _drop(details.data),
-      builder: (context, hovering, _) => Semantics(
-        button: true,
-        label: 'Gap in the bridge',
-        excludeSemantics: true,
-        onTap: _selected == null ? null : () => _drop(_selected!),
-        child: GestureDetector(
-          key: const ValueKey('gap'),
-          onTap: _selected == null ? null : () => _drop(_selected!),
-          child: Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: hovering.isNotEmpty || _selected != null
-                    ? AppColors.accent
-                    : AppColors.ink.withValues(alpha: 0.5),
-                width: 3,
-              ),
-            ),
-            child: const Text(
-              '?',
-              style: TextStyle(
-                color: AppColors.ink,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Brown segments for the strength left, red for what wrong guesses cost.
-  Widget _buildStrength(BuildContext context) {
-    final max = _content.maxWrongAnswers;
-    final left = max - _round.wrongCount;
-    return Semantics(
-      label: 'Bridge strength, $left of $max',
-      excludeSemantics: true,
-      child: Row(
-        children: [
-          Text(
-            'Bridge strength',
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
-          const SizedBox(width: 12),
-          for (var i = 0; i < max; i++)
-            Container(
-              key: ValueKey('strength-$i'),
-              width: 32,
-              height: 14,
-              margin: const EdgeInsets.only(right: 4),
-              decoration: BoxDecoration(
-                color: i < left ? AppColors.bridge : AppColors.wrong,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-        ],
       ),
     );
   }
@@ -226,26 +170,6 @@ class _Level2ScreenState extends State<Level2Screen> {
       text:
           'Which conjunction connects these two clauses? '
           'Drag a piece into the gap.',
-    );
-  }
-
-  Widget _buildPieces() {
-    final playing = !_round.isBuilt && !_round.isBroken;
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final word in fanboys)
-          ConjunctionPiece(
-            key: ValueKey('piece-$word'),
-            word: word,
-            enabled: playing && !_round.triedWrong.contains(word),
-            selected: _selected == word,
-            onTap: () =>
-                setState(() => _selected = _selected == word ? null : word),
-          ),
-      ],
     );
   }
 }
