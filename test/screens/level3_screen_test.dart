@@ -264,7 +264,8 @@ void main() {
     expect(find.text(_noMatch(answer)), findsOneWidget);
     expect(find.byIcon(Icons.lightbulb), findsOneWidget);
     expect(find.text(_question(answer)), findsOneWidget);
-    await _expectBridge(tester, 'Bridge wobbly');
+    // Every wrong answer cracks the bridge, also on the complete deck.
+    await _expectBridge(tester, 'Bridge wobbly and cracked');
     expect(_carX(tester), -1);
     expect(_choiceEnabled(tester, wrong), isFalse);
     expect(_choiceEnabled(tester, sentence.synonymAnswer!), isTrue);
@@ -410,5 +411,45 @@ void main() {
     expect(find.text('but'), findsOneWidget);
     expect(find.byKey(const ValueKey('scene-gap')), findsNothing);
     expect(_carX(tester), -1);
+  });
+
+  testWidgets('BridgeScene draws crack strokes on a cracked wobbly deck', (
+    tester,
+  ) async {
+    Future<void> pumpScene({required bool cracked}) => tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: BridgeScene(
+            state: BridgeState.wobbly,
+            cracked: cracked,
+            left: 'It was raining,',
+            right: 'we went out.',
+            placedWord: 'but',
+            gap: const SizedBox(),
+          ),
+        ),
+      ),
+    );
+    final backdrop = find
+        .descendant(
+          of: find.byType(BridgeScene),
+          matching: find.byType(CustomPaint),
+        )
+        .first;
+    // The dashed braces are paths too, so scan for one in the wrong color.
+    PaintPattern crack() => paints
+      ..something(
+        (method, args) =>
+            method == #drawPath &&
+            (args[1] as Paint).color.toARGB32() == AppColors.wrong.toARGB32(),
+      );
+
+    await pumpScene(cracked: false);
+    await _expectBridge(tester, 'Bridge wobbly');
+    expect(tester.renderObject(backdrop), isNot(crack()));
+
+    await pumpScene(cracked: true);
+    await _expectBridge(tester, 'Bridge wobbly and cracked');
+    expect(tester.renderObject(backdrop), crack());
   });
 }

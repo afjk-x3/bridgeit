@@ -147,6 +147,7 @@ class _Level3ScreenState extends State<Level3Screen> {
                     // New sentence, new scene: the vehicle must not drive back.
                     key: ValueKey(_index),
                     state: _bridgeState,
+                    cracked: _synonyms.triedWrong.isNotEmpty,
                     left: _sentence.left,
                     right: _sentence.right,
                     placedWord: _placed,

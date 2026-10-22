@@ -36,9 +36,13 @@ class BridgeScene extends StatelessWidget {
     required this.right,
     required this.gap,
     this.placedWord,
+    this.cracked = false,
   });
 
   final BridgeState state;
+
+  /// Adds crack strokes to a [BridgeState.wobbly] deck (a wrong synonym).
+  final bool cracked;
   final String left;
   final String right;
 
@@ -55,6 +59,7 @@ class BridgeScene extends StatelessWidget {
         state == BridgeState.built || state == BridgeState.reinforced;
     final complete = crossed || state == BridgeState.wobbly;
     final word = placedWord;
+    final crackedDeck = cracked && state == BridgeState.wobbly;
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
@@ -63,7 +68,7 @@ class BridgeScene extends StatelessWidget {
           child: Semantics(
             container: true,
             explicitChildNodes: true,
-            label: _labels[state],
+            label: crackedDeck ? 'Bridge wobbly and cracked' : _labels[state],
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
@@ -86,7 +91,9 @@ class BridgeScene extends StatelessWidget {
                   return Stack(
                     children: [
                       Positioned.fill(
-                        child: CustomPaint(painter: _ScenePainter(state)),
+                        child: CustomPaint(
+                          painter: _ScenePainter(state, cracked: crackedDeck),
+                        ),
                       ),
                       Positioned(
                         left: 8,
@@ -194,9 +201,10 @@ class _PlacedWord extends StatelessWidget {
 }
 
 class _ScenePainter extends CustomPainter {
-  _ScenePainter(this.state);
+  _ScenePainter(this.state, {this.cracked = false});
 
   final BridgeState state;
+  final bool cracked;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -238,6 +246,10 @@ class _ScenePainter extends CustomPainter {
             deck + thick,
             dashed: state == BridgeState.wobbly,
           );
+        }
+        if (cracked) {
+          _crack(canvas, left.right, 1, deck, thick);
+          _crack(canvas, right.left, -1, deck, thick);
         }
       case BridgeState.broken:
         _plank(canvas, left, paint, pivot: left.topLeft, angle: 0.8);
@@ -325,7 +337,8 @@ class _ScenePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ScenePainter old) => old.state != state;
+  bool shouldRepaint(_ScenePainter old) =>
+      old.state != state || old.cracked != cracked;
 }
 
 class _CarPainter extends CustomPainter {
