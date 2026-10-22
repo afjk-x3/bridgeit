@@ -9,7 +9,7 @@ import '../widgets/hint_card.dart';
 import '../widgets/level_done_panel.dart';
 import '../widgets/song_player.dart';
 
-/// Level 1: listen to the song, then fill the FANBOYS words into its lyrics.
+/// Level 1: listen to the song, then type the FANBOYS words into its lyrics.
 class Level1Screen extends StatefulWidget {
   const Level1Screen({super.key});
 
@@ -20,12 +20,12 @@ class Level1Screen extends StatefulWidget {
 class _Level1ScreenState extends State<Level1Screen> {
   late final Level1Content _content;
   late final BlanksRound _round;
+  final _fields = <int, TextEditingController>{};
+  final _focus = <int, FocusNode>{};
   int _verse = 0;
-  String? _selected;
-  // The blank that just got a wrong word; drives the red flash and the hint.
+  // The blank that just got a wrong word; drives the red outline and the hint.
   int? _wrongBlank;
-  // The "Tap a word, then tap a blank." instruction shows until a placement
-  // is first attempted.
+  // The instruction shows until the student first types.
   bool _attempted = false;
   bool _done = false;
 
@@ -36,20 +36,31 @@ class _Level1ScreenState extends State<Level1Screen> {
     _round = BlanksRound(_content.verses);
   }
 
-  void _selectWord(String word) => setState(() {
-    _selected = word;
-    _wrongBlank = null;
-  });
+  @override
+  void dispose() {
+    for (final c in _fields.values) {
+      c.dispose();
+    }
+    for (final f in _focus.values) {
+      f.dispose();
+    }
+    super.dispose();
+  }
 
-  void _tapBlank(int blank) {
-    final word = _selected;
-    if (word == null) return;
+  /// Judges a blank as soon as its text is a whole FANBOYS word; part of a
+  /// word gets no verdict yet (no FANBOYS word is a prefix of another).
+  void _typed(int blank, String text) {
+    final word = text.trim().toLowerCase();
     setState(() {
       _attempted = true;
+      if (!fanboys.contains(word)) {
+        if (_wrongBlank == blank) _wrongBlank = null;
+        return;
+      }
       switch (_round.place(blank, word)) {
         case BlankResult.correct:
-          _selected = null;
           _wrongBlank = null;
+          _focusNextBlank(blank);
         case BlankResult.wrong:
           _wrongBlank = blank;
         case BlankResult.alreadyFilled:
@@ -58,11 +69,36 @@ class _Level1ScreenState extends State<Level1Screen> {
     });
   }
 
+  /// Pressing Enter on something that isn't a FANBOYS word counts as wrong.
+  void _submitted(int blank, String text) {
+    final word = text.trim().toLowerCase();
+    if (word.isEmpty || fanboys.contains(word)) return;
+    setState(() => _wrongBlank = blank);
+  }
+
+  /// Moves to the next empty blank of this verse, or closes the keyboard so
+  /// the "Next verse" / "Finish" button is visible.
+  void _focusNextBlank(int blank) {
+    final end = _round.verseStart(_verse) + _verseBlankCount(_verse);
+    for (var b = blank + 1; b < end; b++) {
+      if (_round.filledAt(b) == null) {
+        _focus[b]?.requestFocus();
+        return;
+      }
+    }
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  int _verseBlankCount(int verse) => _content.verses[verse].lines
+      .expand((line) => line)
+      .whereType<BlankPart>()
+      .length;
+
   Future<void> _next() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     if (_verse < _content.verses.length - 1) {
       setState(() {
         _verse++;
-        _selected = null;
         _wrongBlank = null;
       });
       return;
@@ -74,6 +110,7 @@ class _Level1ScreenState extends State<Level1Screen> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final title = _content.verses[_verse].title;
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -83,7 +120,8 @@ class _Level1ScreenState extends State<Level1Screen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   Text(
-                    'LEVEL 1 · VERSE ${_verse + 1} OF ${_content.verses.length}',
+                    // Same verse number as the card title below it.
+                    'LEVEL 1 · ${title.split(':').first.trim().toUpperCase()}',
                     style: text.labelLarge,
                   ),
                   Text(
@@ -111,6 +149,11 @@ class _Level1ScreenState extends State<Level1Screen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (_wrongBlank != null)
+          const HintCard(text: 'Not quite. Try again!', correct: false)
+        else if (!_attempted)
+          const HintCard.prompt(text: 'Type the missing word in each blank.'),
+        const SizedBox(height: 12),
         Card(
           color: AppColors.card,
           margin: EdgeInsets.zero,
@@ -147,27 +190,6 @@ class _Level1ScreenState extends State<Level1Screen> {
           ),
         ),
         const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final word in fanboys)
-              _Tile(
-                key: ValueKey('word-$word'),
-                label: word,
-                fill: _selected == word ? AppColors.primary : AppColors.card,
-                textColor: _selected == word ? AppColors.card : AppColors.ink,
-                border: AppColors.primary,
-                onTap: () => _selectWord(word),
-              ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        if (_wrongBlank != null)
-          const HintCard(text: 'Not quite. Try again!', correct: false)
-        else if (!_attempted)
-          const HintCard.prompt(text: 'Tap a word, then tap a blank.'),
-        const SizedBox(height: 12),
         FilledButton(
           onPressed: _round.isVerseComplete(_verse) ? _next : null,
           child: Text(last ? 'Finish' : 'Next verse'),
@@ -178,27 +200,50 @@ class _Level1ScreenState extends State<Level1Screen> {
 
   InlineSpan _blankSpan(int blank) {
     final filled = _round.filledAt(blank);
-    final wrong = _wrongBlank == blank;
     return WidgetSpan(
       alignment: PlaceholderAlignment.middle,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: _Tile(
-          key: ValueKey('blank-$blank'),
-          label: filled,
-          semanticLabel: 'Empty blank',
-          icon: filled == null ? null : Icons.check,
-          fill: filled == null
-              ? AppColors.sky
-              : AppColors.correct.withValues(alpha: 0.25),
-          textColor: AppColors.ink,
-          border: filled != null
-              ? AppColors.correct
-              : wrong
-              ? AppColors.wrong
-              : AppColors.primary,
-          // A filled blank is final; ignoring taps is the rules' alreadyFilled.
-          onTap: () => _tapBlank(blank),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        child: filled != null
+            ? _FilledBlank(key: ValueKey('blank-$blank'), word: filled)
+            : _blankField(blank),
+      ),
+    );
+  }
+
+  Widget _blankField(int blank) {
+    final wrong = _wrongBlank == blank;
+    OutlineInputBorder border(Color color) => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: color, width: 2),
+    );
+    return SizedBox(
+      width: 88,
+      height: 48,
+      child: TextField(
+        key: ValueKey('blank-$blank'),
+        controller: _fields.putIfAbsent(blank, TextEditingController.new),
+        focusNode: _focus.putIfAbsent(blank, FocusNode.new),
+        onChanged: (text) => _typed(blank, text),
+        onSubmitted: (text) => _submitted(blank, text),
+        autocorrect: false,
+        enableSuggestions: false,
+        textInputAction: TextInputAction.next,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: AppColors.ink,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: AppColors.sky,
+          hintText: '?',
+          semanticCounterText: '',
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          enabledBorder: border(wrong ? AppColors.wrong : AppColors.primary),
+          focusedBorder: border(wrong ? AppColors.wrong : AppColors.accent),
         ),
       ),
     );
@@ -221,70 +266,37 @@ class _StepTitle extends StatelessWidget {
   );
 }
 
-/// A tappable 48dp+ box: a bank word, or a lyric blank (empty or filled).
-class _Tile extends StatelessWidget {
-  const _Tile({
-    super.key,
-    required this.label,
-    required this.fill,
-    required this.textColor,
-    required this.border,
-    required this.onTap,
-    this.icon,
-    this.semanticLabel,
-  });
+/// A correctly filled blank: the word in green with a check. It is final.
+class _FilledBlank extends StatelessWidget {
+  const _FilledBlank({super.key, required this.word});
 
-  final String? label;
-  final String? semanticLabel;
-  final IconData? icon;
-  final Color fill;
-  final Color textColor;
-  final Color border;
-  final VoidCallback onTap;
+  final String word;
 
   @override
   Widget build(BuildContext context) {
-    final label = this.label;
-    return Semantics(
-      button: true,
-      label: label == null ? semanticLabel : null,
-      child: Material(
-        color: fill,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: border, width: 2),
-        ),
-        child: InkWell(
-          customBorder: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 72, minHeight: 48),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 20, color: AppColors.cliff),
-                    const SizedBox(width: 4),
-                  ],
-                  if (label != null)
-                    Text(
-                      label,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                ],
-              ),
+    return Container(
+      constraints: const BoxConstraints(minWidth: 72, minHeight: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppColors.correct.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.correct, width: 2),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.check, size: 20, color: AppColors.cliff),
+          const SizedBox(width: 4),
+          Text(
+            word,
+            style: const TextStyle(
+              color: AppColors.ink,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ),
+        ],
       ),
     );
   }

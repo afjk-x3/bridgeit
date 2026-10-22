@@ -96,8 +96,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Building the bridge'), findsOneWidget);
-    expect(find.text(first.left), findsOneWidget);
-    expect(find.text(first.right), findsOneWidget);
+    // One sentence card, the missing conjunction as an inline blank.
+    expect(
+      find.text('${first.left} _____ ${first.right}', findRichText: true),
+      findsOneWidget,
+    );
     expect(find.text(_prompt), findsOneWidget);
     expect(find.text('Bridge strength'), findsOneWidget);
     expect(find.text('Next sentence'), findsNothing);
@@ -121,6 +124,12 @@ void main() {
     expect(find.text(_prompt), findsNothing);
     expect(find.text('Next sentence'), findsOneWidget);
     await _expectBridge(tester, 'Bridge built');
+    // The sentence card now reads as one sentence with the word in its blank.
+    final first = _content(tester).sentences.first;
+    expect(
+      find.text('${first.left} $answer ${first.right}', findRichText: true),
+      findsOneWidget,
+    );
     // The word sits in the bridge, and the vehicle is on the far cliff.
     expect(
       find.descendant(
@@ -255,7 +264,10 @@ void main() {
         find.text('LEVEL 2 · SENTENCE ${i + 1} OF ${sentences.length}'),
         findsOneWidget,
       );
-      expect(find.text(sentences[i].left), findsOneWidget);
+      expect(
+        find.textContaining(sentences[i].left, findRichText: true),
+        findsOneWidget,
+      );
       // .last also exercises the second accepted answer where there is one.
       await _tapPlace(tester, sentences[i].answers.last);
       final last = i == sentences.length - 1;
@@ -298,7 +310,19 @@ void main() {
       await tester.pumpAndSettle();
 
       await _expectBridge(tester, label);
-      expect(find.text('It was raining,'), findsOneWidget);
+      // The sentence card fills its blank only once the bridge is complete.
+      final complete = {
+        BridgeState.built,
+        BridgeState.wobbly,
+        BridgeState.reinforced,
+      }.contains(state);
+      expect(
+        find.text(
+          'It was raining, ${complete ? 'but' : '_____'} we went out.',
+          findRichText: true,
+        ),
+        findsOneWidget,
+      );
       // The gap is gone once the bridge is broken; a built bridge shows the word.
       expect(
         find.byKey(const ValueKey('scene-gap')),

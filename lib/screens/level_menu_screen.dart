@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../progress/progress_store.dart';
 import '../theme/app_theme.dart';
+import '../widgets/unlock_code_form.dart';
 
 const _levels = [
   (1, 'Conjunction song', 'Sing along, then fill in the blanks'),
@@ -47,7 +48,7 @@ class LevelMenuScreen extends StatelessWidget {
                 locked: !progress.isUnlocked(level),
                 completed: progress.isCompleted(level),
               ),
-            if (anyLocked) const _CodeSection(),
+            if (anyLocked) const UnlockCodeForm(),
           ],
         ),
       ),
@@ -143,76 +144,6 @@ class _LevelCard extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CodeSection extends StatefulWidget {
-  const _CodeSection();
-
-  @override
-  State<_CodeSection> createState() => _CodeSectionState();
-}
-
-class _CodeSectionState extends State<_CodeSection> {
-  final _controller = TextEditingController();
-  bool _failed = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    final messenger = ScaffoldMessenger.of(context);
-    final progress = context.read<ProgressStore>();
-    // Try the code against each locked level, lowest first; first match wins.
-    int? level;
-    for (final l in [2, 3]) {
-      if (!progress.isUnlocked(l) && progress.tryUnlock(l, _controller.text)) {
-        level = l;
-        break;
-      }
-    }
-    if (level != null) {
-      _controller.clear();
-      messenger.showSnackBar(SnackBar(content: Text('Level $level unlocked!')));
-    }
-    setState(() => _failed = level == null);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.card,
-      margin: EdgeInsets.zero,
-      shape: _cardShape,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _controller,
-              textCapitalization: TextCapitalization.characters,
-              textInputAction: TextInputAction.done,
-              onChanged: (_) => setState(() => _failed = false),
-              onSubmitted: (_) => _submit(),
-              decoration: InputDecoration(
-                labelText: 'Got a code from your teacher?',
-                helperText: 'Enter it to unlock the next level.',
-                errorText: _failed
-                    ? "That code didn't work. Check with your teacher."
-                    : null,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: _submit, child: const Text('Unlock')),
-          ],
         ),
       ),
     );

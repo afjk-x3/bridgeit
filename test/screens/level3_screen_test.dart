@@ -142,8 +142,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Strengthening the bridge'), findsOneWidget);
-    expect(find.text(first.left), findsOneWidget);
-    expect(find.text(first.right), findsOneWidget);
+    // One sentence card, the missing conjunction as an inline blank.
+    expect(
+      find.text('${first.left} _____ ${first.right}', findRichText: true),
+      findsOneWidget,
+    );
     expect(find.text(_prompt), findsOneWidget);
     expect(find.text('Bridge strength'), findsOneWidget);
     expect(find.text('1 · Build'), findsOneWidget);
@@ -348,7 +351,10 @@ void main() {
       find.text('LEVEL 3 · SENTENCE 2 OF ${content.sentences.length}'),
       findsOneWidget,
     );
-    expect(find.text(content.sentences[1].left), findsOneWidget);
+    expect(
+      find.textContaining(content.sentences[1].left, findRichText: true),
+      findsOneWidget,
+    );
     expect(find.text(_prompt), findsOneWidget);
     expect(_pillFill(tester, 'build'), AppColors.primary);
     expect(_check('build'), findsNothing);

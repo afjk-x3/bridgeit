@@ -25,7 +25,7 @@ const _stub = 0.16; // plank stub length (of width)
 const _gapSize = Size(64, 48);
 const _carSize = Size(40, 22);
 
-/// Two cliffs over a river with a bridge between them. The clause cards, the
+/// Two cliffs over a river with a bridge between them. The sentence card, the
 /// [gap] drop target and the vehicle are widgets over a painted backdrop. The
 /// vehicle drives to the far cliff once the bridge is built or reinforced.
 class BridgeScene extends StatelessWidget {
@@ -97,15 +97,13 @@ class BridgeScene extends StatelessWidget {
                       ),
                       Positioned(
                         left: 8,
-                        top: 8,
-                        width: w * 0.44,
-                        child: _ClauseCard(left),
-                      ),
-                      Positioned(
                         right: 8,
                         top: 8,
-                        width: w * 0.44,
-                        child: _ClauseCard(right),
+                        child: _SentenceCard(
+                          left: left,
+                          right: right,
+                          word: complete ? word : null,
+                        ),
                       ),
                       if (state != BridgeState.broken)
                         Positioned(
@@ -149,21 +147,44 @@ class BridgeScene extends StatelessWidget {
   }
 }
 
-class _ClauseCard extends StatelessWidget {
-  const _ClauseCard(this.text);
+/// Both clauses in one card, with the missing conjunction as an inline blank
+/// that shows the placed [word] once the bridge is complete.
+class _SentenceCard extends StatelessWidget {
+  const _SentenceCard({required this.left, required this.right, this.word});
 
-  final String text;
+  final String left;
+  final String right;
+  final String? word;
 
   @override
   Widget build(BuildContext context) {
+    final word = this.word;
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(
-        text,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(text: '$left '),
+            word == null
+                ? const TextSpan(
+                    text: '_____',
+                    style: TextStyle(color: AppColors.primary),
+                  )
+                : TextSpan(
+                    text: word,
+                    style: const TextStyle(
+                      color: AppColors.cliff,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+            TextSpan(text: ' $right'),
+          ],
+        ),
+        textAlign: TextAlign.center,
         style: const TextStyle(
           color: AppColors.ink,
           fontSize: 16,

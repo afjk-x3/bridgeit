@@ -10,19 +10,27 @@ import 'package:bridgeit/widgets/hint_card.dart';
 import '../support/pump_app.dart';
 
 const _hint = 'Not quite. Try again!';
-const _prompt = 'Tap a word, then tap a blank.';
+const _prompt = 'Type the missing word in each blank.';
 const _done = 'Level 1 done! Ask your teacher for the code.';
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
-  await tester.tap(finder);
   await tester.pump();
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
 }
 
+/// Types [word] straight into the blank's text field.
 Future<void> _place(WidgetTester tester, int blank, String word) async {
-  await _tap(tester, find.byKey(ValueKey('word-$word')));
-  await _tap(tester, find.byKey(ValueKey('blank-$blank')));
+  final field = find.byKey(ValueKey('blank-$blank'));
+  await tester.ensureVisible(field);
+  await tester.enterText(field, word);
+  await tester.pumpAndSettle();
 }
+
+/// The header label for a verse, e.g. "Verse 2: The FANBOYS" → "LEVEL 1 · VERSE 2".
+String _header(String title) =>
+    'LEVEL 1 · ${title.split(':').first.trim().toUpperCase()}';
 
 /// The blank answers of one verse, in order, from the app's own content.
 List<String> _answers(WidgetTester tester, int verse) {
@@ -56,7 +64,7 @@ Future<void> _fillVerse(WidgetTester tester, int verse, int firstBlank) async {
 }
 
 void main() {
-  testWidgets('shows both steps, the first verse and the 7 word bank', (
+  testWidgets('shows both steps and the first verse, with no word bank', (
     tester,
   ) async {
     await _openLevel1(tester);
@@ -65,42 +73,44 @@ void main() {
     expect(find.text('2 · Fill in the blanks'), findsOneWidget);
     expect(find.text('Song coming soon'), findsOneWidget);
     for (final word in fanboys) {
-      expect(find.byKey(ValueKey('word-$word')), findsOneWidget);
+      expect(find.byKey(ValueKey('word-$word')), findsNothing);
     }
   });
 
-  testWidgets('header matches levels 2 and 3 and the verse shows its title', (
+  testWidgets('header uses the same verse number as the card title', (
     tester,
   ) async {
     await _openLevel1(tester);
+    final title = _title(tester, 0);
 
     expect(find.byType(BackButton), findsOneWidget);
-    expect(find.text('LEVEL 1 · VERSE 1 OF 2'), findsOneWidget);
+    expect(find.text(_header(title)), findsOneWidget);
+    expect(find.textContaining('PART'), findsNothing);
     expect(find.text('Conjunction song'), findsOneWidget);
-    expect(find.text(_title(tester, 0)), findsOneWidget);
-    expect(find.text('Verse 1 of 2'), findsNothing);
+    expect(find.text(title), findsOneWidget);
   });
 
-  testWidgets('word bank words and blanks are at least 48dp', (tester) async {
-    await _openLevel1(tester);
-
-    for (final key in [const ValueKey('word-so'), const ValueKey('blank-0')]) {
-      final size = tester.getSize(find.byKey(key));
-      expect(size.width, greaterThanOrEqualTo(48));
-      expect(size.height, greaterThanOrEqualTo(48));
-    }
-  });
-
-  testWidgets('tapping a blank with no word selected does nothing', (
+  testWidgets('blanks are text fields at least 48dp, with no pop-up menu', (
     tester,
   ) async {
     await _openLevel1(tester);
+    final blank = find.byKey(const ValueKey('blank-0'));
 
-    await _tap(tester, find.byKey(const ValueKey('blank-0')));
+    expect(tester.widget(blank), isA<TextField>());
+    final size = tester.getSize(blank);
+    expect(size.width, greaterThanOrEqualTo(48));
+    expect(size.height, greaterThanOrEqualTo(48));
+    expect(find.byType(PopupMenuButton<String>), findsNothing);
+  });
 
-    expect(find.byIcon(Icons.check), findsNothing);
+  testWidgets('a partly typed word gets no verdict yet', (tester) async {
+    await _openLevel1(tester);
+    final answer = _answers(tester, 0).first.toLowerCase();
+
+    await _place(tester, 0, answer.substring(0, answer.length - 1));
+
     expect(find.text(_hint), findsNothing);
-    expect(find.text(_prompt), findsOneWidget);
+    expect(find.byIcon(Icons.check), findsNothing);
   });
 
   testWidgets('wrong word shows the hint and can retry; right word fills', (
@@ -135,6 +145,18 @@ void main() {
       ),
       findsOneWidget,
     );
+
+    // A filled blank is final: it is no longer a text field.
+    expect(tester.widget(find.byKey(const ValueKey('blank-0'))), isNot(isA<TextField>()));
+  });
+
+  testWidgets('typed words ignore case and surrounding spaces', (tester) async {
+    await _openLevel1(tester);
+    final answer = _answers(tester, 0).first;
+
+    await _place(tester, 0, '  ${answer.toUpperCase()} ');
+
+    expect(find.byIcon(Icons.check), findsOneWidget);
   });
 
   testWidgets('a capitalized blank is filled by the lowercase word', (
@@ -175,7 +197,7 @@ void main() {
     // The list is still scrolled down; the header follows the verse.
     tester.state<ScrollableState>(find.byType(Scrollable)).position.jumpTo(0);
     await tester.pump();
-    expect(find.text('LEVEL 1 · VERSE 2 OF 2'), findsOneWidget);
+    expect(find.text(_header(_title(tester, 1))), findsOneWidget);
     expect(find.text(_title(tester, 1)), findsOneWidget);
     expect(find.text(_title(tester, 0)), findsNothing);
   });
@@ -202,5 +224,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Choose a level'), findsOneWidget);
     expect(find.text('Completed'), findsOneWidget);
+  });
+
+  testWidgets('finishing asks for the code and goes straight to level 2', (
+    tester,
+  ) async {
+    await _openLevel1(tester);
+    await _fillVerse(tester, 0, 0);
+    await _tap(tester, find.text('Next verse'));
+    await _fillVerse(tester, 1, 7);
+    await _tap(tester, find.text('Finish'));
+
+    expect(find.text('Got a code from your teacher?'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'bridge2');
+    await _tap(tester, find.text('Unlock'));
+
+    expect(find.text('Level 2 unlocked!'), findsWidgets);
+    await _tap(tester, find.text('Play level 2'));
+    expect(find.text('Building the bridge'), findsOneWidget);
   });
 }

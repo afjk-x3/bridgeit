@@ -50,7 +50,8 @@ Last updated: 22 October 2026
 - **Backend:** none for now. If the researchers want results logged, choose between Supabase and Firebase later. Keep attempt logging behind one small interface.
 - **Wrong answer:** the bridge cracks and a short hint explains why. Level 1 allows unlimited retries. The Level 2–3 attempt limit is pending, and the user is asking the client.
 - **Unlock codes:** the teacher codes are in `assets/content/levels.json` (`unlockCodes`, placeholders). Level 1 is always open. The code field tries the entered code against every locked level, lowest first, and the first match unlocks. A level 3 code therefore works while level 2 is still locked. A code for a level that is already unlocked counts as wrong. Codes ignore case and surrounding spaces.
-- **Level 1 input:** tap a word, then tap a blank. This is our proposal; the brief says "type or select".
+- **Level 1 input (client review 1, 23 Oct 2026):** tap a blank to open a menu of the 7 FANBOYS words inside it and pick one, so there is no separate word bank. The header counts "PART X OF N" so it doesn't clash with the song's verse titles. When a level is finished (Levels 1–2), the done screen asks for the teacher's code and then offers "Play level N".
+- **Levels 2–3 sentence (client review 1):** both clauses are in one card with an inline `_____` blank, which shows the placed word once the bridge is built.
 - **Audio:** the client will supply the song later. Use a placeholder until then.
 - **Our proposals, not confirmed:** works offline with no login, and a mute button.
 
