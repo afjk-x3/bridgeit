@@ -22,15 +22,17 @@ class StrengthBar extends StatelessWidget {
             style: Theme.of(context).textTheme.labelLarge,
           ),
           const SizedBox(width: 12),
+          // Expanded so any max fits, down to a 360dp phone.
           for (var i = 0; i < max; i++)
-            Container(
-              key: ValueKey('strength-$i'),
-              width: 32,
-              height: 14,
-              margin: const EdgeInsets.only(right: 4),
-              decoration: BoxDecoration(
-                color: i < left ? AppColors.bridge : AppColors.wrong,
-                borderRadius: BorderRadius.circular(4),
+            Expanded(
+              child: Container(
+                key: ValueKey('strength-$i'),
+                height: 14,
+                margin: const EdgeInsets.only(right: 4),
+                decoration: BoxDecoration(
+                  color: i < left ? AppColors.bridge : AppColors.wrong,
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
             ),
         ],
