@@ -168,7 +168,12 @@ BridgeSentence _sentence(
   if (requireSynonyms && choices.length < 2) {
     throw ContentException('$path.synonymChoices: need at least 2 choices');
   }
-  if (synonymAnswer != null && !choices.contains(synonymAnswer)) {
+  // The game compares synonyms in lower case, so duplicates are ambiguous.
+  final lowered = [for (final c in choices) c.toLowerCase()];
+  if (lowered.toSet().length != lowered.length) {
+    throw ContentException('$path.synonymChoices: duplicate choices');
+  }
+  if (synonymAnswer != null && !lowered.contains(synonymAnswer.toLowerCase())) {
     throw ContentException(
       '$path.synonymAnswer: "$synonymAnswer" is not in synonymChoices',
     );

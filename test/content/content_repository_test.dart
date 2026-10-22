@@ -119,6 +119,31 @@ void main() {
       );
     });
 
+    test(
+      'accepts a synonymAnswer that differs from its choice in case',
+      () async {
+        final json = await _bundledJson();
+        _sentence(json, 'level3', 1)
+          ..['synonymChoices'] = ['However', 'Also', 'Instead']
+          ..['synonymAnswer'] = 'however';
+        final content = parseGameContent(jsonEncode(json));
+        expect(content.level3.sentences[1].synonymAnswer, 'however');
+      },
+    );
+
+    test('rejects duplicate synonymChoices, ignoring case', () async {
+      final json = await _bundledJson();
+      _sentence(json, 'level3', 1)['synonymChoices'] = [
+        'however',
+        'also',
+        'However',
+      ];
+      expect(
+        () => parseGameContent(jsonEncode(json)),
+        _contentError('level3.sentences[1].synonymChoices'),
+      );
+    });
+
     test('level 3 requires synonymAnswer', () async {
       final json = await _bundledJson();
       _sentence(json, 'level3', 1).remove('synonymAnswer');
