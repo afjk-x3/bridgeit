@@ -5,6 +5,7 @@ import '../content/models.dart';
 import '../game/blanks_round.dart';
 import '../progress/progress_store.dart';
 import '../theme/app_theme.dart';
+import '../widgets/hint_card.dart';
 import '../widgets/level_done_panel.dart';
 import '../widgets/song_player.dart';
 
@@ -23,6 +24,9 @@ class _Level1ScreenState extends State<Level1Screen> {
   String? _selected;
   // The blank that just got a wrong word; drives the red flash and the hint.
   int? _wrongBlank;
+  // The "Tap a word, then tap a blank." instruction shows until a placement
+  // is first attempted.
+  bool _attempted = false;
   bool _done = false;
 
   @override
@@ -41,6 +45,7 @@ class _Level1ScreenState extends State<Level1Screen> {
     final word = _selected;
     if (word == null) return;
     setState(() {
+      _attempted = true;
       switch (_round.place(blank, word)) {
         case BlankResult.correct:
           _selected = null;
@@ -68,14 +73,26 @@ class _Level1ScreenState extends State<Level1Screen> {
 
   @override
   Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Level 1')),
+      appBar: AppBar(),
       body: SafeArea(
         child: _done
             ? const LevelDonePanel(level: 1)
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  Text(
+                    'LEVEL 1 · VERSE ${_verse + 1} OF ${_content.verses.length}',
+                    style: text.labelLarge,
+                  ),
+                  Text(
+                    'Conjunction song',
+                    style: text.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   const _StepTitle('1 · Listen'),
                   SongPlayer(assetPath: _content.audioAsset),
                   const SizedBox(height: 24),
@@ -94,11 +111,6 @@ class _Level1ScreenState extends State<Level1Screen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Verse ${_verse + 1} of ${verses.length}',
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
-        const SizedBox(height: 8),
         Card(
           color: AppColors.card,
           margin: EdgeInsets.zero,
@@ -110,6 +122,12 @@ class _Level1ScreenState extends State<Level1Screen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  verses[_verse].title,
+                  style: Theme.of(context).textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
                 for (final line in verses[_verse].lines)
                   Text.rich(
                     TextSpan(
@@ -146,16 +164,9 @@ class _Level1ScreenState extends State<Level1Screen> {
         ),
         const SizedBox(height: 12),
         if (_wrongBlank != null)
-          Semantics(
-            liveRegion: true,
-            child: const Row(
-              children: [
-                Icon(Icons.lightbulb, color: AppColors.bridge),
-                SizedBox(width: 8),
-                Text('Not quite. Try again!'),
-              ],
-            ),
-          ),
+          const HintCard(text: 'Not quite. Try again!', correct: false)
+        else if (!_attempted)
+          const HintCard.prompt(text: 'Tap a word, then tap a blank.'),
         const SizedBox(height: 12),
         FilledButton(
           onPressed: _round.isVerseComplete(_verse) ? _next : null,
