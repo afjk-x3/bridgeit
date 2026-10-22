@@ -15,13 +15,14 @@ class SongPlayer extends StatefulWidget {
   State<SongPlayer> createState() => _SongPlayerState();
 }
 
-class _SongPlayerState extends State<SongPlayer> {
+class _SongPlayerState extends State<SongPlayer> with WidgetsBindingObserver {
   AudioPlayer? _player;
   bool _ready = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final path = widget.assetPath;
     if (path != null) _load(path);
   }
@@ -37,8 +38,15 @@ class _SongPlayerState extends State<SongPlayer> {
     }
   }
 
+  // The song must not keep playing once the app is in the background.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) _player?.pause();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _player?.dispose();
     super.dispose();
   }

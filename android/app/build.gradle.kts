@@ -1,5 +1,11 @@
 import java.util.Properties
 
+plugins {
+    id("com.android.application")
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id("dev.flutter.flutter-gradle-plugin")
+}
+
 // Release signing secrets live in android/key.properties (git-ignored, never committed).
 val keyPropertiesFile = rootProject.file("key.properties")
 val keyProperties = Properties().apply {
@@ -9,10 +15,9 @@ val keyProperties = Properties().apply {
 fun keyProperty(name: String): String =
     requireNotNull(keyProperties.getProperty(name)) { "android/key.properties is missing $name" }
 
-plugins {
-    id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id("dev.flutter.flutter-gradle-plugin")
+if (!keyPropertiesFile.exists()) {
+    // quiet level: `flutter build` runs Gradle with -q, which hides warn.
+    logger.quiet("WARNING: android/key.properties not found: release build is signed with the debug key")
 }
 
 android {
