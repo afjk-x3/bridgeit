@@ -24,7 +24,7 @@ void main() {
     await tester.tap(find.text('Conjunction Theme Song'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Level 1 is being rebuilt.'), findsOneWidget);
+    expect(find.text('PLAY THE SONG'), findsOneWidget);
   });
 
   testWidgets('entering the right code unlocks level 2', (tester) async {

@@ -5,8 +5,8 @@ import '../progress/progress_store.dart';
 import '../widgets/journey_sheet.dart';
 import '../widgets/level_done_panel.dart';
 
-/// shortcut: stands in for levels 1 and 3 so the menu and codes stay playable,
-/// replace with the real screens in DEV-PRD tasks 3 and 7.
+/// shortcut: stands in for level 3 so the menu and codes stay playable,
+/// replace with the real screen in DEV-PRD task 7.
 class LevelStubScreen extends StatefulWidget {
   const LevelStubScreen({super.key, required this.level});
 
