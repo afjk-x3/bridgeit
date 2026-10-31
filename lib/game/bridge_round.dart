@@ -4,8 +4,8 @@ import 'package:bridgeit/content/models.dart';
 
 enum DropResult { correct, wrong, broken, ignored }
 
-/// Shared rules for one bridge or synonym round. Words match
-/// case-insensitively; tried words are stored lowercased.
+/// Rules for one bridge. Words match case-insensitively; tried words are
+/// stored lowercased.
 class _Rules {
   _Rules(this._isAnswer, this._max) {
     if (_max < 1) {
@@ -44,14 +44,14 @@ class _Rules {
 
 /// Level 2: drop a conjunction onto the gap between two clauses.
 class BridgeRound {
-  BridgeRound(BridgeSentence sentence, {required int maxWrongAnswers})
-    : _sentence = sentence,
+  BridgeRound(Bridge bridge, {required int maxWrongAnswers})
+    : _bridge = bridge,
       _rules = _Rules(
-        (lower) => sentence.answers.any((a) => a.toLowerCase() == lower),
+        (lower) => bridge.conjunction.toLowerCase() == lower,
         maxWrongAnswers,
       );
 
-  final BridgeSentence _sentence;
+  final Bridge _bridge;
   final _Rules _rules;
 
   DropResult drop(String word) => _rules.play(word);
@@ -63,35 +63,11 @@ class BridgeRound {
 
   String hintFor(String word) {
     final lower = word.toLowerCase();
-    for (final entry in _sentence.hints.entries) {
+    for (final entry in _bridge.hints.entries) {
       if (entry.key.toLowerCase() == lower) return entry.value;
     }
-    return _sentence.defaultHint;
+    return _bridge.defaultHint;
   }
-
-  void reset() => _rules.reset();
-}
-
-/// Level 3: pick the synonym of the conjunction that bridges the sentence.
-class SynonymRound {
-  SynonymRound(BridgeSentence sentence, {required int maxWrongAnswers})
-    : _rules = _Rules(_matcher(sentence), maxWrongAnswers);
-
-  static bool Function(String) _matcher(BridgeSentence sentence) {
-    final answer = sentence.synonymAnswer?.toLowerCase();
-    if (answer == null) {
-      throw ArgumentError.value(sentence, 'sentence', 'synonymAnswer is null');
-    }
-    return (lower) => lower == answer;
-  }
-
-  final _Rules _rules;
-
-  DropResult choose(String option) => _rules.play(option);
-
-  bool get isReinforced => _rules.isSolved;
-  bool get isBroken => _rules.isBroken;
-  Set<String> get triedWrong => _rules.triedWrong;
 
   void reset() => _rules.reset();
 }

@@ -20,7 +20,7 @@ class Level2Screen extends StatefulWidget {
 }
 
 class _Level2ScreenState extends State<Level2Screen> {
-  late final BridgeLevelContent _content;
+  late final Level2Content _content;
   late BridgeRound _round;
   int _index = 0;
   // Tap-to-select fallback: the piece waiting for a tap on the gap.
@@ -30,7 +30,7 @@ class _Level2ScreenState extends State<Level2Screen> {
   String? _placed;
   bool _done = false;
 
-  BridgeSentence get _sentence => _content.sentences[_index];
+  Bridge get _bridge => _content.bridges[_index];
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _Level2ScreenState extends State<Level2Screen> {
   }
 
   BridgeRound _newRound() =>
-      BridgeRound(_sentence, maxWrongAnswers: _content.maxWrongAnswers);
+      BridgeRound(_bridge, maxWrongAnswers: _content.maxWrongAnswers);
 
   void _drop(String word) => setState(() {
     _selected = null;
@@ -60,7 +60,7 @@ class _Level2ScreenState extends State<Level2Screen> {
   });
 
   Future<void> _next() async {
-    if (_index < _content.sentences.length - 1) {
+    if (_index < _content.bridges.length - 1) {
       setState(() {
         _index++;
         _round = _newRound();
@@ -93,7 +93,7 @@ class _Level2ScreenState extends State<Level2Screen> {
                 children: [
                   Text(
                     'LEVEL 2 · SENTENCE ${_index + 1} OF '
-                    '${_content.sentences.length}',
+                    '${_content.bridges.length}',
                     style: text.labelLarge,
                   ),
                   Text(
@@ -107,8 +107,8 @@ class _Level2ScreenState extends State<Level2Screen> {
                     // New sentence, new scene: the vehicle must not drive back.
                     key: ValueKey(_index),
                     state: _bridgeState,
-                    left: _sentence.left,
-                    right: _sentence.right,
+                    left: '${_bridge.left},',
+                    right: _bridge.right,
                     placedWord: _placed,
                     gap: BridgeGap(selected: _selected, onDrop: _drop),
                   ),
@@ -138,7 +138,7 @@ class _Level2ScreenState extends State<Level2Screen> {
                     FilledButton(
                       onPressed: _next,
                       child: Text(
-                        _index == _content.sentences.length - 1
+                        _index == _content.bridges.length - 1
                             ? 'Finish'
                             : 'Next sentence',
                       ),

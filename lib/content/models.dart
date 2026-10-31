@@ -11,67 +11,128 @@ class ContentException implements Exception {
   String toString() => 'ContentException: $message';
 }
 
-sealed class LyricPart {
-  const LyricPart();
-}
+/// One line of the sing-along card.
+class LyricLine {
+  const LyricLine({
+    required this.startMs,
+    required this.text,
+    required this.image,
+  });
 
-final class TextPart extends LyricPart {
-  const TextPart(this.text);
-
+  final int startMs;
   final String text;
+  final String? image;
 }
 
-/// A word the player fills in. [answer] keeps the lyric's original casing.
-final class BlankPart extends LyricPart {
-  const BlankPart(this.answer);
+class MatchPair {
+  const MatchPair({required this.conjunction, required this.function});
 
-  final String answer;
-}
-
-class Verse {
-  const Verse({required this.title, required this.lines});
-
-  final String title;
-  final List<List<LyricPart>> lines;
+  final String conjunction;
+  final String function;
 }
 
 class Level1Content {
-  const Level1Content({required this.audioAsset, required this.verses});
-
-  final String? audioAsset;
-  final List<Verse> verses;
-}
-
-class BridgeSentence {
-  const BridgeSentence({
-    required this.left,
-    required this.right,
-    required this.answers,
-    required this.hints,
-    required this.defaultHint,
-    required this.synonymChoices,
-    required this.synonymAnswer,
+  const Level1Content({
+    required this.audioAsset,
+    required this.playsRequired,
+    required this.lyrics,
+    required this.matchIt,
   });
 
+  final String? audioAsset;
+  final int playsRequired;
+  final List<LyricLine> lyrics;
+  final List<MatchPair> matchIt;
+}
+
+class Bridge {
+  const Bridge({
+    required this.conjunction,
+    required this.left,
+    required this.right,
+    required this.explanation,
+    required this.hints,
+    required this.defaultHint,
+    required this.examples,
+  });
+
+  final String conjunction;
   final String left;
   final String right;
-  final List<String> answers;
+
+  /// Shown when the right piece is placed.
+  final String explanation;
 
   /// Hint shown after a wrong guess, keyed by the wrong word.
   final Map<String, String> hints;
   final String defaultHint;
-  final List<String> synonymChoices;
-  final String? synonymAnswer;
+  final List<String> examples;
 }
 
-class BridgeLevelContent {
-  const BridgeLevelContent({
-    required this.maxWrongAnswers,
-    required this.sentences,
-  });
+class Level2Content {
+  const Level2Content({required this.maxWrongAnswers, required this.bridges});
 
   final int maxWrongAnswers;
-  final List<BridgeSentence> sentences;
+  final List<Bridge> bridges;
+}
+
+/// Linking words take `; … ,`, joining words take no comma.
+enum QuickFactRule { joining, linking }
+
+class QuickFact {
+  const QuickFact({required this.word, required this.rule});
+
+  final String word;
+  final QuickFactRule rule;
+}
+
+class TravelogueRules {
+  const TravelogueRules({
+    required this.minSentences,
+    required this.maxSentences,
+    required this.minConjunctions,
+  });
+
+  final int minSentences;
+  final int maxSentences;
+  final int minConjunctions;
+}
+
+class PlacePicture {
+  const PlacePicture({required this.asset, required this.caption});
+
+  final String asset;
+  final String caption;
+}
+
+class Place {
+  const Place({
+    required this.id,
+    required this.name,
+    required this.pinX,
+    required this.pinY,
+    required this.pictures,
+  });
+
+  final String id;
+  final String name;
+
+  /// Pin position as a fraction of the map image.
+  final double pinX;
+  final double pinY;
+  final List<PlacePicture> pictures;
+}
+
+class Level3Content {
+  const Level3Content({
+    required this.musicAsset,
+    required this.travelogue,
+    required this.places,
+  });
+
+  final String musicAsset;
+  final TravelogueRules travelogue;
+  final List<Place> places;
 }
 
 class GameContent {
@@ -79,11 +140,17 @@ class GameContent {
     required this.unlockCodes,
     required this.level1,
     required this.level2,
+    required this.quickFacts,
+    required this.minClauseWords,
     required this.level3,
   });
 
   final Map<int, String> unlockCodes;
   final Level1Content level1;
-  final BridgeLevelContent level2;
-  final BridgeLevelContent level3;
+  final Level2Content level2;
+
+  /// Keyed by conjunction; no entry means one written sentence only.
+  final Map<String, List<QuickFact>> quickFacts;
+  final int minClauseWords;
+  final Level3Content level3;
 }

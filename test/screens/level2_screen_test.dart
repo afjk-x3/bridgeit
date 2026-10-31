@@ -32,12 +32,12 @@ Future<void> _openLevel2(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-BridgeLevelContent _content(WidgetTester tester) =>
+Level2Content _content(WidgetTester tester) =>
     tester.element(find.byType(Level2Screen)).read<GameContent>().level2;
 
-/// Words that are not answers for [sentence], in FANBOYS order.
-List<String> _wrongWords(BridgeSentence sentence) =>
-    fanboys.where((w) => !sentence.answers.contains(w)).toList();
+/// Words that are not the answer for [bridge], in FANBOYS order.
+List<String> _wrongWords(Bridge bridge) =>
+    fanboys.where((w) => w != bridge.conjunction).toList();
 
 /// The real thing: drag the piece onto the gap.
 Future<void> _drag(WidgetTester tester, String word) async {
@@ -89,16 +89,16 @@ void main() {
   ) async {
     await _openLevel2(tester);
     final content = _content(tester);
-    final first = content.sentences.first;
+    final first = content.bridges.first;
 
     expect(
-      find.text('LEVEL 2 · SENTENCE 1 OF ${content.sentences.length}'),
+      find.text('LEVEL 2 · SENTENCE 1 OF ${content.bridges.length}'),
       findsOneWidget,
     );
     expect(find.text('Building the bridge'), findsOneWidget);
     // One sentence card, the missing conjunction as an inline blank.
     expect(
-      find.text('${first.left} _____ ${first.right}', findRichText: true),
+      find.text('${first.left}, _____ ${first.right}', findRichText: true),
       findsOneWidget,
     );
     expect(find.text(_prompt), findsOneWidget);
@@ -115,7 +115,7 @@ void main() {
 
   testWidgets('dragging the correct piece builds the bridge', (tester) async {
     await _openLevel2(tester);
-    final answer = _content(tester).sentences.first.answers.first;
+    final answer = _content(tester).bridges.first.conjunction;
 
     await _drag(tester, answer);
 
@@ -125,9 +125,9 @@ void main() {
     expect(find.text('Next sentence'), findsOneWidget);
     await _expectBridge(tester, 'Bridge built');
     // The sentence card now reads as one sentence with the word in its blank.
-    final first = _content(tester).sentences.first;
+    final first = _content(tester).bridges.first;
     expect(
-      find.text('${first.left} $answer ${first.right}', findRichText: true),
+      find.text('${first.left}, $answer ${first.right}', findRichText: true),
       findsOneWidget,
     );
     // The word sits in the bridge, and the vehicle is on the far cliff.
@@ -147,7 +147,7 @@ void main() {
   testWidgets('wrong piece shows the hint and greys out', (tester) async {
     await _openLevel2(tester);
     final content = _content(tester);
-    final sentence = content.sentences.first;
+    final sentence = content.bridges.first;
     final wrong = sentence.hints.keys.first;
 
     await _drag(tester, wrong);
@@ -157,7 +157,7 @@ void main() {
     expect(find.text(_prompt), findsNothing);
     await _expectBridge(tester, 'Bridge cracked');
     expect(_enabled(tester, wrong), isFalse);
-    expect(_enabled(tester, sentence.answers.first), isTrue);
+    expect(_enabled(tester, sentence.conjunction), isTrue);
     // One of the segments is lost: brown for what is left, red for the loss.
     final max = content.maxWrongAnswers;
     for (var i = 0; i < max - 1; i++) {
@@ -171,7 +171,7 @@ void main() {
     tester,
   ) async {
     await _openLevel2(tester);
-    final sentence = _content(tester).sentences.first;
+    final sentence = _content(tester).bridges.first;
     final wrong = _wrongWords(sentence)
         .firstWhere((w) => !sentence.hints.containsKey(w));
 
@@ -183,7 +183,7 @@ void main() {
   testWidgets('three wrong pieces break the bridge', (tester) async {
     await _openLevel2(tester);
     final content = _content(tester);
-    final sentence = content.sentences.first;
+    final sentence = content.bridges.first;
     final wrong = _wrongWords(sentence).take(content.maxWrongAnswers).toList();
 
     for (final word in wrong) {
@@ -214,7 +214,7 @@ void main() {
       expect(_segment(tester, i), AppColors.bridge);
     }
     // And the sentence can still be solved afterwards.
-    await _tapPlace(tester, sentence.answers.first);
+    await _tapPlace(tester, sentence.conjunction);
     expect(find.text(_built), findsOneWidget);
   });
 
@@ -239,7 +239,7 @@ void main() {
       matching: find.byType(CustomPaint),
     );
     final sceneCenter = tester.getCenter(find.byType(BridgeScene)).dx;
-    final answer = _content(tester).sentences.first.answers.first;
+    final answer = _content(tester).bridges.first.conjunction;
     await _tapPlace(tester, answer);
     expect(tester.getCenter(car).dx, greaterThan(sceneCenter));
 
@@ -253,7 +253,7 @@ void main() {
     tester,
   ) async {
     await _openLevel2(tester);
-    final sentences = _content(tester).sentences;
+    final sentences = _content(tester).bridges;
     final progress = tester
         .element(find.byType(Level2Screen))
         .read<ProgressStore>();
@@ -268,8 +268,7 @@ void main() {
         find.textContaining(sentences[i].left, findRichText: true),
         findsOneWidget,
       );
-      // .last also exercises the second accepted answer where there is one.
-      await _tapPlace(tester, sentences[i].answers.last);
+      await _tapPlace(tester, sentences[i].conjunction);
       final last = i == sentences.length - 1;
       expect(find.text(last ? 'Finish' : 'Next sentence'), findsOneWidget);
       await tester.tap(find.text(last ? 'Finish' : 'Next sentence'));

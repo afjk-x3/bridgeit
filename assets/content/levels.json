@@ -1,92 +1,239 @@
 {
-  "_note": "PLACEHOLDER content until the client answers Q4, Q6, Q8.",
+  "_note": "PLACEHOLDER until the client's files arrive: lyrics timings, bridges, map pins, captions (PRD Appendix A), unlock codes. Asset paths are the expected locations; the files do not exist yet.",
+  "schemaVersion": 2,
   "unlockCodes": {
     "2": "BRIDGE2",
     "3": "BRIDGE3"
   },
   "level1": {
     "audioAsset": null,
-    "verses": [
-      {
-        "title": "Verse 2: The FANBOYS",
-        "lines": [
-          "F is {for}, and A is {and},",
-          "N is {nor}, now understand!",
-          "B is {but}, O is {or},",
-          "Y is {yet}, S is {so}!"
-        ]
-      },
-      {
-        "title": "Verse 3: Build the Bridge",
-        "lines": [
-          "{And} adds ideas, {but} contrasts,",
-          "{Or} gives choices, make them last!",
-          "{So} shows results, {for} gives a reason,",
-          "{Nor} and {yet} have roles to reason!"
-        ]
-      }
+    "playsRequired": 3,
+    "lyrics": [
+      { "startMs": 0, "text": "And is when we join similar situations", "image": null },
+      { "startMs": 6000, "text": "For is when we give the reason why", "image": null },
+      { "startMs": 12000, "text": "Nor is used when none chosen from the given option", "image": null },
+      { "startMs": 18000, "text": "But is when two ideas clash", "image": null },
+      { "startMs": 24000, "text": "Or is when we have a choice", "image": null },
+      { "startMs": 30000, "text": "Yet is when the ending is a surprise", "image": null },
+      { "startMs": 36000, "text": "So is when we show the result", "image": null }
+    ],
+    "matchIt": [
+      { "conjunction": "for", "function": "Expresses a reason or explanation." },
+      { "conjunction": "and", "function": "Adds or connects related ideas." },
+      { "conjunction": "nor", "function": "Connects negative alternatives." },
+      { "conjunction": "but", "function": "Shows contrast between ideas." },
+      { "conjunction": "or", "function": "Presents choices or alternatives." },
+      { "conjunction": "yet", "function": "Shows an unexpected result." },
+      { "conjunction": "so", "function": "Expresses a result or consequence." }
     ]
   },
   "level2": {
     "maxWrongAnswers": 3,
-    "sentences": [
+    "bridges": [
       {
-        "left": "I'm very tired,",
-        "right": "I will sleep.",
-        "answers": ["so"],
+        "conjunction": "for",
+        "left": "She went to bed early",
+        "right": "she was tired.",
+        "explanation": "'she was tired' explains why 'She went to bed early', so we use 'for'.",
         "hints": {
-          "but": "\"But\" shows a contrast, but sleeping is a result of being tired.",
-          "for": "\"For\" gives a reason, but sleeping is not the reason you are tired."
+          "so": "'so' is used to show result or consequence.",
+          "but": "'but' is used to show contrast between ideas."
         },
-        "defaultHint": "That word doesn't connect these ideas. Think about how they relate."
+        "defaultHint": "That word doesn't connect these ideas. Think about how they relate.",
+        "examples": ["I stayed home, for it was raining heavily."]
       },
       {
-        "left": "I studied for hours,",
-        "right": "I still felt nervous.",
-        "answers": ["but", "yet"],
+        "conjunction": "and",
+        "left": "The sun was shining",
+        "right": "the birds were singing.",
+        "explanation": "Both clauses describe the same happy morning, so we use 'and' to add them together.",
         "hints": {
-          "so": "\"So\" shows a result, but feeling nervous is not a result of studying.",
-          "and": "\"And\" adds a similar idea, but these two ideas clash."
+          "but": "'but' is used to show contrast between ideas.",
+          "or": "'or' is used to present choices or alternatives."
         },
-        "defaultHint": "Do these two ideas agree, or do they clash? Pick the word that fits."
+        "defaultHint": "That word doesn't connect these ideas. Think about how they relate.",
+        "examples": ["We packed our bags, and we left before sunrise."]
       },
       {
-        "left": "I can walk to school,",
+        "conjunction": "nor",
+        "left": "He does not like coffee",
+        "right": "does he drink tea.",
+        "explanation": "Both clauses are negative, so we use 'nor' to connect them.",
+        "hints": {
+          "and": "'and' is used to add related ideas, but both of these ideas are negative.",
+          "or": "'or' is used to present choices or alternatives."
+        },
+        "defaultHint": "Look at the two ideas again. Are they both negative?",
+        "examples": ["She did not call me, nor did she send a message."]
+      },
+      {
+        "conjunction": "but",
+        "left": "I like pizza",
+        "right": "I don't like onions.",
+        "explanation": "Liking pizza and not liking onions are in contrast, so we use 'but'.",
+        "hints": {
+          "so": "'so' is used to show result or consequence.",
+          "and": "'and' is used to add related ideas, but these two ideas clash."
+        },
+        "defaultHint": "Do these two ideas agree, or do they clash? Pick the word that fits.",
+        "examples": ["The road was long, but the view was beautiful."]
+      },
+      {
+        "conjunction": "or",
+        "left": "I can walk to school",
         "right": "I can take the bus.",
-        "answers": ["or"],
+        "explanation": "These are two choices and you can only pick one, so we use 'or'.",
         "hints": {
-          "and": "\"And\" adds one more idea, but here you can only pick one way to go.",
-          "but": "\"But\" shows a contrast, but these are not opposites. They are two options."
+          "and": "'and' is used to add related ideas, but here you can only pick one way to go.",
+          "but": "'but' is used to show contrast between ideas, and these are not opposites."
         },
-        "defaultHint": "Look at the two ideas again. Is it adding, contrasting, or giving a choice?"
+        "defaultHint": "Look at the two ideas again. Is it adding, contrasting, or giving a choice?",
+        "examples": ["We can eat now, or we can wait for the others."]
+      },
+      {
+        "conjunction": "yet",
+        "left": "The test was very hard",
+        "right": "she finished it early.",
+        "explanation": "Finishing early is an unexpected result of a hard test, so we use 'yet'.",
+        "hints": {
+          "so": "'so' is used to show result or consequence, but this result is a surprise.",
+          "for": "'for' is used to give a reason."
+        },
+        "defaultHint": "Is the second idea what you would expect, or is it a surprise?",
+        "examples": ["He was tired, yet he kept on walking."]
+      },
+      {
+        "conjunction": "so",
+        "left": "I'm very tired",
+        "right": "I will sleep.",
+        "explanation": "Sleeping is the result of being tired, so we use 'so'.",
+        "hints": {
+          "but": "'but' is used to show contrast between ideas.",
+          "for": "'for' is used to give a reason, but sleeping is not the reason you are tired."
+        },
+        "defaultHint": "That word doesn't connect these ideas. Think about how they relate.",
+        "examples": ["The rain stopped, so we went outside."]
       }
     ]
   },
+  "quickFacts": {
+    "for": [
+      { "word": "because", "rule": "joining" },
+      { "word": "since", "rule": "joining" },
+      { "word": "as", "rule": "joining" }
+    ],
+    "and": [
+      { "word": "moreover", "rule": "linking" },
+      { "word": "in addition", "rule": "linking" },
+      { "word": "furthermore", "rule": "linking" }
+    ],
+    "but": [
+      { "word": "however", "rule": "linking" },
+      { "word": "although", "rule": "joining" }
+    ],
+    "yet": [
+      { "word": "nevertheless", "rule": "linking" },
+      { "word": "even though", "rule": "joining" }
+    ],
+    "so": [
+      { "word": "therefore", "rule": "linking" },
+      { "word": "as a result", "rule": "linking" }
+    ]
+  },
+  "writing": {
+    "minClauseWords": 3
+  },
   "level3": {
-    "maxWrongAnswers": 3,
-    "sentences": [
+    "musicAsset": "assets/audio/montage_placeholder.mp3",
+    "travelogue": {
+      "minSentences": 5,
+      "maxSentences": 7,
+      "minConjunctions": 4
+    },
+    "places": [
       {
-        "left": "I'm very tired,",
-        "right": "I will sleep.",
-        "answers": ["so"],
-        "hints": {
-          "but": "\"But\" shows a contrast, but sleeping is a result of being tired."
-        },
-        "defaultHint": "That word doesn't connect these ideas. Think about how they relate.",
-        "synonymChoices": ["therefore", "however", "also", "or else"],
-        "synonymAnswer": "therefore"
+        "id": "la_paz",
+        "name": "Laoag La Paz Sand Dunes",
+        "mapPin": { "x": 0.38, "y": 0.48 },
+        "pictures": [
+          { "asset": "assets/images/places/la_paz/1.webp", "caption": "The La Paz Sand Dunes stretch along the coast of Laoag City." },
+          { "asset": "assets/images/places/la_paz/2.webp", "caption": "Visitors ride 4x4 jeeps up and down the dunes." },
+          { "asset": "assets/images/places/la_paz/3.webp", "caption": "Sliding down the slopes on a sandboard is a favorite activity." },
+          { "asset": "assets/images/places/la_paz/4.webp", "caption": "The wind shapes the sand into waves and ridges." },
+          { "asset": "assets/images/places/la_paz/5.webp", "caption": "At sunset, the dunes turn gold and orange." }
+        ]
       },
       {
-        "left": "I like pizza,",
-        "right": "I don't like onions.",
-        "answers": ["but"],
-        "hints": {
-          "so": "\"So\" shows a result, but not liking onions is not a result of liking pizza.",
-          "and": "\"And\" adds a similar idea, but these two ideas clash."
-        },
-        "defaultHint": "Do these two ideas agree, or do they clash? Pick the word that fits.",
-        "synonymChoices": ["however", "therefore", "also", "otherwise"],
-        "synonymAnswer": "however"
+        "id": "burgos",
+        "name": "Burgos Lighthouse (Cape Bojeador)",
+        "mapPin": { "x": 0.22, "y": 0.22 },
+        "pictures": [
+          { "asset": "assets/images/places/burgos/1.webp", "caption": "Cape Bojeador Lighthouse stands on a hill in Burgos." },
+          { "asset": "assets/images/places/burgos/2.webp", "caption": "It was first lit in 1892, during the Spanish period." },
+          { "asset": "assets/images/places/burgos/3.webp", "caption": "A brick path leads up to the lighthouse tower." },
+          { "asset": "assets/images/places/burgos/4.webp", "caption": "From the hill, visitors can see the wide blue sea." },
+          { "asset": "assets/images/places/burgos/5.webp", "caption": "The lighthouse still guides ships at night." }
+        ]
+      },
+      {
+        "id": "bangui",
+        "name": "Bangui Windmills",
+        "mapPin": { "x": 0.4, "y": 0.14 },
+        "pictures": [
+          { "asset": "assets/images/places/bangui/1.webp", "caption": "The Bangui Windmills line the shore of Bangui Bay." },
+          { "asset": "assets/images/places/bangui/2.webp", "caption": "Twenty giant wind turbines stand in a row." },
+          { "asset": "assets/images/places/bangui/3.webp", "caption": "The turbines turn the strong sea wind into electricity." },
+          { "asset": "assets/images/places/bangui/4.webp", "caption": "Waves crash on the rocky beach below the windmills." },
+          { "asset": "assets/images/places/bangui/5.webp", "caption": "The windmills look beautiful against the evening sky." }
+        ]
+      },
+      {
+        "id": "paoay",
+        "name": "San Agustin Church of Paoay",
+        "mapPin": { "x": 0.28, "y": 0.62 },
+        "pictures": [
+          { "asset": "assets/images/places/paoay/1.webp", "caption": "San Agustin Church in Paoay is a UNESCO World Heritage Site." },
+          { "asset": "assets/images/places/paoay/2.webp", "caption": "It was finished in 1710 and built of coral stone and bricks." },
+          { "asset": "assets/images/places/paoay/3.webp", "caption": "Its huge side buttresses help it stand strong during earthquakes." },
+          { "asset": "assets/images/places/paoay/4.webp", "caption": "A separate bell tower stands beside the church." },
+          { "asset": "assets/images/places/paoay/5.webp", "caption": "Visitors walk around the grounds to admire its old walls." }
+        ]
+      },
+      {
+        "id": "saud",
+        "name": "Saud Beach, Pagudpud",
+        "mapPin": { "x": 0.62, "y": 0.08 },
+        "pictures": [
+          { "asset": "assets/images/places/saud/1.webp", "caption": "Saud Beach in Pagudpud has fine white sand." },
+          { "asset": "assets/images/places/saud/2.webp", "caption": "Coconut trees line the shore." },
+          { "asset": "assets/images/places/saud/3.webp", "caption": "The clear blue water is calm and good for swimming." },
+          { "asset": "assets/images/places/saud/4.webp", "caption": "Families have picnics in the shade of the trees." },
+          { "asset": "assets/images/places/saud/5.webp", "caption": "In the afternoon, the beach is quiet and peaceful." }
+        ]
+      },
+      {
+        "id": "badoc",
+        "name": "La Virgen Milagrosa de Badoc Church",
+        "mapPin": { "x": 0.3, "y": 0.88 },
+        "pictures": [
+          { "asset": "assets/images/places/badoc/1.webp", "caption": "The church in Badoc is home to La Virgen Milagrosa." },
+          { "asset": "assets/images/places/badoc/2.webp", "caption": "A legend says fishermen found the image of the Virgin floating at sea." },
+          { "asset": "assets/images/places/badoc/3.webp", "caption": "The church has thick walls and an old stone facade." },
+          { "asset": "assets/images/places/badoc/4.webp", "caption": "Many people visit to pray and light candles." },
+          { "asset": "assets/images/places/badoc/5.webp", "caption": "The church stands at the heart of the town of Badoc." }
+        ]
+      },
+      {
+        "id": "pangil",
+        "name": "Pangil Coral Rock Formations, Currimao",
+        "mapPin": { "x": 0.22, "y": 0.72 },
+        "pictures": [
+          { "asset": "assets/images/places/pangil/1.webp", "caption": "Coral rock formations line the coast of Currimao." },
+          { "asset": "assets/images/places/pangil/2.webp", "caption": "Waves and wind have shaped the rocks over many years." },
+          { "asset": "assets/images/places/pangil/3.webp", "caption": "At low tide, visitors can walk among the rocks and tide pools." },
+          { "asset": "assets/images/places/pangil/4.webp", "caption": "Small sea creatures live in the pools between the rocks." },
+          { "asset": "assets/images/places/pangil/5.webp", "caption": "At sunset, the rocks glow in warm colors." }
+        ]
       }
     ]
   }
