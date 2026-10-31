@@ -91,7 +91,7 @@ Steps inside a level are a local state machine (an enum per screen), not routes,
     "so":  [ { "word": "therefore", "rule": "linking" }, { "word": "as a result", "rule": "linking" } ]
   },
 
-  "writing": { "minClauseWords": 3 },
+  "writing": { "minClauseWords": 2 },
 
   "level3": {
     "musicAsset": "assets/audio/montage_placeholder.mp3",
@@ -151,10 +151,13 @@ Pipeline; the first failure wins:
 | 2 | Shape | empty; no capital at start; no . ! ? at end; more than one sentence | `empty`, `capital`, `endPunctuation`, `oneSentence` |
 | 3 | Junk | a run of 4+ same letters; a word over 20 letters; under 60% letters | `notReal` |
 | 4 | Target word | whole-word, case-insensitive match missing (phrases like *as a result* allowed) | `missingWord` |
-| 5 | Punctuation | `fanboys`: no comma right before. `linking`: no `;` before or no `,` after. `joining`: always passes | `comma`, `semicolon` |
+| 5 | Punctuation | `fanboys`: no comma right before. `linking`: no `;` before or no `,` after. `joining`: a comma before the word in mid-sentence, or no comma after a sentence-initial clause | `comma`, `extraComma`, `semicolon` |
 | 6 | Split | – left/right of the word. Sentence-initial `joining` word splits at the first comma | – |
-| 7 | Clause check | either side fails (5.4) | `leftClause`, `rightClause` |
-| 8 | Copy | normalised text equals a forbidden string | `copied` |
+| 7 | Clause check | either side fails (5.4). A command on the left allows a command on the right | `leftClause`, `rightClause` |
+| 8 | *Nor* | no negative in the left clause, or the right clause isn't inverted | `norNeedsNegative`, `norWordOrder` |
+| 9 | Copy | normalised text equals a forbidden string | `copied` |
+
+Rules follow Purdue OWL and Cambridge; the client notice `docs/client/BridgeIt-Checker-Changes.md` lists the sources and open client decisions.
 
 ### 5.4 Clause check
 
@@ -167,8 +170,13 @@ For one side:
    - none, but a token ends in *-ed*/*-s* and isn't a known noun-ish stop word → **unsure**
    - none at all → **fail**
 5. A subject token before that verb: pronoun (`i you he she it we they`), determiner/pointer (`the a an my your his her its our their this that these those there some many every each`), or a capitalised word in the original text that isn't sentence-initial.
+   - a capitalised sentence-initial word before the verb also counts ("Maria sings")
+   - the verb is first but an auxiliary followed by a subject → pass (inverted: "nor does he drink tea", "did you skip it")
    - none and the side is the left side of a sentence-initial verb (imperative, "Hurry, or …") → **unsure**
-   - none otherwise → **fail**
+   - none, the verb is first → **fail**
+   - none, but other words come before the verb → **unsure** (a noun the lists can't know: "dogs like me")
+
+A side opening with a dependent marker and holding no comma fails (*although, though, because, if, unless, when, whenever, whether, while, whatever, even though, even if*); *after, before, since, until, as* give **unsure**, since they can be prepositions. A word right after a determiner isn't taken as a verb ("the rain"). `minClauseWords` is 2, since "She smiled" is a clause and phrases already fail on having no verb. Known limit: a noun in the verb list after an adjective reads as a verb, so "To the big park" passes. The check stays lenient on purpose: a good sentence must not be blocked.
 
 ### 5.5 `TravelogueAnalyzer`
 
@@ -253,7 +261,7 @@ Pin exact versions that support Dart 3.13 and add them in one commit with a note
 | Map | `assets/images/map.svg` | We make it. `level3` pins are placeholders until then |
 | Theme song | `assets/audio/theme_song.mp3` | Client, expected 7 November, with line timings |
 | Montage music | `assets/audio/montage_placeholder.mp3` | Free track licensed for apps (e.g. Pixabay); record the source + license in README; replace if the client sends one |
-| Lexicons | `assets/lexicon/verbs.txt`, `words.txt` | We build; record sources + licenses |
+| Lexicons | `assets/lexicon/verbs.txt`, `words.txt` | `verbs.txt` done: WordNet 3.1 verbs filtered by sense counts, forms from NGSL 1.2 (CC BY-SA 4.0), sources in the file header and README. `words.txt` planned from 12Dicts (public domain) |
 
 The client owes only the 7 sentence pairs, the song and its timings; the art is ours, with the client's full permission. Use SVG for drawn art and WebP for photos, max 1080 px on the long side, to keep the APK small. Asset paths in `levels.json` name the expected locations until the files exist.
 
@@ -288,8 +296,8 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 | 1 | Schema v2, models, repository + validation, placeholder content | 2 | Done |
 | 2 | Theme from logo, Start, Welcome + profile, menu restyle, journey sheet | 2–3 | Done |
 | 3 | Level 1: song counter, sing-along card, MatchIt round + screen | 4–5 | Done, needs art |
-| 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 | Next |
-| 5 | `SpellChecker` + word list | 1–2 | |
+| 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 | Done, not wired to a screen until task 6 |
+| 5 | `SpellChecker` + word list | 1–2 | Next |
 | 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | |
 | 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | |
 | 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | |

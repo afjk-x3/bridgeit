@@ -126,8 +126,9 @@ When the bridge is sturdy, the car drives across to the next bridge. Progress is
 Every sentence a student writes in Level 2 is checked before it can become part of the bridge. Each sentence must:
 
 - use the right word: the coordinating conjunction, or one of the similar words from Quick Facts;
-- have the right punctuation for that word: a comma before a FANBOYS word, a semicolon before and a comma after words like *however*, and no comma needed before words like *because*;
-- have a full clause on both sides, each with a subject and a verb. "I like apples, and she likes oranges." passes; "I like apples, and oranges." does not;
+- have the right punctuation for that word: a comma before a FANBOYS word, a semicolon before and a comma after words like *however*, no comma before words like *because* in the middle of a sentence, and a comma after the first part when the sentence starts with one;
+- have a full clause on both sides, each with a subject and a verb. "I like apples, and she likes oranges." passes; "I like apples, and oranges." does not. A part that starts with a word like *because* or *although* is not a full clause;
+- for *nor*, follow a negative clause and put the helping verb before the subject: "She did not call, nor did she write.";
 - start with a capital letter and end with . ! or ?;
 - not be copied from the example on screen or from the student's earlier sentences.
 
@@ -137,7 +138,7 @@ In the travelogue, a conjunction only counts towards the minimum of 4 when it ha
 
 **Spelling warning.** Misspelled words are underlined so the student can fix them. They do not block the student.
 
-**What the app does not check.** Grammar, meaning and word choice. For example, "She go to school, for she want to learn." passes the checks. The teacher reviews these in the answer report.
+**What the app does not check.** Grammar beyond the rules above, meaning and word choice. For example, "She go to school, for she want to learn." passes the checks. The teacher reviews these in the answer report.
 
 ## Answer report for the teacher and researchers
 
@@ -218,6 +219,7 @@ Right and wrong answers are also shown with icons, words and movement, not only 
 | 7 | Background music for the montage, or use our free placeholder track | To confirm |
 | 8 | Should the game have sound effects besides the song and music? | To confirm |
 | 9 | Do you approve the redrawn logo and the art we make? | To confirm |
+| 10 | Do you approve the sentence check changes, and can a teacher review the test sentences? (BridgeIt-Checker-Changes.md) | To confirm |
 
 # 12. Changes
 
@@ -226,6 +228,7 @@ Right and wrong answers are also shown with icons, words and movement, not only 
 - You send only the Level 2 sentences, the song and its timings. The development team makes all the art.
 - The logo is redrawn as a vector file in your colors.
 - Your files are expected on 7 November.
+- The sentence checks now follow published grammar sources. The changes and the choices we need from you are in BridgeIt-Checker-Changes.md.
 
 **From Draft v0.3:**
 
