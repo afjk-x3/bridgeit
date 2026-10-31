@@ -8,9 +8,9 @@ Context for picking up this work in a new session. Read this first, then [PRD.md
 - **The client sent new screens** (Canva, 39 pages) that change all three levels. We reviewed them with the client and collected their decisions (below).
 - **Branch `ccr-44e736fd-ezneqa`** was squashed into `main` as `4220a7d` and deleted.
 - **v2 work lives on branch `v2`**, pushed to `origin/v2`. `main` stays runnable until v2 lands. Level 3 is `LevelStubScreen` until DEV-PRD task 7.
-- **Done on `v2`:** task 1 (schema v2), the vector logo, the waving character, task 2 (theme, Start, Welcome + profile, menu, journey sheet), task 3 (Level 1: silent song player, play counter, sing-along card, MatchIt), task 4 (`SentenceChecker`, clause check, `assets/lexicon/verbs.txt`; used by a screen from task 6). Next is task 5.
+- **Done on `v2`:** task 1 (schema v2), the vector logo, the waving character, task 2 (theme, Start, Welcome + profile, menu, journey sheet), task 3 (Level 1: silent song player, play counter, sing-along card, MatchIt), task 4 (`SentenceChecker`, clause check, `assets/lexicon/verbs.txt`; used by a screen from task 6), task 5 (`SpellChecker`, `assets/lexicon/words.txt`, also from task 6). Next is task 6.
 - **Deadline: 21 November 2026.** About 14 working days remain against 26–34 days of estimate, so cut polish first. Client files are due 7 November.
-- **Local checks:** `flutter analyze` is clean and 196 tests pass.
+- **Local checks:** `flutter analyze` is clean and 205 tests pass.
 - **Client notice:** `docs/client/BridgeIt-Checker-Changes.md` lists the checker changes and four client decisions. Stricter grammar rules (dependent clauses, *nor*) need the client's OK, since they originally asked for no grammar checks.
 
 ## External links
@@ -72,8 +72,25 @@ Still unanswered: grade level, teacher-guided or self-paced, sound effects, appr
 - Estimate: 30–39 working days in total, with art added as task 9. Tasks 1–9 can run on placeholders.
 - No Claude attribution in commits or PRs.
 
+## Starting task 6
+
+`Level2Screen` is still the Phase 1 flow on v2 data. What task 6 has to connect:
+
+- **Lexicons:** `main.dart` doesn't load them yet. Use `loadLexicon` for `verbs.txt` and `words.txt`, then provide a `SentenceChecker` and `SpellChecker`.
+- **`SentenceChecker.check`:** the rule is `fanboys` for the conjunction, or the Quick Facts word's `rule` mapped to `WordRule`. `forbidden` is the bridge clauses, its `examples` and the student's earlier sentences.
+- **Messages:** one per `CheckFailure`, including `extraComma`, `norNeedsNegative` and `norWordOrder`. Show the hint on `Passed.unsureClause`.
+- **`SpellChecker`:** `allowed` takes place names and Quick Facts words. In task 7, add caption words such as *sandboard*.
+- **Screen:** add the Level 1 style header, `Cross the bridge`, `Bridge.explanation` on the right answer, collapse on the third wrong try, and two writing steps. *nor* and *or* get one step, via `quickFacts`.
+- **`BridgeScene`:** add foundation layers. Its `left` gets the comma from the screen, since `levels.json` clauses have none.
+- **Remove:** `StrengthBar`, unless a screen needs it.
+- **Resume:** add `level2_resume_v1` to `ResultsStore`, with try/catch like `profile_v1`.
+- **Drag:** keep the piece tray out of any scroll view that can overflow (see Technical notes).
+
+Student spelling is American, which matches Philippine English and `words.txt`.
+
 ## Next steps
 
-1. Start DEV-PRD task 5 (`SpellChecker` + word list), then tasks 6–9.
+1. Start DEV-PRD task 6 (Level 2: 7 bridges, collapse, writing steps, Quick Facts, foundations, resume), then tasks 7–9.
 2. When the client's files arrive on 7 November, swap in the song, timings and sentences (task 10).
-3. Update `PROJECT_NOTES.md` status, and delete this file when it's no longer needed.
+3. Send the client `docs/client/BridgeIt-Checker-Changes.md` and rebuild `BridgeIt-PRD-v2.pdf` from `PRD.md` v2.1.
+4. Update `PROJECT_NOTES.md` status and the old `logo_placeholder.svg` references, and delete this file when it's no longer needed.

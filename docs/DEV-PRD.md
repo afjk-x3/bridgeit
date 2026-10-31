@@ -188,8 +188,9 @@ A side opening with a dependent marker and holding no comma fails (*although, th
 
 ### 5.6 `SpellChecker`
 
-- Dictionary: `assets/lexicon/words.txt`, a lowercase English word list (target 60–80k words, permissive license; record the source and license in the file header and README).
-- Skipped: words with digits, words that are capitalised mid-sentence (names), place names from `levels.json`, the FANBOYS and Quick Facts words.
+- Dictionary: `assets/lexicon/words.txt`, a lowercase English word list (about 82k words, American spelling, public domain; source in the file header and README).
+- Skipped: words with digits and words capitalised mid-sentence (names). The screen passes place names, Quick Facts words and caption words such as *sandboard* in `allowed`.
+- A name at the start of a sentence is flagged. That's only a warning, so it stays: skipping it would hide typos in first words.
 - Returns misspelt spans for underlining. Never blocks Submit; the count goes into the report.
 
 ### 5.7 `ActiveTimer`
@@ -261,7 +262,7 @@ Pin exact versions that support Dart 3.13 and add them in one commit with a note
 | Map | `assets/images/map.svg` | We make it. `level3` pins are placeholders until then |
 | Theme song | `assets/audio/theme_song.mp3` | Client, expected 7 November, with line timings |
 | Montage music | `assets/audio/montage_placeholder.mp3` | Free track licensed for apps (e.g. Pixabay); record the source + license in README; replace if the client sends one |
-| Lexicons | `assets/lexicon/verbs.txt`, `words.txt` | `verbs.txt` done: WordNet 3.1 verbs filtered by sense counts, forms from NGSL 1.2 (CC BY-SA 4.0), sources in the file header and README. `words.txt` planned from 12Dicts (public domain) |
+| Lexicons | `assets/lexicon/verbs.txt`, `words.txt` | `verbs.txt` done: WordNet 3.1 verbs filtered by sense counts, forms from NGSL 1.2 (CC BY-SA 4.0), sources in the file header and README. `words.txt` done: 2of12inf from 12dicts 6.0.2 (public domain), about 82k words |
 
 The client owes only the 7 sentence pairs, the song and its timings; the art is ours, with the client's full permission. Use SVG for drawn art and WebP for photos, max 1080 px on the long side, to keep the APK small. Asset paths in `levels.json` name the expected locations until the files exist.
 
@@ -297,8 +298,8 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 | 2 | Theme from logo, Start, Welcome + profile, menu restyle, journey sheet | 2–3 | Done |
 | 3 | Level 1: song counter, sing-along card, MatchIt round + screen | 4–5 | Done, needs art |
 | 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 | Done, not wired to a screen until task 6 |
-| 5 | `SpellChecker` + word list | 1–2 | Next |
-| 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | |
+| 5 | `SpellChecker` + word list | 1–2 | Done, not wired to a screen until task 6 |
+| 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | Next |
 | 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | |
 | 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | |
 | 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | Logo and waving pose done |
