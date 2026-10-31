@@ -7,10 +7,10 @@ Context for picking up this work in a new session. Read this first, then [PRD.md
 - **Phase 1 is done** and on `main` (3 levels, unlock codes, 91 tests, CI). See [PROJECT_NOTES.md](PROJECT_NOTES.md).
 - **The client sent new screens** (Canva, 39 pages) that change all three levels. We reviewed them with the client and collected their decisions (below).
 - **Branch `ccr-44e736fd-ezneqa`** was squashed into `main` as `4220a7d` and deleted.
-- **v2 work lives on branch `v2`**, pushed to `origin/v2`. `main` stays runnable until v2 lands. Levels 1 and 3 are `LevelStubScreen` until DEV-PRD tasks 3 and 7.
-- **Done on `v2`:** task 1 (schema v2), the vector logo, the waving character, task 2 (theme, Start, Welcome + profile, menu, journey sheet). Next is task 3.
+- **v2 work lives on branch `v2`**, pushed to `origin/v2`. `main` stays runnable until v2 lands. Level 3 is `LevelStubScreen` until DEV-PRD task 7.
+- **Done on `v2`:** task 1 (schema v2), the vector logo, the waving character, task 2 (theme, Start, Welcome + profile, menu, journey sheet), task 3 (Level 1: silent song player, play counter, sing-along card, MatchIt). Next is task 4.
 - **Deadline: 21 November 2026.** About 14 working days remain against 26–34 days of estimate, so cut polish first. Client files are due 7 November.
-- **Local checks:** `flutter analyze` is clean and 94 tests pass.
+- **Local checks:** `flutter analyze` is clean and 116 tests pass.
 
 ## External links
 
@@ -63,6 +63,7 @@ Still unanswered: grade level, teacher-guided or self-paced, sound effects, appr
 - `assets/images/logo.svg` and `girl_wave.svg` are hand-written vector files. Both render in `flutter_svg`, including `<use>`, clip paths and gradients. Don't add `<filter>` or `<mask>`.
 - The logo's bridge gets dense below about 64 px, so the app icon needs a simplified icon-only version.
 - `girl_wave.svg` keeps head, arms and body in separate groups, so new poses reuse the same parts.
+- Draggables must sit outside any scroll view that can overflow, or the scroll takes the vertical drags. `MatchItBoard` scrolls only its slots for this reason.
 - Logo colors: navy `#183870`, teal `#309090`, light teal `#80C0A8`, orange `#D88858`. Navy on orange is 4.1:1, so use it only for large bold text.
 - Docs still naming `logo_placeholder.svg`: `README.md` (Where things live), `PROJECT_NOTES.md` step 5, the phase 1 plan.
 - `docs/client/BridgeIt-PRD-v2.pdf` is still PRD v2.0. `docs/PRD.md` is v2.1, so rebuild the PDF before sending it to the client.
@@ -72,6 +73,6 @@ Still unanswered: grade level, teacher-guided or self-paced, sound effects, appr
 
 ## Next steps
 
-1. Start DEV-PRD task 3 (Level 1: song counter, sing-along card, MatchIt), then tasks 4–9.
+1. Start DEV-PRD task 4 (`SentenceChecker`, clause check, lexicons), then tasks 5–9.
 2. When the client's files arrive on 7 November, swap in the song, timings and sentences (task 10).
 3. Update `PROJECT_NOTES.md` status, and delete this file when it's no longer needed.

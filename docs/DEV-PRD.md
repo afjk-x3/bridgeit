@@ -287,8 +287,8 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 |---|---|---|---|
 | 1 | Schema v2, models, repository + validation, placeholder content | 2 | Done |
 | 2 | Theme from logo, Start, Welcome + profile, menu restyle, journey sheet | 2–3 | Done |
-| 3 | Level 1: song counter, sing-along card, MatchIt round + screen | 4–5 | Next |
-| 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 | |
+| 3 | Level 1: song counter, sing-along card, MatchIt round + screen | 4–5 | Done, needs art |
+| 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 | Next |
 | 5 | `SpellChecker` + word list | 1–2 | |
 | 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | |
 | 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | |
@@ -300,7 +300,7 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 
 **Deadline: 21 November 2026.** That leaves about 14 working days from 1 November, against 26–34 days of estimate remaining, so polish gets cut first (journey sheet detail, Ken Burns zoom, foundation visuals). Tasks 1–9 run on placeholders; only task 10 waits for the client's files, due 7 November.
 
-Levels 1 and 3 are `LevelStubScreen` until tasks 3 and 7.
+Level 3 is `LevelStubScreen` until task 7. Without audio, `SongPlayer` plays silently for the length of the placeholder lyrics, so Level 1 stays playable. Lyric images and the driver's-seat background wait for task 9. The play count isn't saved yet: leaving Level 1 before finishing resets it.
 
 ## 14. Open items (from client PRD Section 11)
 
@@ -310,7 +310,7 @@ Levels 1 and 3 are `LevelStubScreen` until tasks 3 and 7.
 | Unlock codes | `BRIDGE2` / `BRIDGE3` |
 | 7 Level 2 sentence pairs, explanations, hints (7 November) | Our sentences, starting with the Canva *for* example |
 | 35 captions | Client PRD Appendix A |
-| Song MP3 + line timings (7 November) | Silent player, evenly spaced lyric lines |
+| Song MP3 + line timings (7 November) | Silent `SongPlayer`, evenly spaced lyric lines |
 | Montage music | Free licensed track |
 | Sound effects | None |
 | Client approval of the redrawn logo and our art | Current `logo.svg` and `girl_wave.svg` |
