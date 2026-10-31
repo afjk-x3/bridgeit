@@ -45,6 +45,8 @@ Create a keystore and `android/key.properties` (`storeFile`, `storePassword`, `k
 
 ## Docs
 
+- [Product requirements v2.0](docs/PRD.md) ([PDF for the client](docs/client/BridgeIt-PRD-v2.pdf))
+- [Developer PRD](docs/DEV-PRD.md): architecture, schema, checker logic, build order
 - [Project notes](docs/PROJECT_NOTES.md): decisions, palette, open questions, next steps
 - [Phase 1 plan](docs/plans/2026-10-22-phase1.md)
 

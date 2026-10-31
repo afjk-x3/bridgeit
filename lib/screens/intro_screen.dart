@@ -18,9 +18,9 @@ class IntroScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SvgPicture.asset(
-                  'assets/images/logo_placeholder.svg',
+                  'assets/images/logo.svg',
                   width: 160,
-                  semanticsLabel: 'BridgeIt lotus logo',
+                  semanticsLabel: 'BridgeIt logo',
                 ),
                 const SizedBox(height: 8),
                 Text('BridgeIt', style: text.displaySmall),
