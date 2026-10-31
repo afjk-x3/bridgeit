@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../progress/progress_store.dart';
+import '../widgets/journey_sheet.dart';
 import '../widgets/level_done_panel.dart';
 
 /// shortcut: stands in for levels 1 and 3 so the menu and codes stay playable,
@@ -25,7 +26,7 @@ class _LevelStubScreenState extends State<LevelStubScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(),
+    appBar: AppBar(actions: const [JourneyButton()]),
     body: SafeArea(
       child: _done
           ? LevelDonePanel(level: widget.level)

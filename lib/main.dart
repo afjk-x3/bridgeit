@@ -6,6 +6,7 @@ import 'app.dart';
 import 'content/content_repository.dart';
 import 'content/models.dart';
 import 'progress/progress_store.dart';
+import 'progress/results_store.dart';
 import 'screens/content_error_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -19,6 +20,7 @@ Future<void> main() async {
       BridgeItApp(
         content: content,
         progress: ProgressStore(prefs, content.unlockCodes),
+        results: ResultsStore(prefs),
       ),
     );
   } catch (error) {

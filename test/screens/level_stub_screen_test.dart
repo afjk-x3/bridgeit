@@ -9,7 +9,7 @@ void main() {
   ) async {
     await pumpApp(tester);
     await openMenu(tester);
-    await tester.tap(find.text('Conjunction song'));
+    await tester.tap(find.text('Conjunction Theme Song'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Finish'));
@@ -36,7 +36,7 @@ void main() {
       },
     );
     await openMenu(tester);
-    await tester.tap(find.text('Strengthening the bridge'));
+    await tester.tap(find.text('Travelogue'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Finish'));

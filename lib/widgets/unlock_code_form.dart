@@ -48,29 +48,45 @@ class _UnlockCodeFormState extends State<UnlockCodeForm> {
     return Card(
       color: AppColors.card,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.primary),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const Text(
+              'Enter the code that has been given to unlock the next level',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
             TextField(
               controller: _controller,
+              textAlign: TextAlign.center,
               textCapitalization: TextCapitalization.characters,
               textInputAction: TextInputAction.done,
               onChanged: (_) => setState(() => _failed = false),
               onSubmitted: (_) => _submit(),
               decoration: InputDecoration(
-                labelText: 'Got a code from your teacher?',
-                helperText: 'Enter it to unlock the next level.',
+                hintText: '[ C O D E ]',
                 errorText: _failed
                     ? "That code didn't work. Check with your teacher."
                     : null,
                 border: const OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: _submit, child: const Text('Unlock')),
+            const SizedBox(height: 12),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.lightTeal,
+                foregroundColor: AppColors.ink,
+                side: const BorderSide(color: AppColors.primary, width: 2),
+              ),
+              onPressed: _submit,
+              child: const Text('Unlock'),
+            ),
           ],
         ),
       ),

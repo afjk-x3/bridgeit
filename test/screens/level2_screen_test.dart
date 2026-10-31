@@ -28,7 +28,7 @@ Future<void> _openLevel2(WidgetTester tester) async {
     },
   );
   await openMenu(tester);
-  await tester.tap(find.text('Building the bridge'));
+  await tester.tap(find.text('Building Bridges'));
   await tester.pumpAndSettle();
 }
 

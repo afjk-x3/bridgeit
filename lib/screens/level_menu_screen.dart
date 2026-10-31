@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
+import '../content/level_summaries.dart';
 import '../progress/progress_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/unlock_code_form.dart';
-
-const _levels = [
-  (1, 'Conjunction song', 'Sing along, then fill in the blanks'),
-  (2, 'Building the bridge', 'Drag the right conjunction into the gap'),
-  (3, 'Strengthening the bridge', 'Pick a word with the same meaning'),
-];
 
 class LevelMenuScreen extends StatelessWidget {
   const LevelMenuScreen({super.key});
@@ -23,24 +19,38 @@ class LevelMenuScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Row(
+            Stack(
+              alignment: Alignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  tooltip: 'Back',
-                  onPressed: () => Navigator.maybePop(context),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Choose a level',
-                    style: Theme.of(context).textTheme.headlineSmall,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton.filled(
+                    icon: const Icon(Icons.arrow_back),
+                    tooltip: 'Back',
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.lightTeal,
+                      foregroundColor: AppColors.ink,
+                    ),
+                    onPressed: () => Navigator.maybePop(context),
                   ),
+                ),
+                SvgPicture.asset(
+                  'assets/images/logo.svg',
+                  height: 80,
+                  semanticsLabel: 'BridgeIt logo',
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            for (final (level, title, subtitle) in _levels)
+            Text(
+              'Choose a level',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            for (final (level, title, subtitle) in levelSummaries)
               _LevelCard(
                 level: level,
                 title: title,
@@ -48,16 +58,16 @@ class LevelMenuScreen extends StatelessWidget {
                 locked: !progress.isUnlocked(level),
                 completed: progress.isCompleted(level),
               ),
-            if (anyLocked) const UnlockCodeForm(),
+            if (anyLocked) ...[
+              const SizedBox(height: 4),
+              const UnlockCodeForm(),
+            ],
           ],
         ),
       ),
     );
   }
 }
-
-RoundedRectangleBorder get _cardShape =>
-    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16));
 
 class _LevelCard extends StatelessWidget {
   const _LevelCard({
@@ -74,78 +84,99 @@ class _LevelCard extends StatelessWidget {
   final bool locked;
   final bool completed;
 
+  void _open(BuildContext context) =>
+      Navigator.pushNamed(context, '/level/$level');
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final (icon, status) = locked
-        ? (Icons.lock, 'Ask your teacher for the code')
-        : completed
-        ? (Icons.check_circle, 'Completed')
-        : (Icons.lock_open, 'Unlocked');
     return Card(
-      color: AppColors.card,
+      color: AppColors.lightTeal,
       margin: const EdgeInsets.only(bottom: 12),
-      shape: _cardShape,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppColors.primary, width: 2),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: locked
-            ? null
-            : () => Navigator.pushNamed(context, '/level/$level'),
-        child: Opacity(
-          opacity: locked ? 0.7 : 1,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.card,
-                  child: Text('$level'),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: text.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+        onTap: locked ? null : () => _open(context),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              _LevelTile(level: level, locked: locked),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: text.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                      Text(subtitle),
+                    ),
+                    Text(subtitle, style: text.bodySmall),
+                    if (completed)
+                      Text('Completed', style: text.labelSmall)
+                    else if (!locked) ...[
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(
-                            icon,
-                            size: 18,
-                            color: completed
-                                ? AppColors.correct
-                                : AppColors.ink,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(child: Text(status)),
-                        ],
-                      ),
-                      if (!locked) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          'Play level $level',
-                          style: text.labelLarge?.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(44),
                         ),
-                      ],
+                        onPressed: () => _open(context),
+                        child: Text('Play Level $level'),
+                      ),
                     ],
-                  ),
+                  ],
                 ),
+              ),
+              if (completed) ...[
+                const SizedBox(width: 8),
+                const Icon(Icons.check, color: AppColors.primary),
               ],
-            ),
+            ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The square at the start of a card: the level number, or a lock.
+class _LevelTile extends StatelessWidget {
+  const _LevelTile({required this.level, required this.locked});
+
+  static const _colors = {
+    1: (AppColors.primary, AppColors.card),
+    2: (AppColors.accent, AppColors.ink),
+    3: (AppColors.card, AppColors.ink),
+  };
+
+  final int level;
+  final bool locked;
+
+  @override
+  Widget build(BuildContext context) {
+    final (background, foreground) = _colors[level]!;
+    return Container(
+      width: 56,
+      height: 56,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: locked
+          ? Icon(Icons.lock, color: foreground, semanticLabel: 'Locked')
+          : Text(
+              '$level',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: foreground,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
     );
   }
 }

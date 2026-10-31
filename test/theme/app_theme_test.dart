@@ -1,10 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:bridgeit/theme/app_theme.dart';
-
-import '../support/pump_app.dart';
 
 double _width(TextStyle style) {
   final painter = TextPainter(
@@ -19,11 +19,30 @@ void main() {
     expect(buildAppTheme().textTheme.bodyMedium!.fontFamily, 'Nunito');
   });
 
-  testWidgets('intro wordmark uses AbrilFatface', (tester) async {
-    await pumpApp(tester);
+  test('text colors reach 4.5:1 contrast on their backgrounds', () {
+    double contrast(Color a, Color b) {
+      final (l1, l2) = (a.computeLuminance(), b.computeLuminance());
+      return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05);
+    }
 
-    final wordmark = tester.widget<Text>(find.text('BridgeIt'));
-    expect(wordmark.style!.fontFamily, 'AbrilFatface');
+    const pairs = [
+      (AppColors.ink, AppColors.sky),
+      (AppColors.ink, AppColors.card),
+      (AppColors.ink, AppColors.lightTeal),
+      (AppColors.card, AppColors.primary),
+    ];
+    for (final (text, background) in pairs) {
+      expect(
+        contrast(text, background),
+        greaterThanOrEqualTo(4.5),
+        reason: '$text on $background',
+      );
+    }
+    // Only the large bold level number sits on orange: 3:1 is enough.
+    expect(
+      contrast(AppColors.ink, AppColors.accent),
+      greaterThanOrEqualTo(3),
+    );
   });
 
   testWidgets('bundled Nunito is variable: fontWeight moves the wght axis', (

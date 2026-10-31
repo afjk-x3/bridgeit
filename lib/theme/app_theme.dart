@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// The only place colors are defined. Placeholder palette until the client
-/// sends their final logo; swap the values here and nothing else changes.
+/// The only place colors are defined. Brand colors come from the logo.
 abstract final class AppColors {
-  static const primary = Color(0xFF0E7490);
-  static const accent = Color(0xFFEC4899);
-  static const piece = Color(0xFF9D174D);
-  static const sky = Color(0xFFE0F2FE);
-  static const ink = Color(0xFF1E293B);
+  static const primary = Color(0xFF183870);
+  static const accent = Color(0xFFD88858);
+  static const piece = Color(0xFFD88858);
+  static const teal = Color(0xFF309090);
+  static const lightTeal = Color(0xFF80C0A8);
+  static const sky = Color(0xFFE6F5FF);
+  static const ink = Color(0xFF183870);
   static const bridge = Color(0xFFB45309);
   static const cliff = Color(0xFF15803D);
   static const vehicle = Color(0xFFF59E0B);
@@ -29,10 +30,6 @@ ThemeData buildAppTheme() {
   return ThemeData(
     colorScheme: scheme,
     fontFamily: 'Nunito',
-    // The wordmark style; AbrilFatface has no bold, so never add fontWeight to it.
-    textTheme: const TextTheme(
-      displaySmall: TextStyle(fontFamily: 'AbrilFatface'),
-    ),
     scaffoldBackgroundColor: AppColors.sky,
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(

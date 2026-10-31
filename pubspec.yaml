@@ -99,6 +99,3 @@ flutter:
     - family: Nunito
       fonts:
         - asset: assets/fonts/Nunito-Variable.ttf
-    - family: AbrilFatface
-      fonts:
-        - asset: assets/fonts/AbrilFatface-Regular.ttf

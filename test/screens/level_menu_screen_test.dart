@@ -10,18 +10,18 @@ void main() {
     await pumpApp(tester);
     await openMenu(tester);
 
-    await tester.tap(find.text('Strengthening the bridge'));
+    await tester.tap(find.text('Travelogue'));
     await tester.pumpAndSettle();
 
     expect(find.text('Choose a level'), findsOneWidget);
-    expect(find.textContaining('LEVEL 3'), findsNothing);
+    expect(find.byIcon(Icons.lock), findsNWidgets(2));
   });
 
   testWidgets('unlocked level opens its route', (tester) async {
     await pumpApp(tester);
     await openMenu(tester);
 
-    await tester.tap(find.text('Conjunction song'));
+    await tester.tap(find.text('Conjunction Theme Song'));
     await tester.pumpAndSettle();
 
     expect(find.text('Level 1 is being rebuilt.'), findsOneWidget);
@@ -30,13 +30,13 @@ void main() {
   testWidgets('entering the right code unlocks level 2', (tester) async {
     await pumpApp(tester);
     await openMenu(tester);
-    expect(find.text('Play level 2'), findsNothing);
+    expect(find.text('Play Level 2'), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'bridge2');
     await tester.tap(find.text('Unlock'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Play level 2'), findsOneWidget);
+    expect(find.text('Play Level 2'), findsOneWidget);
     expect(find.text('Level 2 unlocked!'), findsOneWidget);
     expect(find.text(wrongCode), findsNothing);
   });
@@ -51,7 +51,7 @@ void main() {
 
     expect(find.text(wrongCode), findsOneWidget);
     expect(find.text('NOPE'), findsOneWidget);
-    expect(find.text('Play level 2'), findsNothing);
+    expect(find.text('Play Level 2'), findsNothing);
   });
 
   testWidgets('a level 3 code unlocks level 3 while level 2 stays locked', (
@@ -64,8 +64,8 @@ void main() {
     await tester.tap(find.text('Unlock'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Play level 3'), findsOneWidget);
-    expect(find.text('Play level 2'), findsNothing);
+    expect(find.text('Play Level 3'), findsOneWidget);
+    expect(find.text('Play Level 2'), findsNothing);
     expect(find.text('Level 3 unlocked!'), findsOneWidget);
     expect(find.text(wrongCode), findsNothing);
     expect(find.byType(TextField), findsOneWidget);
@@ -105,16 +105,18 @@ void main() {
     expect(find.byType(TextField), findsNothing);
     expect(find.text('Unlock'), findsNothing);
     expect(find.text('Completed'), findsOneWidget);
-    expect(find.text('Play level 3'), findsOneWidget);
+    expect(find.byIcon(Icons.check), findsOneWidget);
+    expect(find.text('Play Level 3'), findsOneWidget);
+    expect(find.text('Play Level 1'), findsNothing);
   });
 
-  testWidgets('back button returns to the intro', (tester) async {
+  testWidgets('back button returns to the start screen', (tester) async {
     await pumpApp(tester);
     await openMenu(tester);
 
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
 
-    expect(find.text("Let's start"), findsOneWidget);
+    expect(find.byTooltip('Play'), findsOneWidget);
   });
 }

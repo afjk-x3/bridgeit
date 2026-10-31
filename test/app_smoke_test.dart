@@ -6,11 +6,12 @@ import 'package:bridgeit/theme/app_theme.dart';
 import 'support/pump_app.dart';
 
 void main() {
-  testWidgets('app starts and shows BridgeIt title', (tester) async {
+  testWidgets('app starts on the start screen with the theme', (tester) async {
     await pumpApp(tester);
 
-    expect(find.text('BridgeIt'), findsOneWidget);
-    final context = tester.element(find.text('BridgeIt'));
+    final play = find.byTooltip('Play');
+    expect(play, findsOneWidget);
+    final context = tester.element(play);
     expect(Theme.of(context).colorScheme.primary, AppColors.primary);
   });
 }

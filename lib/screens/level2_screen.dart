@@ -7,6 +7,7 @@ import '../progress/progress_store.dart';
 import '../widgets/bridge_gap.dart';
 import '../widgets/bridge_scene.dart';
 import '../widgets/hint_card.dart';
+import '../widgets/journey_sheet.dart';
 import '../widgets/level_done_panel.dart';
 import '../widgets/piece_tray.dart';
 import '../widgets/strength_bar.dart';
@@ -84,7 +85,7 @@ class _Level2ScreenState extends State<Level2Screen> {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(actions: const [JourneyButton()]),
       body: SafeArea(
         child: _done
             ? const LevelDonePanel(level: 2)
