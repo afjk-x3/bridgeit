@@ -1,8 +1,8 @@
 # BridgeIt v2 – developer PRD
 
-Last updated: 31 October 2026
+Last updated: 1 November 2026
 
-The technical companion to the client PRD ([PRD.md](PRD.md), v2.0). The client PRD says *what* the app does; this file says *how* we build it on top of the Phase 1 code. If the two disagree, the client PRD wins on behaviour and this file gets fixed.
+The technical companion to the client PRD ([PRD.md](PRD.md), v2.1). The client PRD says *what* the app does; this file says *how* we build it on top of the Phase 1 code. If the two disagree, the client PRD wins on behaviour and this file gets fixed.
 
 Sources: client PRD v2.0, the design review doc with the client's red answers, and the Canva screens "BridgeIt Pre-design" (39 pages).
 
@@ -190,7 +190,7 @@ Stopwatch per level and per bridge, paused by an `AppLifecycleListener` on `paus
 
 ## 6. Persistence
 
-`shared_preferences`, JSON strings, versioned:
+`shared_preferences`, JSON strings, versioned. `ResultsStore` exists with `profile_v1`; `results_v1` and `level2_resume_v1` arrive with tasks 6 and 8.
 
 | Key | Contents |
 |---|---|
@@ -221,7 +221,7 @@ Wrap reads in try/catch and treat bad JSON as empty, so a corrupt value can't br
 
 | Screen | Notes |
 |---|---|
-| Start | Logo + play. Logo is `assets/images/logo.svg` (Section 11 risk) |
+| Start | Logo + play. Logo is `assets/images/logo.svg` |
 | Welcome | Speech bubbles from Canva page 2, then name + section form (both required, trimmed, max 40 chars) |
 | Level menu | Canva pages 3/9/18: three cards, tick when completed, code box |
 | Level 1 | Driver's-seat background; song card with play counter; sing-along card synced to `startMs`; MatchIt intro (Yes / listen again); MatchIt board with drag targets and tap-select; Submit |
@@ -245,22 +245,23 @@ Pin exact versions that support Dart 3.13 and add them in one commit with a note
 
 | Asset | Path | Status |
 |---|---|---|
-| Logo | `assets/images/logo.svg` | Delivered (raster inside SVG); ask for vector/transparent PNG + icon |
-| App icon | `android/app/src/main/res/mipmap-*` | Needs the icon-only logo |
-| Scenes, character, car, bridge parts | `assets/images/scenes/…` | Expected Saturday; placeholders until then |
-| Montage pictures (35) | `assets/images/places/<id>/1..5.webp` | Expected Saturday; placeholder images |
-| Map | `assets/images/map.webp` | Expected Saturday |
-| Theme song | `assets/audio/theme_song.mp3` | Expected Saturday, with line timings |
+| Logo | `assets/images/logo.svg` | Done: our vector redraw in the logo colors |
+| Character | `assets/images/girl_wave.svg` | Waving pose done; we draw the others as SVG from the same parts |
+| App icon | `android/app/src/main/res/mipmap-*` | We make a simplified icon-only logo; hangers get too dense at small sizes |
+| Scenes, car, bridge parts | `assets/images/scenes/…` | We make them, SVG, in the same outline style |
+| Montage pictures (35) | `assets/images/places/<id>/1..5.webp` | We source free-licensed photos (Wikimedia Commons, Pexels); record source + license in README |
+| Map | `assets/images/map.svg` | We make it. `level3` pins are placeholders until then |
+| Theme song | `assets/audio/theme_song.mp3` | Client, expected 7 November, with line timings |
 | Montage music | `assets/audio/montage_placeholder.mp3` | Free track licensed for apps (e.g. Pixabay); record the source + license in README; replace if the client sends one |
 | Lexicons | `assets/lexicon/verbs.txt`, `words.txt` | We build; record sources + licenses |
 
-Use WebP for photos/illustrations, max 1080 px on the long side, to keep the APK small.
+The client owes only the 7 sentence pairs, the song and its timings; the art is ours, with the client's full permission. Use SVG for drawn art and WebP for photos, max 1080 px on the long side, to keep the APK small. Asset paths in `levels.json` name the expected locations until the files exist.
 
 ## 11. Theme
 
-- **Colors:** set from the logo (approximate until the client confirms): navy `#183870` → `primary`/`ink`, teal `#309090`, light teal `#80C0A8`, orange `#D88858` → `accent`/`piece`. Keep `correct`/`wrong` and contrast ≥ 4.5:1 for text. Update `test/theme/app_theme_test.dart`.
-- **Logo risk:** `logo.svg` is a Canva export (embedded bitmap + `<filter>`/`<mask>`). `flutter_svg` ignores filters and only partly supports masks. If it renders badly, extract the embedded image to `logo.png` and use `Image.asset`.
-- **Intro text:** drop the "BridgeIt" text under the logo, since the logo already contains the wordmark.
+- **Colors:** set from the logo: navy `#183870` → `primary`/`ink`, teal `#309090` → `teal`, light teal `#80C0A8` → `lightTeal`, orange `#D88858` → `accent`/`piece`, background `#E6F5FF` → `sky`. `test/theme/app_theme_test.dart` checks text contrast ≥ 4.5:1. Navy on orange is 4.1:1, so use that pair only for large bold text.
+- **Logo:** `logo.svg` is pure vector and renders in `flutter_svg`, including `<use>`, clip paths and gradients. Keep new SVGs to those features; no `<filter>` or `<mask>`.
+- **Fonts:** Nunito only. The "BridgeIt" text and AbrilFatface are gone, since the logo holds the wordmark.
 
 ## 12. Testing
 
@@ -282,32 +283,34 @@ Use WebP for photos/illustrations, max 1080 px on the long side, to keep the APK
 
 ## 13. Build order and estimate (working days)
 
-| # | Task | Days |
-|---|---|---|
-| 1 | Schema v2, models, repository + validation, placeholder content | 2 |
-| 2 | Theme from logo, Start, Welcome + profile, menu restyle, journey sheet | 2–3 |
-| 3 | Level 1: song counter, sing-along card, MatchIt round + screen | 4–5 |
-| 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 |
-| 5 | `SpellChecker` + word list | 1–2 |
-| 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 |
-| 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 |
-| 8 | `ActiveTimer`, `ResultsStore`, PDF report, share | 3 |
-| 9 | Swap in client art, song, timings, sentences, captions | 1–2 |
-| 10 | Real-phone testing, fixes, one client review round | 3–4 |
-| | **Total** | **27–35** |
+| # | Task | Days | Status |
+|---|---|---|---|
+| 1 | Schema v2, models, repository + validation, placeholder content | 2 | Done |
+| 2 | Theme from logo, Start, Welcome + profile, menu restyle, journey sheet | 2–3 | Done |
+| 3 | Level 1: song counter, sing-along card, MatchIt round + screen | 4–5 | Next |
+| 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 | |
+| 5 | `SpellChecker` + word list | 1–2 | |
+| 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | |
+| 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | |
+| 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | |
+| 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | Logo and waving pose done |
+| 10 | Swap in client song, timings, sentences | 1 | |
+| 11 | Real-phone testing, fixes, one client review round | 3–4 | |
+| | **Total** | **30–39** | |
 
-Tasks 1–8 can run on placeholders; only task 9 waits for the client's files.
+**Deadline: 21 November 2026.** That leaves about 14 working days from 1 November, against 26–34 days of estimate remaining, so polish gets cut first (journey sheet detail, Ken Burns zoom, foundation visuals). Tasks 1–9 run on placeholders; only task 10 waits for the client's files, due 7 November.
+
+Levels 1 and 3 are `LevelStubScreen` until tasks 3 and 7.
 
 ## 14. Open items (from client PRD Section 11)
 
 | Item | Placeholder until then |
 |---|---|
 | Grade level, teacher-guided or self-paced | None needed for the build |
-| Unlock codes (Saturday) | `BRIDGE2` / `BRIDGE3` |
-| 7 Level 2 sentence pairs, explanations, hints (Saturday) | Our sentences, starting with the Canva *for* example |
+| Unlock codes | `BRIDGE2` / `BRIDGE3` |
+| 7 Level 2 sentence pairs, explanations, hints (7 November) | Our sentences, starting with the Canva *for* example |
 | 35 captions | Client PRD Appendix A |
-| Art files and 35 pictures (Saturday) | Simple placeholder drawings |
-| Song MP3 + line timings (Saturday) | Silent player, evenly spaced lyric lines |
+| Song MP3 + line timings (7 November) | Silent player, evenly spaced lyric lines |
 | Montage music | Free licensed track |
 | Sound effects | None |
-| Vector logo, icon, exact colors | Current `logo.svg`, colors measured from it |
+| Client approval of the redrawn logo and our art | Current `logo.svg` and `girl_wave.svg` |

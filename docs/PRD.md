@@ -1,11 +1,11 @@
 ---
 title: BridgeIt
-subtitle: Project Overview (Product Requirements Document) · Version 2.0 · 31 October 2026
+subtitle: Project Overview (Product Requirements Document) · Version 2.1 · 1 November 2026
 ---
 
 A phone game that teaches students how to connect sentences with coordinating conjunctions.
 
-> **How to read this document.** This version replaces Draft v0.3. It follows your Canva screens ("BridgeIt Pre-design", 39 pages) and your answers in the design review. Items marked **To confirm** still need your decision; they are all collected in Section 11. Items marked **Our proposal** are suggestions you can accept or change. Items marked **Placeholder** are used for building and testing until your final version arrives.
+> **How to read this document.** This version replaces Version 2.0 and Draft v0.3. It follows your Canva screens ("BridgeIt Pre-design", 39 pages) and your answers in the design review. Items marked **To confirm** still need your decision; they are all collected in Section 11. Items marked **Our proposal** are suggestions you can accept or change. Items marked **Placeholder** are used for building and testing until your final version arrives.
 
 # 1. What is BridgeIt?
 
@@ -183,11 +183,12 @@ Time spent counts only while the level is open on screen; it pauses when the stu
 
 # 9. Look and feel
 
-- **Screens:** built as in your Canva design: the character, the car, the driver's-seat view with speech boxes, the bridge scenes, the map and the place scenes.
-- **Logo:** your BridgeIt logo on the start, welcome and finish screens, and as the app icon.
-- **Colors:** taken from your logo. The values below are measured from the logo image and are approximate until you confirm the exact codes.
+- **Screens:** built following your Canva design: the character, the car, the driver's-seat view with speech boxes, the bridge scenes, the map and the place scenes.
+- **Art:** you gave the development team full permission on the art, so we make it. The character, car, scenes, bridge parts and map are drawn by us in the style of your screens. The 35 montage pictures are free-licensed photos of the real places, with their sources recorded.
+- **Logo:** your BridgeIt logo on the start, welcome and finish screens, and as the app icon. We redrew it as a sharp vector file in your colors, because a clear original was not available. We also make the icon-only version.
+- **Colors:** taken from your logo. The values below are measured from the logo image.
 
-| Color | Code (approx.) | Used for |
+| Color | Code | Used for |
 |----|----|----------|
 | Navy | #183870 | Text, main buttons, headers |
 | Teal | #309090 | Cards, buttons, bridge details |
@@ -200,7 +201,7 @@ Right and wrong answers are also shown with icons, words and movement, not only 
 
 # 10. Sound
 
-- **Conjunction Theme Song:** your recording, with the time each lyric line starts for the sing-along card. **To confirm** (you will send these).
+- **Conjunction Theme Song:** your recording, with the time each lyric line starts for the sing-along card. **Expected 7 November** (you will send these).
 - **Montage music:** simple, calm background music. **Placeholder:** a free track with a license that allows use in apps. If you send your own music, we will use it instead.
 - **Sound effects** (for example, a bridge cracking or a car driving): **To confirm**
 
@@ -210,22 +211,29 @@ Right and wrong answers are also shown with icons, words and movement, not only 
 |-|------------|---|
 | 1 | What grade level are the students? | To confirm |
 | 2 | Will students play with the teacher guiding the class, on their own, or both? | To confirm |
-| 3 | The unlock codes for Levels 2 and 3, or should the teacher set them? | Expected Saturday |
-| 4 | The 7 Level 2 sentence pairs, with explanations and hints (Section 8) | Expected Saturday |
+| 3 | The unlock codes for Levels 2 and 3. **Placeholder:** BRIDGE2 and BRIDGE3 unless you send others | To confirm |
+| 4 | The 7 Level 2 sentence pairs, with explanations and hints (Section 8) | Expected 7 November |
 | 5 | Captions for the 35 montage pictures. Please replace or approve our placeholders in Appendix A | To confirm |
-| 6 | The 35 montage pictures and the other art as separate files (PNG or SVG), with characters and backgrounds separate | Expected Saturday |
-| 7 | The song as an MP3 file, and the lyrics with the time each line starts | Expected Saturday |
-| 8 | Background music for the montage, or use our free placeholder track | To confirm |
-| 9 | Should the game have sound effects besides the song and music? | To confirm |
-| 10 | The logo as an SVG or a transparent PNG at least 1024 px wide, a square icon-only version (bridge and book, no text), and the exact color codes | To confirm |
+| 6 | The song as an MP3 file, and the lyrics with the time each line starts | Expected 7 November |
+| 7 | Background music for the montage, or use our free placeholder track | To confirm |
+| 8 | Should the game have sound effects besides the song and music? | To confirm |
+| 9 | Do you approve the redrawn logo and the art we make? | To confirm |
 
-# 12. Changes from Draft v0.3
+# 12. Changes
+
+**From Version 2.0:**
+
+- You send only the Level 2 sentences, the song and its timings. The development team makes all the art.
+- The logo is redrawn as a vector file in your colors.
+- Your files are expected on 7 November.
+
+**From Draft v0.3:**
 
 - Level 1: fill-in-the-blanks replaced by a sing-along card and MatchIt.
 - Level 2: 7 bridges, each strengthened with sentences the student writes, checked by the app.
 - Level 3: the same-meaning word activity is replaced by the Travelogue.
 - New: answer report (PDF) for the teacher and researchers, spelling warnings, map icon, name and section.
-- Look and feel: your logo, character and Canva screens replace our proposed lotus logo and wireframes.
+- Look and feel: your logo, the character from your screens and your Canva design replace our proposed lotus logo and wireframes.
 
 # 13. Attachments and references
 
