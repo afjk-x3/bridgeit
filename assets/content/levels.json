@@ -141,7 +141,7 @@
     ]
   },
   "writing": {
-    "minClauseWords": 3
+    "minClauseWords": 2
   },
   "level3": {
     "musicAsset": "assets/audio/montage_placeholder.mp3",

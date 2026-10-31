@@ -86,7 +86,7 @@ void main() {
     expect(content.level1.matchIt, hasLength(7));
     expect(content.level2.maxWrongAnswers, 3);
     expect(content.level2.bridges.map((b) => b.conjunction), fanboys);
-    expect(content.minClauseWords, 3);
+    expect(content.minClauseWords, 2);
     expect(content.level3.places, hasLength(7));
     expect(content.level3.travelogue.maxSentences, 7);
 

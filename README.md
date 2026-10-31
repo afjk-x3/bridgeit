@@ -50,4 +50,6 @@ Create a keystore and `android/key.properties` (`storeFile`, `storePassword`, `k
 - [Project notes](docs/PROJECT_NOTES.md): decisions, palette, open questions, next steps
 - [Phase 1 plan](docs/plans/2026-10-22-phase1.md)
 
-Fonts: Nunito and Abril Fatface, under the SIL Open Font License (`assets/fonts/*-OFL.txt`).
+Fonts: Nunito, under the SIL Open Font License (`assets/fonts/Nunito-OFL.txt`).
+
+Verb list (`assets/lexicon/verbs.txt`): derived from [WordNet 3.1](https://wordnet.princeton.edu/license-and-commercial-use) and the [New General Service List 1.2](https://www.newgeneralservicelist.com/new-general-service-list) (CC BY-SA 4.0), and shares that license.
