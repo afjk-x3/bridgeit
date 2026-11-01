@@ -199,7 +199,7 @@ Stopwatch per level and per bridge, paused by an `AppLifecycleListener` on `paus
 
 ## 6. Persistence
 
-`shared_preferences`, JSON strings, versioned. `ResultsStore` exists with `profile_v1`; `results_v1` and `level2_resume_v1` arrive with tasks 6 and 8.
+`shared_preferences`, JSON strings, versioned. `ResultsStore` exists with `profile_v1` and `level2_resume_v1`; `results_v1` arrives with task 8. The resume value is `{bridgeIndex, written}`, one list of accepted sentences per bridge; the step follows from how many the current bridge has.
 
 | Key | Contents |
 |---|---|
@@ -297,10 +297,10 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 | 1 | Schema v2, models, repository + validation, placeholder content | 2 | Done |
 | 2 | Theme from logo, Start, Welcome + profile, menu restyle, journey sheet | 2–3 | Done |
 | 3 | Level 1: song counter, sing-along card, MatchIt round + screen | 4–5 | Done, needs art |
-| 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 | Done, not wired to a screen until task 6 |
-| 5 | `SpellChecker` + word list | 1–2 | Done, not wired to a screen until task 6 |
-| 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | Next |
-| 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | |
+| 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 | Done |
+| 5 | `SpellChecker` + word list | 1–2 | Done |
+| 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | Done, needs art |
+| 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | Next |
 | 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | |
 | 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | Logo and waving pose done |
 | 10 | Swap in client song, timings, sentences | 1 | |
