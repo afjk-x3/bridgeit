@@ -258,13 +258,13 @@ Pin exact versions that support Dart 3.13 and add them in one commit with a note
 | Character | `assets/images/girl_wave.svg` | Waving pose done; we draw the others as SVG from the same parts |
 | App icon | `android/app/src/main/res/mipmap-*` | We make a simplified icon-only logo; hangers get too dense at small sizes |
 | Scenes, car, bridge parts | `assets/images/scenes/…` | We make them, SVG, in the same outline style |
-| Montage pictures (35) | `assets/images/places/<id>/1..5.webp` | We source free-licensed photos (Wikimedia Commons, Pexels); record source + license in README |
+| Montage pictures (35) | `assets/images/places/<id>/1..5.jpg` | Done: free-licensed Wikimedia Commons photos, sources in `docs/MEDIA-CREDITS.md` and the in-app Credits |
 | Map | `assets/images/map.svg` | We make it. `level3` pins are placeholders until then |
 | Theme song | `assets/audio/theme_song.mp3` | Client, expected 7 November, with line timings |
-| Montage music | `assets/audio/montage_placeholder.mp3` | Free track licensed for apps (e.g. Pixabay); record the source + license in README; replace if the client sends one |
+| Montage music | `assets/audio/montage.ogg` | Done: "Carefree" by Kevin MacLeod, CC BY 3.0; replace if the client sends one |
 | Lexicons | `assets/lexicon/verbs.txt`, `words.txt` | `verbs.txt` done: WordNet 3.1 verbs filtered by sense counts, forms from NGSL 1.2 (CC BY-SA 4.0), sources in the file header and README. `words.txt` done: 2of12inf from 12dicts 6.0.2 (public domain), about 82k words |
 
-The client owes only the 7 sentence pairs, the song and its timings; the art is ours, with the client's full permission. Use SVG for drawn art and WebP for photos, max 1080 px on the long side, to keep the APK small. Asset paths in `levels.json` name the expected locations until the files exist.
+The client owes only the 7 sentence pairs, the song and its timings; the art is ours, with the client's full permission. Use SVG for drawn art and JPEG for photos, max 1080 px on the long side, to keep the APK small. Asset paths in `levels.json` name the expected locations until the files exist.
 
 ## 11. Theme
 
@@ -302,14 +302,14 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 | 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | Done, needs art |
 | 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | Done, needs art and music |
 | 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | Done |
-| 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | In progress. Logo, waving pose, scenes, car, map and icon done |
+| 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | In progress. Only character poses and lyric pictures remain |
 | 10 | Swap in client song, timings, sentences | 1 | |
 | 11 | Real-phone testing, fixes, one client review round | 3–4 | |
 | | **Total** | **30–39** | |
 
 **Deadline: 21 November 2026.** That leaves about 14 working days from 1 November, against 26–34 days of estimate remaining, so polish gets cut first (journey sheet detail, Ken Burns zoom, foundation visuals). Tasks 1–9 run on placeholders; only task 10 waits for the client's files, due 7 November.
 
-Without images or music, the montage shows a placeholder panel and runs silently. Without audio, `SongPlayer` plays silently for the length of the placeholder lyrics, so Level 1 stays playable. Lyric images and the driver's-seat background wait for task 9. The play count isn't saved yet: leaving Level 1 before finishing resets it.
+Without audio, `SongPlayer` plays silently for the length of the placeholder lyrics, so Level 1 stays playable. Lyric images and the driver's-seat background wait for task 9. The play count isn't saved yet: leaving Level 1 before finishing resets it.
 
 ## 14. Open items (from client PRD Section 11)
 

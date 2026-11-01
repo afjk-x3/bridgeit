@@ -270,7 +270,7 @@ These captions are placeholders written by the development team so the montage c
 2. Twenty giant wind turbines stand in a row.
 3. The turbines turn the strong sea wind into electricity.
 4. Waves crash on the rocky beach below the windmills.
-5. The windmills look beautiful against the evening sky.
+5. The windmills look beautiful against the deep blue sky.
 
 **4. San Agustin Church of Paoay**
 
@@ -285,7 +285,7 @@ These captions are placeholders written by the development team so the montage c
 1. Saud Beach in Pagudpud has fine white sand.
 2. Coconut trees line the shore.
 3. The clear blue water is calm and good for swimming.
-4. Families have picnics in the shade of the trees.
+4. Families swim and play near the shore.
 5. In the afternoon, the beach is quiet and peaceful.
 
 **6. La Virgen Milagrosa de Badoc Church**
@@ -298,8 +298,10 @@ These captions are placeholders written by the development team so the montage c
 
 **7. Pangil Coral Rock Formations, Currimao**
 
-1. Coral rock formations line the coast of Currimao.
-2. Waves and wind have shaped the rocks over many years.
-3. At low tide, visitors can walk among the rocks and tide pools.
-4. Small sea creatures live in the pools between the rocks.
-5. At sunset, the rocks glow in warm colors.
+1. Colorful fishing boats line the beach of Currimao.
+2. Fishers work together to pull in their nets.
+3. A fisher pushes off from the shallow water.
+4. Bright boats rest on the sand between trips.
+5. At sunset, the rocks in the water glow in warm colors.
+
+We found only one free photo of the Currimao rocks, so this set mostly shows the beach at Currimao. Please send photos of the formations if you have them.
