@@ -27,3 +27,31 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
+
+  apk:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      # No key.properties here, so this APK is signed with a debug key.
+      - run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bridgeit-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
