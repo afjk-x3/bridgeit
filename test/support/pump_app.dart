@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bridgeit/app.dart';
 import 'package:bridgeit/content/content_repository.dart';
+import 'package:bridgeit/content/lexicon.dart';
 import 'package:bridgeit/progress/progress_store.dart';
 import 'package:bridgeit/progress/results_store.dart';
 
@@ -23,17 +24,25 @@ Future<void> pumpApp(
     if (!newStudent) ..._profile,
     ...prefs,
   });
-  final (content, progress, results) = (await tester.runAsync(() async {
-    final content = await loadGameContent(rootBundle);
-    final shared = await SharedPreferences.getInstance();
-    return (
-      content,
-      ProgressStore(shared, content.unlockCodes),
-      ResultsStore(shared),
-    );
-  }))!;
+  final (content, progress, results, writing) = (await tester.runAsync(
+    () async {
+      final content = await loadGameContent(rootBundle);
+      final shared = await SharedPreferences.getInstance();
+      return (
+        content,
+        ProgressStore(shared, content.unlockCodes),
+        ResultsStore(shared),
+        await loadWritingTools(rootBundle, content),
+      );
+    },
+  ))!;
   await tester.pumpWidget(
-    BridgeItApp(content: content, progress: progress, results: results),
+    BridgeItApp(
+      content: content,
+      progress: progress,
+      results: results,
+      writing: writing,
+    ),
   );
 }
 

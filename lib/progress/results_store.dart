@@ -10,16 +10,52 @@ class Profile {
   final String section;
 }
 
-/// Owns what the student enters: their profile, shown on the answer report.
+/// Where a student stopped in Level 2. [written] holds each bridge's accepted
+/// sentences, one list per bridge so far.
+class Level2Resume {
+  const Level2Resume({required this.bridgeIndex, required this.written});
+
+  final int bridgeIndex;
+  final List<List<String>> written;
+}
+
+/// Owns what the student enters: their profile, shown on the answer report,
+/// and their place in Level 2.
 class ResultsStore extends ChangeNotifier {
   ResultsStore(this._prefs) : _profile = _readProfile(_prefs);
 
   static const _profileKey = 'profile_v1';
+  static const _level2Key = 'level2_resume_v1';
 
   final SharedPreferences _prefs;
   Profile? _profile;
 
   Profile? get profile => _profile;
+
+  /// A corrupt value reads as a fresh start.
+  Level2Resume? get level2Resume {
+    final raw = _prefs.getString(_level2Key);
+    if (raw == null) return null;
+    try {
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      return Level2Resume(
+        bridgeIndex: json['bridgeIndex'] as int,
+        written: [
+          for (final bridge in json['written'] as List)
+            [for (final sentence in bridge as List) sentence as String],
+        ],
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> saveLevel2Resume(Level2Resume resume) => _prefs.setString(
+    _level2Key,
+    jsonEncode({'bridgeIndex': resume.bridgeIndex, 'written': resume.written}),
+  );
+
+  Future<void> clearLevel2Resume() => _prefs.remove(_level2Key);
 
   /// A corrupt value reads as no profile, so it can't brick the app.
   static Profile? _readProfile(SharedPreferences prefs) {

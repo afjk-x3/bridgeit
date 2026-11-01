@@ -28,7 +28,8 @@ class _LevelDonePanelState extends State<LevelDonePanel> {
     final progress = context.watch<ProgressStore>();
     final next = widget.level + 1;
     final hasNext = next <= 3;
-    final play = _unlocked ?? (hasNext && progress.isUnlocked(next) ? next : null);
+    final play =
+        _unlocked ?? (hasNext && progress.isUnlocked(next) ? next : null);
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
@@ -44,14 +45,17 @@ class _LevelDonePanelState extends State<LevelDonePanel> {
         const SizedBox(height: 24),
         if (play != null)
           FilledButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, '/level/$play'),
+            onPressed: () =>
+                Navigator.pushReplacementNamed(context, '/level/$play'),
             child: Text('Play level $play'),
           )
         else if (hasNext)
           UnlockCodeForm(onUnlocked: (l) => setState(() => _unlocked = l)),
         const SizedBox(height: 12),
         OutlinedButton(
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(56)),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(56),
+          ),
           onPressed: () => Navigator.maybePop(context),
           child: const Text('Back to levels'),
         ),

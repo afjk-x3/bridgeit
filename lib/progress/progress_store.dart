@@ -5,8 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Level 1 is always unlocked and is never written to prefs.
 class ProgressStore extends ChangeNotifier {
   ProgressStore(this._prefs, this._unlockCodes)
-      : _unlocked = _read(_prefs, _unlockedKey),
-        _completed = _read(_prefs, _completedKey);
+    : _unlocked = _read(_prefs, _unlockedKey),
+      _completed = _read(_prefs, _completedKey);
 
   static const _unlockedKey = 'unlocked_levels';
   static const _completedKey = 'completed_levels';

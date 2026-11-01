@@ -1,24 +1,19 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// [wobbly] is a complete bridge on dashed supports: the vehicle waits until
-/// it is [reinforced].
-enum BridgeState { open, cracked, built, wobbly, broken, reinforced }
+enum BridgeState { open, cracked, built, broken }
 
 const _labels = {
   BridgeState.open: 'Bridge open',
   BridgeState.cracked: 'Bridge cracked',
   BridgeState.built: 'Bridge built',
-  BridgeState.wobbly: 'Bridge wobbly',
   BridgeState.broken: 'Bridge broken',
-  BridgeState.reinforced: 'Bridge reinforced',
 };
 
 // Scene geometry as fractions of the panel, shared by painter and widgets.
 const _deck = 0.58; // top of the cliffs and of the bridge deck (of height)
+const _deckThickness = 0.05; // deck plank height (of height)
 const _waterTop = 0.8; // top of the river (of height)
 const _cliff = 0.22; // cliff width (of width)
 const _stub = 0.16; // plank stub length (of width)
@@ -27,7 +22,8 @@ const _carSize = Size(40, 22);
 
 /// Two cliffs over a river with a bridge between them. The sentence card, the
 /// [gap] drop target and the vehicle are widgets over a painted backdrop. The
-/// vehicle drives to the far cliff once the bridge is built or reinforced.
+/// student's [foundations] sit under the deck, and the vehicle drives to the
+/// far cliff when [crossed].
 class BridgeScene extends StatelessWidget {
   const BridgeScene({
     super.key,
@@ -36,30 +32,37 @@ class BridgeScene extends StatelessWidget {
     required this.right,
     required this.gap,
     this.placedWord,
-    this.cracked = false,
+    this.foundations = const [],
+    this.crossed = false,
+    this.onCrossed,
+    this.onTapWord,
   });
 
   final BridgeState state;
-
-  /// Adds crack strokes to a [BridgeState.wobbly] deck (a wrong synonym).
-  final bool cracked;
   final String left;
   final String right;
 
-  /// Shown in the bridge once it is complete (built, wobbly or reinforced).
+  /// Shown in the bridge once it is built.
   final String? placedWord;
 
   /// Fills a 64x48 slot centered over the missing bridge section. Hidden
   /// when the bridge is broken.
   final Widget gap;
 
+  /// Sentences that strengthen the bridge.
+  final List<String> foundations;
+  final bool crossed;
+
+  /// Called when the vehicle reaches the far cliff.
+  final VoidCallback? onCrossed;
+
+  /// Called when the student taps the word in a built bridge.
+  final VoidCallback? onTapWord;
+
   @override
   Widget build(BuildContext context) {
-    final crossed =
-        state == BridgeState.built || state == BridgeState.reinforced;
-    final complete = crossed || state == BridgeState.wobbly;
+    final complete = state == BridgeState.built;
     final word = placedWord;
-    final crackedDeck = cracked && state == BridgeState.wobbly;
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
@@ -68,7 +71,7 @@ class BridgeScene extends StatelessWidget {
           child: Semantics(
             container: true,
             explicitChildNodes: true,
-            label: crackedDeck ? 'Bridge wobbly and cracked' : _labels[state],
+            label: _labels[state],
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
@@ -91,9 +94,7 @@ class BridgeScene extends StatelessWidget {
                   return Stack(
                     children: [
                       Positioned.fill(
-                        child: CustomPaint(
-                          painter: _ScenePainter(state, cracked: crackedDeck),
-                        ),
+                        child: CustomPaint(painter: _ScenePainter(state)),
                       ),
                       Positioned(
                         left: 8,
@@ -114,11 +115,22 @@ class BridgeScene extends StatelessWidget {
                             child: SizedBox.fromSize(
                               size: _gapSize,
                               child: complete && word != null
-                                  ? _PlacedWord(word)
+                                  ? _PlacedWord(word, onTap: onTapWord)
                                   : gap,
                             ),
                           ),
                         ),
+                      Positioned(
+                        left: 8,
+                        right: 8,
+                        top: h * _deck + _gapSize.height / 2 + 4,
+                        child: Column(
+                          children: [
+                            for (final sentence in foundations)
+                              _Foundation(sentence),
+                          ],
+                        ),
+                      ),
                       Positioned.fill(
                         child: IgnorePointer(
                           child: Padding(
@@ -126,6 +138,7 @@ class BridgeScene extends StatelessWidget {
                             child: AnimatedAlign(
                               duration: const Duration(milliseconds: 600),
                               curve: Curves.easeInOut,
+                              onEnd: onCrossed,
                               alignment: Alignment(crossed ? 1 : -1, carY),
                               child: CustomPaint(
                                 size: _carSize,
@@ -196,42 +209,77 @@ class _SentenceCard extends StatelessWidget {
 }
 
 class _PlacedWord extends StatelessWidget {
-  const _PlacedWord(this.word);
+  const _PlacedWord(this.word, {this.onTap});
 
   final String word;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.correct, width: 3),
-      ),
-      child: Text(
-        word,
-        style: const TextStyle(
-          color: AppColors.cliff,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+    return Semantics(
+      button: onTap != null,
+      onTap: onTap,
+      child: GestureDetector(
+        key: const ValueKey('placed-word'),
+        onTap: onTap,
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.correct, width: 3),
+          ),
+          child: Text(
+            word,
+            style: const TextStyle(
+              color: AppColors.cliff,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
+/// One student sentence, as a beam under the deck.
+class _Foundation extends StatelessWidget {
+  const _Foundation(this.sentence);
+
+  final String sentence;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.bridge,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        sentence,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: AppColors.card, fontSize: 11),
+      ),
+    );
+  }
+}
+
 class _ScenePainter extends CustomPainter {
-  _ScenePainter(this.state, {this.cracked = false});
+  _ScenePainter(this.state);
 
   final BridgeState state;
-  final bool cracked;
 
   @override
   void paint(Canvas canvas, Size size) {
     final (w, h) = (size.width, size.height);
     final deck = h * _deck;
-    final thick = h * 0.05;
+    final thick = h * _deckThickness;
     final paint = Paint()..color = AppColors.primary;
     canvas.drawRect(Rect.fromLTRB(0, h * _waterTop, w, h), paint);
     paint.color = AppColors.cliff;
@@ -254,24 +302,12 @@ class _ScenePainter extends CustomPainter {
       thick,
     );
     switch (state) {
-      case BridgeState.built || BridgeState.wobbly || BridgeState.reinforced:
+      case BridgeState.built:
         _plank(
           canvas,
           Rect.fromLTRB(left.left, deck, right.right, deck + thick),
           paint,
         );
-        if (state != BridgeState.built) {
-          _supports(
-            canvas,
-            size,
-            deck + thick,
-            dashed: state == BridgeState.wobbly,
-          );
-        }
-        if (cracked) {
-          _crack(canvas, left.right, 1, deck, thick);
-          _crack(canvas, right.left, -1, deck, thick);
-        }
       case BridgeState.broken:
         _plank(canvas, left, paint, pivot: left.topLeft, angle: 0.8);
         _plank(canvas, right, paint, pivot: right.topRight, angle: -0.8);
@@ -320,46 +356,8 @@ class _ScenePainter extends CustomPainter {
     );
   }
 
-  /// A V of braces under the deck, resting on a pillar in the river. Dashed
-  /// braces mean the bridge is not strong yet.
-  void _supports(
-    Canvas canvas,
-    Size size,
-    double under, {
-    bool dashed = false,
-  }) {
-    final apex = Offset(size.width / 2, under + size.height * 0.1);
-    final brace = Paint()
-      ..color = AppColors.bridge
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
-      // Round caps would close the gaps between the dashes.
-      ..strokeCap = dashed ? StrokeCap.butt : StrokeCap.round;
-    final lines = [
-      (Offset(size.width * 0.3, under), apex),
-      (Offset(size.width * 0.7, under), apex),
-      (apex, Offset(apex.dx, size.height * _waterTop)),
-    ];
-    for (final (from, to) in lines) {
-      if (!dashed) {
-        canvas.drawLine(from, to, brace);
-        continue;
-      }
-      final path = Path()
-        ..moveTo(from.dx, from.dy)
-        ..lineTo(to.dx, to.dy);
-      for (final metric in path.computeMetrics()) {
-        for (var at = 0.0; at < metric.length; at += 12) {
-          final end = math.min(at + 6, metric.length);
-          canvas.drawPath(metric.extractPath(at, end), brace);
-        }
-      }
-    }
-  }
-
   @override
-  bool shouldRepaint(_ScenePainter old) =>
-      old.state != state || old.cracked != cracked;
+  bool shouldRepaint(_ScenePainter old) => old.state != state;
 }
 
 class _CarPainter extends CustomPainter {

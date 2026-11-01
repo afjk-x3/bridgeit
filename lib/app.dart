@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'content/lexicon.dart';
 import 'content/models.dart';
 import 'progress/progress_store.dart';
 import 'progress/results_store.dart';
@@ -18,17 +19,20 @@ class BridgeItApp extends StatelessWidget {
     required this.content,
     required this.progress,
     required this.results,
+    required this.writing,
   });
 
   final GameContent content;
   final ProgressStore progress;
   final ResultsStore results;
+  final WritingTools writing;
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<GameContent>.value(value: content),
+        Provider<WritingTools>.value(value: writing),
         ChangeNotifierProvider<ProgressStore>.value(value: progress),
         ChangeNotifierProvider<ResultsStore>.value(value: results),
       ],

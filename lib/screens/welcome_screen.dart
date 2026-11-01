@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../progress/results_store.dart';
 import '../theme/app_theme.dart';
+import '../widgets/speech_bubble.dart';
 
 const _maxFieldLength = 40;
 
@@ -61,7 +62,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _Bubble(
+        const SpeechBubble(
           "Hi, Bridge Builder! I'm ready to go on an adventure, but I need "
           'your help to reach my destination!',
         ),
@@ -78,16 +79,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _Bubble(
+                  SpeechBubble(
                     'Complete each level, choose the correct coordinating '
                     'conjunctions, and build and strengthen the bridges along '
                     'the way.',
                   ),
-                  _Bubble(
+                  SpeechBubble(
                     'Every correct answer brings me one step closer to my '
                     'destination!',
                   ),
-                  _Bubble(
+                  SpeechBubble(
                     'Are you ready to build the bridges and connect the '
                     'clauses?',
                   ),
@@ -111,7 +112,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const _Bubble('Before we go, who is helping me today?'),
+          const SpeechBubble('Before we go, who is helping me today?'),
           const SizedBox(height: 8),
           _field(_name, 'Your name', TextInputAction.next),
           const SizedBox(height: 16),
@@ -144,29 +145,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ),
       validator: (value) =>
           value == null || value.trim().isEmpty ? 'Please fill this in.' : null,
-    );
-  }
-}
-
-class _Bubble extends StatelessWidget {
-  const _Bubble(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.lightTeal,
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
     );
   }
 }

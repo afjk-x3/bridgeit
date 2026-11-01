@@ -5,7 +5,7 @@ import '../content/models.dart';
 import '../game/lyric_sync.dart';
 import '../progress/progress_store.dart';
 import '../theme/app_theme.dart';
-import '../widgets/journey_sheet.dart';
+import '../widgets/level_app_bar.dart';
 import '../widgets/level_done_panel.dart';
 import '../widgets/match_it_board.dart';
 import '../widgets/song_player.dart';
@@ -58,21 +58,8 @@ class _Level1ScreenState extends State<Level1Screen> {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('LEVEL 1', style: text.labelLarge),
-            Text(
-              'Conjunction Theme Song',
-              style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        actions: const [JourneyButton()],
-      ),
+      appBar: levelAppBar(context, 1, 'Conjunction Theme Song'),
       body: SafeArea(child: _buildStep()),
     );
   }

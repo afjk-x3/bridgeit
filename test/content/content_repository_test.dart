@@ -38,21 +38,30 @@ final List<_Case> _cases = [
   ('level1.lyrics[0].startMs', (j) => _lyrics(j)[0]['startMs'] = -1),
   ('level1.lyrics[1].startMs', (j) => _lyrics(j)[1]['startMs'] = 0),
   ('level1.lyrics[0].image', (j) => _lyrics(j)[0]['image'] = 1),
-  ('level1.matchIt[0].conjunction', (j) {
-    _matchIt(j)[0]['conjunction'] = 'because';
-  }),
+  (
+    'level1.matchIt[0].conjunction',
+    (j) {
+      _matchIt(j)[0]['conjunction'] = 'because';
+    },
+  ),
   ('level1.matchIt', (j) => _matchIt(j).removeLast()),
   ('level1.matchIt', (j) => _matchIt(j)[1]['conjunction'] = 'for'),
   ('level2.maxWrongAnswers', (j) => j['level2']['maxWrongAnswers'] = 0),
-  ('level2.bridges[0].conjunction', (j) {
-    _bridges(j)[0]['conjunction'] = 'because';
-  }),
+  (
+    'level2.bridges[0].conjunction',
+    (j) {
+      _bridges(j)[0]['conjunction'] = 'because';
+    },
+  ),
   ('level2.bridges', (j) => _bridges(j).removeLast()),
   ('level2.bridges', (j) => _bridges(j)[1]['conjunction'] = 'for'),
   ('level2.bridges[0].hints.for', (j) => _bridges(j)[0]['hints']['for'] = 'x'),
-  ('level2.bridges[0].hints.nope', (j) {
-    _bridges(j)[0]['hints']['nope'] = 'x';
-  }),
+  (
+    'level2.bridges[0].hints.nope',
+    (j) {
+      _bridges(j)[0]['hints']['nope'] = 'x';
+    },
+  ),
   ('level2.bridges[0].examples', (j) => _bridges(j)[0]['examples'] = []),
   ('quickFacts.because', (j) => j['quickFacts']['because'] = []),
   ('quickFacts.for', (j) => j['quickFacts']['for'] = 'because'),
@@ -63,16 +72,22 @@ final List<_Case> _cases = [
   ('level3.travelogue.minSentences', (j) => _travelogue(j)['minSentences'] = 0),
   ('level3.travelogue.maxSentences', (j) => _travelogue(j)['maxSentences'] = 0),
   ('level3.travelogue.minSentences', (j) => _travelogue(j)['minSentences'] = 8),
-  ('level3.travelogue.minConjunctions', (j) {
-    _travelogue(j)['minConjunctions'] = 0;
-  }),
+  (
+    'level3.travelogue.minConjunctions',
+    (j) {
+      _travelogue(j)['minConjunctions'] = 0;
+    },
+  ),
   ('level3.places', (j) => _places(j).removeLast()),
   ('level3.places[0].pictures', (j) => _places(j)[0]['pictures'].removeLast()),
   ('level3.places[0].mapPin.x', (j) => _places(j)[0]['mapPin']['x'] = 1.5),
   ('level3.places[0].mapPin.y', (j) => _places(j)[0]['mapPin']['y'] = -0.1),
-  ('level3.places[0].pictures[0].caption', (j) {
-    _places(j)[0]['pictures'][0].remove('caption');
-  }),
+  (
+    'level3.places[0].pictures[0].caption',
+    (j) {
+      _places(j)[0]['pictures'][0].remove('caption');
+    },
+  ),
 ];
 
 void main() {

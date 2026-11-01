@@ -45,9 +45,8 @@ class LevelMenuScreen extends StatelessWidget {
             Text(
               'Choose a level',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             for (final (level, title, subtitle) in levelSummaries)
@@ -172,10 +171,8 @@ class _LevelTile extends StatelessWidget {
           ? Icon(Icons.lock, color: foreground, semanticLabel: 'Locked')
           : Text(
               '$level',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: foreground,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall
+                  ?.copyWith(color: foreground, fontWeight: FontWeight.bold),
             ),
     );
   }

@@ -73,10 +73,7 @@ Level1Content _level1(Map<String, dynamic> raw) {
   final rawPairs = _list(raw['matchIt'], 'level1.matchIt');
   final pairs = [
     for (var i = 0; i < rawPairs.length; i++)
-      _matchPair(
-        _obj(rawPairs[i], 'level1.matchIt[$i]'),
-        'level1.matchIt[$i]',
-      ),
+      _matchPair(_obj(rawPairs[i], 'level1.matchIt[$i]'), 'level1.matchIt[$i]'),
   ];
   _checkEachFanboysOnce([
     for (final p in pairs) p.conjunction,

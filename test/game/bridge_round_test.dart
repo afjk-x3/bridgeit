@@ -91,10 +91,7 @@ void main() {
     });
 
     test('maxWrongAnswers below 1 throws', () {
-      expect(
-        () => BridgeRound(so, maxWrongAnswers: 0),
-        throwsArgumentError,
-      );
+      expect(() => BridgeRound(so, maxWrongAnswers: 0), throwsArgumentError);
     });
   });
 }

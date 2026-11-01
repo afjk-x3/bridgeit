@@ -39,10 +39,7 @@ void main() {
       );
     }
     // Only the large bold level number sits on orange: 3:1 is enough.
-    expect(
-      contrast(AppColors.ink, AppColors.accent),
-      greaterThanOrEqualTo(3),
-    );
+    expect(contrast(AppColors.ink, AppColors.accent), greaterThanOrEqualTo(3));
   });
 
   testWidgets('bundled Nunito is variable: fontWeight moves the wght axis', (

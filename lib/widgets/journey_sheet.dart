@@ -26,9 +26,7 @@ class JourneySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = context.watch<ProgressStore>();
-    final done = levelSummaries
-        .where((l) => progress.isCompleted(l.$1))
-        .length;
+    final done = levelSummaries.where((l) => progress.isCompleted(l.$1)).length;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -39,9 +37,8 @@ class JourneySheet extends StatelessWidget {
             Text(
               'Your journey',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Semantics(

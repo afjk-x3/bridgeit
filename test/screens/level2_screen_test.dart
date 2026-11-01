@@ -3,28 +3,32 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 import 'package:bridgeit/content/models.dart';
+import 'package:bridgeit/game/sentence_checker.dart';
 import 'package:bridgeit/progress/progress_store.dart';
 import 'package:bridgeit/screens/level2_screen.dart';
-import 'package:bridgeit/theme/app_theme.dart';
 import 'package:bridgeit/widgets/bridge_scene.dart';
 import 'package:bridgeit/widgets/conjunction_piece.dart';
+import 'package:bridgeit/widgets/writing_panel.dart';
 
 import '../support/pump_app.dart';
 
-const _prompt =
-    'Which conjunction connects these two clauses? Drag a piece into the gap.';
-const _built = 'Bridge built! The vehicle can cross.';
-const _broke = "The bridge broke! Let's try this sentence again.";
+const _broke = "The bridge collapsed! Let's try this bridge again.";
 const _done = 'Level 2 done! Ask your teacher for the code.';
+const _sturdy = 'Now the bridge seems sturdy. I can finally cross!';
+const _animals = ['dog', 'cat', 'bird', 'horse', 'pig', 'duck', 'goat'];
 
 final _gap = find.byKey(const ValueKey('gap'));
 Finder _piece(String word) => find.byKey(ValueKey('piece-$word'));
 
-Future<void> _openLevel2(WidgetTester tester) async {
+Future<void> _open(
+  WidgetTester tester, {
+  Map<String, Object> prefs = const {},
+}) async {
   await pumpApp(
     tester,
     prefs: {
       'unlocked_levels': ['2'],
+      ...prefs,
     },
   );
   await openMenu(tester);
@@ -32,256 +36,371 @@ Future<void> _openLevel2(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Level2Content _content(WidgetTester tester) =>
-    tester.element(find.byType(Level2Screen)).read<GameContent>().level2;
-
-/// Words that are not the answer for [bridge], in FANBOYS order.
-List<String> _wrongWords(Bridge bridge) =>
-    fanboys.where((w) => w != bridge.conjunction).toList();
-
-/// The real thing: drag the piece onto the gap.
-Future<void> _drag(WidgetTester tester, String word) async {
-  final offset = tester.getCenter(_gap) - tester.getCenter(_piece(word));
-  await tester.timedDrag(
-    _piece(word),
-    offset,
-    const Duration(milliseconds: 300),
-  );
+Future<void> _openBridge(WidgetTester tester) async {
+  await _open(tester);
+  await tester.tap(find.text('Next'));
   await tester.pumpAndSettle();
 }
 
-/// The accessibility fallback: tap the piece, then tap the gap.
-Future<void> _tapPlace(WidgetTester tester, String word) async {
+GameContent _game(WidgetTester tester) =>
+    tester.element(find.byType(Level2Screen)).read<GameContent>();
+
+Bridge _first(WidgetTester tester) => _game(tester).level2.bridges.first;
+
+Future<void> _tap(WidgetTester tester, String text) async {
+  await tester.ensureVisible(find.text(text));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(text));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _tryPiece(WidgetTester tester, String word) async {
   await tester.tap(_piece(word));
   await tester.pump();
   await tester.tap(_gap);
-  await tester.pumpAndSettle();
+  await tester.pump();
+  await _tap(tester, 'Cross the bridge');
 }
 
-/// The scene announces its state to screen readers.
-Future<void> _expectBridge(WidgetTester tester, String label) async {
-  final handle = tester.ensureSemantics();
-  try {
-    await tester.pump();
-    expect(find.bySemanticsLabel(label), findsOneWidget);
-  } finally {
-    handle.dispose();
+Future<void> _write(WidgetTester tester, String text) async {
+  await tester.enterText(find.byType(TextField), text);
+  await tester.pump();
+  await _tap(tester, 'Submit');
+}
+
+String _sentence(int i, String word) {
+  final (a, b) = (_animals[i], _animals[(i + 1) % 7]);
+  return word == 'nor'
+      ? 'The $a did not run, nor did the $b sit.'
+      : 'The $a ran far, $word the $b sat down.';
+}
+
+String _similar(int i, QuickFact fact) {
+  final (a, b) = (_animals[i], _animals[(i + 1) % 7]);
+  return fact.rule == QuickFactRule.linking
+      ? 'The $a ran far; ${fact.word}, the $b sat down.'
+      : 'The $a ran far ${fact.word} the $b sat down.';
+}
+
+/// Plays one bridge from the tray to the far cliff.
+Future<void> _playBridge(WidgetTester tester, int i) async {
+  final game = _game(tester);
+  final bridge = game.level2.bridges[i];
+  await _tryPiece(tester, bridge.conjunction);
+  await _tap(tester, 'Strengthen the Bridge');
+  await _write(tester, _sentence(i, bridge.conjunction));
+  final facts = game.quickFacts[bridge.conjunction];
+  if (facts != null) {
+    await _tap(tester, 'Quick Facts');
+    await _tap(tester, 'Write now');
+    await _write(tester, _similar(i, facts.last));
   }
+  await _tap(tester, 'Cross the Bridge');
 }
 
 bool _enabled(WidgetTester tester, String word) =>
     tester.widget<ConjunctionPiece>(_piece(word)).enabled;
 
-/// -1 while the vehicle waits on the left cliff, 1 once it is on the right.
-double _carX(WidgetTester tester) =>
-    (tester.widget<AnimatedAlign>(find.byType(AnimatedAlign)).alignment
-            as Alignment)
-        .x;
-
-Color _segment(WidgetTester tester, int i) =>
-    (tester.widget<Container>(find.byKey(ValueKey('strength-$i'))).decoration!
-            as BoxDecoration)
-        .color!;
+bool _crossEnabled(WidgetTester tester) => tester
+    .widget<FilledButton>(find.widgetWithText(FilledButton, 'Cross the bridge'))
+    .enabled;
 
 void main() {
-  testWidgets('shows header, clauses, neutral prompt and 7 big pieces', (
-    tester,
-  ) async {
-    await _openLevel2(tester);
-    final content = _content(tester);
-    final first = content.bridges.first;
+  testWidgets('starts with the story, then the first bridge', (tester) async {
+    await _open(tester);
+    expect(find.textContaining('Oh no! The bridge is broken'), findsOneWidget);
 
-    expect(
-      find.text('LEVEL 2 · SENTENCE 1 OF ${content.bridges.length}'),
-      findsOneWidget,
-    );
-    expect(find.text('Building the bridge'), findsOneWidget);
-    // One sentence card, the missing conjunction as an inline blank.
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    final first = _first(tester);
+    expect(find.text('BRIDGE 1 OF 7'), findsOneWidget);
+    expect(find.text('Building Bridges'), findsOneWidget);
+    expect(find.byTooltip('Journey'), findsOneWidget);
     expect(
       find.text('${first.left}, _____ ${first.right}', findRichText: true),
       findsOneWidget,
     );
-    expect(find.text(_prompt), findsOneWidget);
-    expect(find.text('Bridge strength'), findsOneWidget);
-    expect(find.text('Next sentence'), findsNothing);
-    expect(find.byTooltip('Back'), findsOneWidget);
+    expect(_crossEnabled(tester), isFalse);
     for (final word in fanboys) {
-      final size = tester.getSize(_piece(word));
-      expect(size.width, greaterThanOrEqualTo(48), reason: word);
-      expect(size.height, greaterThanOrEqualTo(48), reason: word);
       expect(_enabled(tester, word), isTrue, reason: word);
     }
   });
 
-  testWidgets('dragging the correct piece builds the bridge', (tester) async {
-    await _openLevel2(tester);
-    final answer = _content(tester).bridges.first.conjunction;
-
-    await _drag(tester, answer);
-
-    expect(find.text(_built), findsOneWidget);
-    expect(find.byIcon(Icons.check), findsOneWidget);
-    expect(find.text(_prompt), findsNothing);
-    expect(find.text('Next sentence'), findsOneWidget);
-    await _expectBridge(tester, 'Bridge built');
-    // The sentence card now reads as one sentence with the word in its blank.
-    final first = _content(tester).bridges.first;
-    expect(
-      find.text('${first.left}, $answer ${first.right}', findRichText: true),
-      findsOneWidget,
-    );
-    // The word sits in the bridge, and the vehicle is on the far cliff.
-    expect(
-      find.descendant(
-        of: find.byType(BridgeScene),
-        matching: find.text(answer),
-      ),
-      findsOneWidget,
-    );
-    expect(_carX(tester), 1);
-    for (final word in fanboys) {
-      expect(_enabled(tester, word), isFalse, reason: word);
-    }
-  });
-
-  testWidgets('wrong piece shows the hint and greys out', (tester) async {
-    await _openLevel2(tester);
-    final content = _content(tester);
-    final sentence = content.bridges.first;
-    final wrong = sentence.hints.keys.first;
-
-    await _drag(tester, wrong);
-
-    expect(find.text(sentence.hints[wrong]!), findsOneWidget);
-    expect(find.byIcon(Icons.lightbulb), findsOneWidget);
-    expect(find.text(_prompt), findsNothing);
-    await _expectBridge(tester, 'Bridge cracked');
-    expect(_enabled(tester, wrong), isFalse);
-    expect(_enabled(tester, sentence.conjunction), isTrue);
-    // One of the segments is lost: brown for what is left, red for the loss.
-    final max = content.maxWrongAnswers;
-    for (var i = 0; i < max - 1; i++) {
-      expect(_segment(tester, i), AppColors.bridge);
-    }
-    expect(_segment(tester, max - 1), AppColors.wrong);
-    expect(_carX(tester), -1);
-  });
-
-  testWidgets('a wrong piece without its own hint shows the default one', (
+  testWidgets('dragging a piece fills the gap until Cross is pressed', (
     tester,
   ) async {
-    await _openLevel2(tester);
-    final sentence = _content(tester).bridges.first;
-    final wrong = _wrongWords(sentence)
-        .firstWhere((w) => !sentence.hints.containsKey(w));
+    await _openBridge(tester);
+    final word = _first(tester).conjunction;
 
-    await _tapPlace(tester, wrong);
+    await tester.timedDrag(
+      _piece(word),
+      tester.getCenter(_gap) - tester.getCenter(_piece(word)),
+      const Duration(milliseconds: 300),
+    );
+    await tester.pumpAndSettle();
 
-    expect(find.text(sentence.defaultHint), findsOneWidget);
+    expect(
+      find.descendant(of: _gap, matching: find.text(word)),
+      findsOneWidget,
+    );
+    expect(_crossEnabled(tester), isTrue);
+    expect(find.text('Strengthen the Bridge'), findsNothing);
   });
 
-  testWidgets('three wrong pieces break the bridge', (tester) async {
-    await _openLevel2(tester);
-    final content = _content(tester);
-    final sentence = content.bridges.first;
-    final wrong = _wrongWords(sentence).take(content.maxWrongAnswers).toList();
+  testWidgets('a wrong piece shows its hint and fades', (tester) async {
+    await _openBridge(tester);
+    final bridge = _first(tester);
+    final wrong = bridge.hints.keys.first;
+
+    await _tryPiece(tester, wrong);
+
+    expect(find.text(bridge.hints[wrong]!), findsOneWidget);
+    expect(_enabled(tester, wrong), isFalse);
+    expect(_enabled(tester, bridge.conjunction), isTrue);
+    expect(find.bySemanticsLabel('Bridge cracked'), findsOneWidget);
+    expect(_crossEnabled(tester), isFalse);
+  });
+
+  testWidgets('three wrong tries collapse the bridge, and it restarts', (
+    tester,
+  ) async {
+    await _openBridge(tester);
+    final bridge = _first(tester);
+    final wrong = fanboys.where((w) => w != bridge.conjunction).take(3);
 
     for (final word in wrong) {
-      await _tapPlace(tester, word);
+      await _tryPiece(tester, word);
     }
 
     expect(find.text(_broke), findsOneWidget);
-    expect(find.text('Try again'), findsOneWidget);
-    await _expectBridge(tester, 'Bridge broken');
-    expect(find.text('Next sentence'), findsNothing);
-    for (var i = 0; i < content.maxWrongAnswers; i++) {
-      expect(_segment(tester, i), AppColors.wrong);
-    }
-    for (final word in fanboys) {
-      expect(_enabled(tester, word), isFalse, reason: word);
-    }
+    expect(find.bySemanticsLabel('Bridge broken'), findsOneWidget);
+    expect(find.text('Cross the bridge'), findsNothing);
 
-    await tester.tap(find.text('Try again'));
-    await tester.pumpAndSettle();
+    await _tap(tester, 'Try again');
 
-    expect(find.text(_broke), findsNothing);
-    expect(find.text(_prompt), findsOneWidget);
-    await _expectBridge(tester, 'Bridge open');
+    expect(find.text('BRIDGE 1 OF 7'), findsOneWidget);
     for (final word in fanboys) {
       expect(_enabled(tester, word), isTrue, reason: word);
     }
-    for (var i = 0; i < content.maxWrongAnswers; i++) {
-      expect(_segment(tester, i), AppColors.bridge);
-    }
-    // And the sentence can still be solved afterwards.
-    await _tapPlace(tester, sentence.conjunction);
-    expect(find.text(_built), findsOneWidget);
   });
 
-  testWidgets('tapping the gap with no piece selected does nothing', (
+  testWidgets('the right piece explains why, then asks for a sentence', (
     tester,
   ) async {
-    await _openLevel2(tester);
+    await _openBridge(tester);
+    final bridge = _first(tester);
 
-    await tester.tap(_gap);
-    await tester.pumpAndSettle();
+    await _tryPiece(tester, bridge.conjunction);
 
-    expect(find.text(_prompt), findsOneWidget);
-    expect(find.byIcon(Icons.lightbulb), findsNothing);
-  });
-
-  testWidgets('the next sentence starts with the vehicle on the left cliff', (
-    tester,
-  ) async {
-    await _openLevel2(tester);
-    final car = find.descendant(
-      of: find.byType(AnimatedAlign),
-      matching: find.byType(CustomPaint),
+    expect(find.text('That is correct! ${bridge.explanation}'), findsOneWidget);
+    await _tap(tester, 'Strengthen the Bridge');
+    expect(
+      find.textContaining("coordinating conjunction, 'for'."),
+      findsOneWidget,
     );
-    final sceneCenter = tester.getCenter(find.byType(BridgeScene)).dx;
-    final answer = _content(tester).bridges.first.conjunction;
-    await _tapPlace(tester, answer);
-    expect(tester.getCenter(car).dx, greaterThan(sceneCenter));
-
-    await tester.tap(find.text('Next sentence'));
-    await tester.pump(); // one frame: no time for a drive back across the gap
-
-    expect(tester.getCenter(car).dx, lessThan(sceneCenter));
+    expect(find.byType(TextField), findsOneWidget);
   });
 
-  testWidgets('finishing all sentences marks level 2 completed', (
+  testWidgets('a failed sentence says what to fix and adds no foundation', (
     tester,
   ) async {
-    await _openLevel2(tester);
-    final sentences = _content(tester).bridges;
+    await _openBridge(tester);
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+
+    await _write(tester, 'the dog ran far, for it was late.');
+
+    expect(
+      find.text('Start your sentence with a capital letter.'),
+      findsOneWidget,
+    );
+    expect(find.text('the dog ran far, for it was late.'), findsOneWidget);
+    expect(find.text('Quick Facts'), findsNothing);
+  });
+
+  testWidgets('a copied example is rejected', (tester) async {
+    await _openBridge(tester);
+    final bridge = _first(tester);
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+
+    await _write(tester, bridge.examples.first);
+
+    expect(find.textContaining("Don't copy"), findsOneWidget);
+  });
+
+  testWidgets('sentences become foundations and Quick Facts opens from the '
+      'conjunction', (tester) async {
+    await _openBridge(tester);
+    final facts = _game(tester).quickFacts['for']!;
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+    final first = _sentence(0, 'for');
+
+    await _write(tester, first);
+
+    expect(find.text(first), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('placed-word')));
+    await tester.pumpAndSettle();
+    for (final fact in facts) {
+      expect(find.textContaining(fact.word, findRichText: true), findsWidgets);
+    }
+
+    await _tap(tester, 'Write now');
+    await _write(tester, 'The dog ran far, for the cat sat down.');
+    expect(find.textContaining('Quick Facts in your'), findsOneWidget);
+
+    await _write(tester, 'The dog ran far because the cat sat down.');
+    expect(
+      find.text('The dog ran far because the cat sat down.'),
+      findsOneWidget,
+    );
+    expect(find.text(_sturdy), findsOneWidget);
+  });
+
+  testWidgets('a similar word follows its own punctuation', (tester) async {
+    await _open(
+      tester,
+      prefs: {
+        'level2_resume_v1':
+            '{"bridgeIndex":1,"written":[["A"],["The dog ran, and I sat."]]}',
+      },
+    );
+    await _tap(tester, 'Quick Facts');
+    await _tap(tester, 'Write now');
+
+    await _write(tester, 'The dog ran, moreover the cat sat.');
+
+    expect(
+      find.text("Put a semicolon before 'moreover' and a comma after it."),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('nor has one sentence only', (tester) async {
+    await _open(
+      tester,
+      prefs: {'level2_resume_v1': '{"bridgeIndex":2,"written":[[],[],[]]}'},
+    );
+    await _tryPiece(tester, 'nor');
+    await _tap(tester, 'Strengthen the Bridge');
+
+    await _write(tester, _sentence(2, 'nor'));
+
+    expect(find.text(_sturdy), findsOneWidget);
+    expect(find.text('Quick Facts'), findsNothing);
+  });
+
+  testWidgets('all 7 bridges take 12 sentences and finish the level', (
+    tester,
+  ) async {
+    await _openBridge(tester);
     final progress = tester
         .element(find.byType(Level2Screen))
         .read<ProgressStore>();
-    expect(progress.isCompleted(2), isFalse);
 
-    for (var i = 0; i < sentences.length; i++) {
-      expect(
-        find.text('LEVEL 2 · SENTENCE ${i + 1} OF ${sentences.length}'),
-        findsOneWidget,
-      );
-      expect(
-        find.textContaining(sentences[i].left, findRichText: true),
-        findsOneWidget,
-      );
-      await _tapPlace(tester, sentences[i].conjunction);
-      final last = i == sentences.length - 1;
-      expect(find.text(last ? 'Finish' : 'Next sentence'), findsOneWidget);
-      await tester.tap(find.text(last ? 'Finish' : 'Next sentence'));
-      await tester.pumpAndSettle();
+    for (var i = 0; i < 7; i++) {
+      expect(find.text('BRIDGE ${i + 1} OF 7'), findsOneWidget);
+      await _playBridge(tester, i);
     }
 
     expect(find.text(_done), findsOneWidget);
     expect(progress.isCompleted(2), isTrue);
+  });
 
-    await tester.tap(find.text('Back to levels'));
+  testWidgets('a student continues at the bridge where they stopped', (
+    tester,
+  ) async {
+    await _openBridge(tester);
+    await _playBridge(tester, 0);
+    expect(find.text('BRIDGE 2 OF 7'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    expect(find.text('Choose a level'), findsOneWidget);
-    expect(find.text('Completed'), findsOneWidget);
+    await tester.tap(find.text('Building Bridges'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('BRIDGE 2 OF 7'), findsOneWidget);
+  });
+
+  testWidgets('a student continues after an accepted sentence', (tester) async {
+    await _open(
+      tester,
+      prefs: {
+        'level2_resume_v1':
+            '{"bridgeIndex":0,"written":[["The dog ran, for I came."]]}',
+      },
+    );
+
+    expect(find.text('The dog ran, for I came.'), findsOneWidget);
+    expect(find.text('Quick Facts'), findsOneWidget);
+  });
+
+  testWidgets('a bad resume value starts fresh', (tester) async {
+    await _open(tester, prefs: {'level2_resume_v1': '{nope'});
+
+    expect(find.textContaining('Oh no! The bridge is broken'), findsOneWidget);
+  });
+
+  testWidgets('every step fits a 360x640 phone', (tester) async {
+    await _open(tester);
+    tester.view.physicalSize = const Size(360, 640);
+    await tester.pump();
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    await _tryPiece(tester, 'for');
+    expect(tester.takeException(), isNull);
+    await _tap(tester, 'Strengthen the Bridge');
+    await _write(tester, _sentence(0, 'for'));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('misspelt words are underlined and do not block', (tester) async {
+    await _openBridge(tester);
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+
+    await tester.enterText(find.byType(TextField), 'The dogg ran, for I came.');
+    await tester.pump();
+
+    final context = tester.element(find.byType(WritingPanel));
+    final controller = tester
+        .widget<TextField>(find.byType(TextField))
+        .controller!;
+    final span = controller.buildTextSpan(
+      context: context,
+      withComposing: false,
+    );
+    final marked = span.children!
+        .whereType<TextSpan>()
+        .where((s) => s.style?.decoration == TextDecoration.underline)
+        .map((s) => s.text);
+    expect(marked, ['dogg']);
+
+    await _tap(tester, 'Submit');
+    expect(find.text('Quick Facts'), findsOneWidget);
+  });
+
+  test('every failure has a message', () {
+    for (final failure in CheckFailure.values) {
+      expect(checkMessage(failure, 'for', WordRule.fanboys), isNotEmpty);
+    }
+    expect(
+      checkMessage(CheckFailure.comma, 'because', WordRule.joining),
+      contains('after the part'),
+    );
+  });
+
+  test('findQuickFact prefers the longest word', () {
+    const facts = [
+      QuickFact(word: 'as', rule: QuickFactRule.joining),
+      QuickFact(word: 'as a result', rule: QuickFactRule.linking),
+    ];
+    expect(findQuickFact('We won; as a result, we sang.', facts), facts[1]);
+    expect(findQuickFact('We won as we sang.', facts), facts[0]);
+    expect(findQuickFact('We won.', facts), isNull);
   });
 
   testWidgets('BridgeScene paints and labels every state', (tester) async {
@@ -290,7 +409,6 @@ void main() {
       BridgeState.cracked: 'Bridge cracked',
       BridgeState.built: 'Bridge built',
       BridgeState.broken: 'Bridge broken',
-      BridgeState.reinforced: 'Bridge reinforced',
     };
     for (final MapEntry(key: state, value: label) in labels.entries) {
       await tester.pumpWidget(
@@ -301,6 +419,7 @@ void main() {
               left: 'It was raining,',
               right: 'we went out.',
               placedWord: 'but',
+              foundations: const ['One beam.'],
               gap: const SizedBox(key: ValueKey('scene-gap')),
             ),
           ),
@@ -308,31 +427,19 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await _expectBridge(tester, label);
-      // The sentence card fills its blank only once the bridge is complete.
-      final complete = {
-        BridgeState.built,
-        BridgeState.wobbly,
-        BridgeState.reinforced,
-      }.contains(state);
+      expect(find.bySemanticsLabel(label), findsOneWidget);
+      expect(find.text('One beam.'), findsOneWidget);
       expect(
         find.text(
-          'It was raining, ${complete ? 'but' : '_____'} we went out.',
+          'It was raining, '
+          '${state == BridgeState.built ? 'but' : '_____'} we went out.',
           findRichText: true,
         ),
         findsOneWidget,
       );
-      // The gap is gone once the bridge is broken; a built bridge shows the word.
       expect(
         find.byKey(const ValueKey('scene-gap')),
         state == BridgeState.open || state == BridgeState.cracked
-            ? findsOneWidget
-            : findsNothing,
-        reason: '$state',
-      );
-      expect(
-        find.text('but'),
-        state == BridgeState.built || state == BridgeState.reinforced
             ? findsOneWidget
             : findsNothing,
         reason: '$state',

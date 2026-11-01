@@ -241,7 +241,7 @@ void main() {
     await tester.tap(find.text('Play level 2'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Building the bridge'), findsOneWidget);
+    expect(find.textContaining('Oh no! The bridge is broken'), findsOneWidget);
   });
 
   testWidgets('MatchIt fits a 360x640 phone', (tester) async {

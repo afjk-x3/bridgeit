@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'content/content_repository.dart';
+import 'content/lexicon.dart';
 import 'content/models.dart';
 import 'progress/progress_store.dart';
 import 'progress/results_store.dart';
@@ -21,6 +22,7 @@ Future<void> main() async {
         content: content,
         progress: ProgressStore(prefs, content.unlockCodes),
         results: ResultsStore(prefs),
+        writing: await loadWritingTools(rootBundle, content),
       ),
     );
   } catch (error) {

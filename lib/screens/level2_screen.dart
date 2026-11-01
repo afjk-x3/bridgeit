@@ -1,18 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../content/lexicon.dart';
 import '../content/models.dart';
 import '../game/bridge_round.dart';
+import '../game/sentence_checker.dart';
 import '../progress/progress_store.dart';
+import '../progress/results_store.dart';
+import '../theme/app_theme.dart';
 import '../widgets/bridge_gap.dart';
 import '../widgets/bridge_scene.dart';
 import '../widgets/hint_card.dart';
-import '../widgets/journey_sheet.dart';
+import '../widgets/level_app_bar.dart';
 import '../widgets/level_done_panel.dart';
 import '../widgets/piece_tray.dart';
-import '../widgets/strength_bar.dart';
+import '../widgets/speech_bubble.dart';
+import '../widgets/writing_panel.dart';
 
-/// Level 2: drag the right conjunction into the gap to build the bridge.
+enum _Step {
+  story,
+  build,
+  built,
+  writeConjunction,
+  askFacts,
+  writeSimilar,
+  sturdy,
+  crossing,
+  done,
+}
+
+/// What a student should fix, for each [CheckFailure].
+String checkMessage(CheckFailure failure, String word, WordRule rule) =>
+    switch (failure) {
+      CheckFailure.empty => 'Write your sentence first.',
+      CheckFailure.capital => 'Start your sentence with a capital letter.',
+      CheckFailure.endPunctuation => 'End your sentence with . ! or ?',
+      CheckFailure.oneSentence => 'Write only one sentence.',
+      CheckFailure.notReal => "Those don't look like real words. Try again.",
+      CheckFailure.missingWord => "Use '$word' in your sentence.",
+      CheckFailure.comma =>
+        rule == WordRule.joining
+            ? "Put a comma after the part that starts with '$word'."
+            : "Put a comma right before '$word'.",
+      CheckFailure.extraComma => "Remove the comma before '$word'.",
+      CheckFailure.semicolon =>
+        "Put a semicolon before '$word' and a comma after it.",
+      CheckFailure.leftClause =>
+        "The part before '$word' must be a full clause, with a subject and a "
+            'verb.',
+      CheckFailure.rightClause =>
+        "The part after '$word' must be a full clause, with a subject and a "
+            'verb.',
+      CheckFailure.norNeedsNegative =>
+        "Use 'nor' after a negative idea, such as 'did not' or 'never'.",
+      CheckFailure.norWordOrder =>
+        "After 'nor', put the helping verb before the subject: 'nor did she "
+            "go'.",
+      CheckFailure.copied =>
+        "Write your own sentence. Don't copy one from the screen or use one "
+            'again.',
+    };
+
+/// The Quick Facts word used in [text], or null. Longest first, because
+/// "as a result" holds "as".
+QuickFact? findQuickFact(String text, List<QuickFact> facts) {
+  final byLength = [...facts]
+    ..sort((a, b) => b.word.length.compareTo(a.word.length));
+  for (final fact in byLength) {
+    final pattern = RegExp(
+      "(?<![A-Za-z'])${RegExp.escape(fact.word)}(?![A-Za-z'])",
+      caseSensitive: false,
+    );
+    if (pattern.hasMatch(text)) return fact;
+  }
+  return null;
+}
+
+/// Level 2: seven bridges. Build each with the right conjunction, strengthen
+/// it with the student's own sentences, then drive across.
 class Level2Screen extends StatefulWidget {
   const Level2Screen({super.key});
 
@@ -22,58 +87,154 @@ class Level2Screen extends StatefulWidget {
 
 class _Level2ScreenState extends State<Level2Screen> {
   late final Level2Content _content;
+  late final Map<String, List<QuickFact>> _quickFacts;
+  late final WritingTools _writing;
+  late final List<List<String>> _written;
   late BridgeRound _round;
   int _index = 0;
+  _Step _step = _Step.story;
   // Tap-to-select fallback: the piece waiting for a tap on the gap.
   String? _selected;
-  // The wrong word whose hint is showing, and the word that built the bridge.
-  String? _lastWrong;
+  // The piece in the gap, and the wrong word whose hint is showing.
   String? _placed;
-  bool _done = false;
+  String? _lastWrong;
+  // Passed, but a clause couldn't be confirmed.
+  bool _unsure = false;
 
   Bridge get _bridge => _content.bridges[_index];
+  List<QuickFact> get _facts => _quickFacts[_bridge.conjunction] ?? const [];
+  List<String> get _foundations => _written[_index];
 
   @override
   void initState() {
     super.initState();
-    _content = context.read<GameContent>().level2;
+    final game = context.read<GameContent>();
+    _content = game.level2;
+    _quickFacts = game.quickFacts;
+    _writing = context.read<WritingTools>();
+    _written = [for (final _ in _content.bridges) <String>[]];
+    final resume = context.read<ResultsStore>().level2Resume;
+    if (resume != null && resume.bridgeIndex < _content.bridges.length) {
+      _index = resume.bridgeIndex;
+      for (var i = 0; i < resume.written.length; i++) {
+        if (i < _written.length) _written[i].addAll(resume.written[i]);
+      }
+      _step = _Step.build;
+    }
     _round = _newRound();
+    if (_foundations.isNotEmpty) {
+      _round.drop(_bridge.conjunction);
+      _placed = _bridge.conjunction;
+      _step = _afterSentence();
+    }
   }
 
   BridgeRound _newRound() =>
       BridgeRound(_bridge, maxWrongAnswers: _content.maxWrongAnswers);
 
-  void _drop(String word) => setState(() {
+  _Step _afterSentence() => _foundations.length == 1 && _facts.isNotEmpty
+      ? _Step.askFacts
+      : _Step.sturdy;
+
+  Future<void> _save() => context.read<ResultsStore>().saveLevel2Resume(
+    Level2Resume(bridgeIndex: _index, written: _written),
+  );
+
+  void _place(String word) => setState(() {
+    _placed = word;
     _selected = null;
-    switch (_round.drop(word)) {
-      case DropResult.correct:
-        _placed = word;
-      case DropResult.wrong || DropResult.broken:
-        _lastWrong = word;
-      case DropResult.ignored:
-        break;
-    }
+    _lastWrong = null;
   });
+
+  void _cross() {
+    final word = _placed;
+    if (word == null) return;
+    setState(() {
+      switch (_round.drop(word)) {
+        case DropResult.correct:
+          _step = _Step.built;
+        case DropResult.wrong || DropResult.broken:
+          _lastWrong = word;
+          _placed = null;
+        case DropResult.ignored:
+          _placed = null;
+      }
+    });
+  }
 
   void _tryAgain() => setState(() {
     _round.reset();
-    _selected = _lastWrong = null;
+    _selected = _placed = _lastWrong = null;
   });
 
-  Future<void> _next() async {
-    if (_index < _content.bridges.length - 1) {
-      setState(() {
-        _index++;
-        _round = _newRound();
-        _selected = _lastWrong = _placed = null;
-      });
-      return;
+  /// Everything a student may not hand in as their own sentence.
+  List<String> get _forbidden => [
+    '${_bridge.left}, ${_bridge.conjunction} ${_bridge.right}',
+    ..._bridge.examples,
+    for (final sentences in _written) ...sentences,
+  ];
+
+  String? _submit(String text, String word, WordRule rule) {
+    final result = _writing.sentences.check(
+      text,
+      word: word,
+      rule: rule,
+      forbidden: _forbidden,
+    );
+    switch (result) {
+      case Failed(:final reason):
+        return checkMessage(reason, word, rule);
+      case Passed(:final unsureClause):
+        setState(() {
+          _foundations.add(text.trim());
+          _unsure = unsureClause;
+          _step = _afterSentence();
+        });
+        _save();
+        return null;
     }
-    await context.read<ProgressStore>().markCompleted(2);
-    if (mounted) setState(() => _done = true);
   }
 
-  BridgeState get _bridgeState => _round.isBuilt
+  String? _submitSimilar(String text) {
+    final fact = findQuickFact(text, _facts);
+    if (fact == null) {
+      return 'Use one of the words from Quick Facts in your sentence.';
+    }
+    final rule = fact.rule == QuickFactRule.linking
+        ? WordRule.linking
+        : WordRule.joining;
+    return _submit(text, fact.word, rule);
+  }
+
+  Future<void> _openFacts() async {
+    final write = await showDialog<bool>(
+      context: context,
+      builder: (context) =>
+          _QuickFactsDialog(conjunction: _bridge.conjunction, facts: _facts),
+    );
+    if (write == true && mounted) setState(() => _step = _Step.writeSimilar);
+  }
+
+  Future<void> _crossed() async {
+    if (_step != _Step.crossing) return;
+    if (_index == _content.bridges.length - 1) {
+      await context.read<ProgressStore>().markCompleted(2);
+      if (!mounted) return;
+      await context.read<ResultsStore>().clearLevel2Resume();
+      if (mounted) setState(() => _step = _Step.done);
+      return;
+    }
+    setState(() {
+      _index++;
+      _round = _newRound();
+      _selected = _placed = _lastWrong = null;
+      _unsure = false;
+      _step = _Step.build;
+    });
+    await _save();
+  }
+
+  BridgeState get _bridgeState => _step != _Step.build
       ? BridgeState.built
       : _round.isBroken
       ? BridgeState.broken
@@ -83,69 +244,106 @@ class _Level2ScreenState extends State<Level2Screen> {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(actions: const [JourneyButton()]),
+      appBar: levelAppBar(context, 2, 'Building Bridges'),
       body: SafeArea(
-        child: _done
-            ? const LevelDonePanel(level: 2)
-            : ListView(
-                padding: const EdgeInsets.all(16),
+        child: switch (_step) {
+          _Step.story => _buildStory(),
+          _Step.done => const LevelDonePanel(level: 2),
+          _Step.build => _buildBridge(),
+          _ => _buildAfterBridge(),
+        },
+      ),
+    );
+  }
+
+  Widget _buildStory() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SpeechBubble(
+              'Oh no! The bridge is broken, so I cannot cross.\n\nTo cross the '
+              'broken bridge, drag the right coordinating conjunction to '
+              'connect the two independent clauses from each side of the '
+              'bridge.',
+            ),
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: () => setState(() => _step = _Step.build),
+              child: const Text('Next'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _scene({Widget gap = const SizedBox.shrink()}) => BridgeScene(
+    // New bridge, new scene: the vehicle must not drive back.
+    key: ValueKey(_index),
+    state: _bridgeState,
+    left: '${_bridge.left},',
+    right: _bridge.right,
+    placedWord: _placed,
+    gap: gap,
+    foundations: _foundations,
+    crossed: _step == _Step.crossing,
+    onCrossed: _crossed,
+    onTapWord: _step == _Step.askFacts ? _openFacts : null,
+  );
+
+  // The tray stays outside the scroll view, which would take its drags.
+  Widget _buildBridge() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'LEVEL 2 · SENTENCE ${_index + 1} OF '
-                    '${_content.bridges.length}',
-                    style: text.labelLarge,
+                    'BRIDGE ${_index + 1} OF ${_content.bridges.length}',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelLarge,
                   ),
-                  Text(
-                    'Building the bridge',
-                    style: text.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 8),
+                  _scene(
+                    gap: BridgeGap(
+                      selected: _selected,
+                      placed: _placed,
+                      onDrop: _place,
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  BridgeScene(
-                    // New sentence, new scene: the vehicle must not drive back.
-                    key: ValueKey(_index),
-                    state: _bridgeState,
-                    left: '${_bridge.left},',
-                    right: _bridge.right,
-                    placedWord: _placed,
-                    gap: BridgeGap(selected: _selected, onDrop: _drop),
-                  ),
-                  const SizedBox(height: 12),
-                  StrengthBar(
-                    wrongCount: _round.wrongCount,
-                    max: _content.maxWrongAnswers,
                   ),
                   const SizedBox(height: 12),
                   _buildFeedback(),
-                  const SizedBox(height: 12),
-                  PieceTray(
-                    enabled: !_round.isBuilt && !_round.isBroken,
-                    tried: _round.triedWrong,
-                    selected: _selected,
-                    onToggle: (word) => setState(
-                      () => _selected = _selected == word ? null : word,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (_round.isBroken)
-                    FilledButton(
-                      onPressed: _tryAgain,
-                      child: const Text('Try again'),
-                    ),
-                  if (_round.isBuilt)
-                    FilledButton(
-                      onPressed: _next,
-                      child: Text(
-                        _index == _content.bridges.length - 1
-                            ? 'Finish'
-                            : 'Next sentence',
-                      ),
-                    ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          PieceTray(
+            enabled: !_round.isBroken,
+            tried: _round.triedWrong,
+            selected: _selected,
+            onToggle: (word) =>
+                setState(() => _selected = _selected == word ? null : word),
+          ),
+          const SizedBox(height: 12),
+          if (_round.isBroken)
+            FilledButton(onPressed: _tryAgain, child: const Text('Try again'))
+          else
+            FilledButton(
+              onPressed: _placed == null ? null : _cross,
+              child: const Text('Cross the bridge'),
+            ),
+        ],
       ),
     );
   }
@@ -155,13 +353,7 @@ class _Level2ScreenState extends State<Level2Screen> {
     if (_round.isBroken) {
       return const HintCard(
         correct: false,
-        text: "The bridge broke! Let's try this sentence again.",
-      );
-    }
-    if (_round.isBuilt) {
-      return const HintCard(
-        correct: true,
-        text: 'Bridge built! The vehicle can cross.',
+        text: "The bridge collapsed! Let's try this bridge again.",
       );
     }
     if (wrong != null) {
@@ -169,8 +361,165 @@ class _Level2ScreenState extends State<Level2Screen> {
     }
     return const HintCard.prompt(
       text:
-          'Which conjunction connects these two clauses? '
-          'Drag a piece into the gap.',
+          'Drag a piece onto the bridge to connect the two clauses, then '
+          'cross it.',
+    );
+  }
+
+  Widget _buildAfterBridge() {
+    final conjunction = _bridge.conjunction;
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        ...switch (_step) {
+          _Step.built => [
+            const SpeechBubble(
+              'Yay! But the bridge still seems unstable. Can you make it '
+              'sturdier?',
+            ),
+            _scene(),
+            const SizedBox(height: 12),
+            HintCard(
+              correct: true,
+              text: 'That is correct! ${_bridge.explanation}',
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => setState(() => _step = _Step.writeConjunction),
+              child: const Text('Strengthen the Bridge'),
+            ),
+          ],
+          _Step.writeConjunction => [
+            SpeechBubble(
+              'To strengthen the bridge, you must write your own sentence '
+              "using the coordinating conjunction, '$conjunction'.",
+            ),
+            _scene(),
+            const SizedBox(height: 12),
+            WritingPanel(
+              key: const ValueKey('write-conjunction'),
+              spelling: _writing.spelling,
+              onSubmit: (text) => _submit(text, conjunction, WordRule.fanboys),
+            ),
+          ],
+          _Step.askFacts => [
+            const SpeechBubble(
+              'Yay! But the bridge still seems unstable. Can you make it '
+              'sturdier?\n\n(Tap the coordinating conjunction)',
+            ),
+            _scene(),
+            const SizedBox(height: 12),
+            if (_unsure) _unsureHint,
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: _openFacts,
+              child: const Text('Quick Facts'),
+            ),
+          ],
+          _Step.writeSimilar => [
+            const SpeechBubble(
+              'Use one of the Quick Facts words to write another sentence.',
+            ),
+            _scene(),
+            const SizedBox(height: 12),
+            WritingPanel(
+              key: const ValueKey('write-similar'),
+              spelling: _writing.spelling,
+              onSubmit: _submitSimilar,
+            ),
+            TextButton(
+              onPressed: _openFacts,
+              child: const Text('See Quick Facts again'),
+            ),
+          ],
+          _ => [
+            const SpeechBubble(
+              'Now the bridge seems sturdy. I can finally cross!',
+            ),
+            _scene(),
+            const SizedBox(height: 12),
+            if (_unsure) _unsureHint,
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: _step == _Step.sturdy
+                  ? () => setState(() => _step = _Step.crossing)
+                  : null,
+              child: const Text('Cross the Bridge'),
+            ),
+          ],
+        },
+      ],
+    );
+  }
+
+  Widget get _unsureHint => const HintCard.prompt(
+    text:
+        'Your sentence is in. Check that both parts are full clauses, each '
+        'with a subject and a verb.',
+  );
+}
+
+class _QuickFactsDialog extends StatelessWidget {
+  const _QuickFactsDialog({required this.conjunction, required this.facts});
+
+  final String conjunction;
+  final List<QuickFact> facts;
+
+  static String _punctuation(QuickFactRule rule) => switch (rule) {
+    QuickFactRule.linking => 'semicolon before, comma after',
+    QuickFactRule.joining => 'no comma before',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Quick Facts'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Aside from '$conjunction', you may also use these words, but "
+              'note that they are not coordinating conjunctions:',
+            ),
+            const SizedBox(height: 8),
+            for (final fact in facts)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: fact.word,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: ' (${_punctuation(fact.rule)})'),
+                    ],
+                  ),
+                ),
+              ),
+            const SizedBox(height: 8),
+            const Text(
+              'Task: Use one of these words to write another sentence.',
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Close'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(120, 44),
+            backgroundColor: AppColors.primary,
+          ),
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Write now'),
+        ),
+      ],
     );
   }
 }

@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// The "?" slot in the bridge. Accepts a dragged piece, or, as the
-/// accessibility fallback, a tap while a piece is [selected].
+/// The slot in the bridge. Accepts a dragged piece, or, as the accessibility
+/// fallback, a tap while a piece is [selected]. Shows the [placed] piece.
 class BridgeGap extends StatelessWidget {
-  const BridgeGap({super.key, required this.selected, required this.onDrop});
+  const BridgeGap({
+    super.key,
+    required this.selected,
+    required this.onDrop,
+    this.placed,
+  });
 
   final String? selected;
+  final String? placed;
   final ValueChanged<String> onDrop;
 
   @override
@@ -35,11 +41,11 @@ class BridgeGap extends StatelessWidget {
                 width: 3,
               ),
             ),
-            child: const Text(
-              '?',
-              style: TextStyle(
+            child: Text(
+              placed ?? '?',
+              style: const TextStyle(
                 color: AppColors.ink,
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
