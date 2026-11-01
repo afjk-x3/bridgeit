@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../content/models.dart';
 import '../game/lyric_sync.dart';
 import '../progress/progress_store.dart';
+import '../progress/results_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/level_app_bar.dart';
+import '../widgets/level_clock.dart';
 import '../widgets/level_done_panel.dart';
 import '../widgets/match_it_board.dart';
 import '../widgets/song_player.dart';
@@ -28,6 +30,7 @@ class _Level1ScreenState extends State<Level1Screen> {
   late final Level1Content _content;
   // A finished level can be replayed without the required plays.
   late final int _required;
+  final _clock = LevelClock();
   _Step _step = _Step.intro;
   int _plays = 0;
   int _line = 0;
@@ -41,6 +44,12 @@ class _Level1ScreenState extends State<Level1Screen> {
         : _content.playsRequired;
   }
 
+  @override
+  void dispose() {
+    _clock.dispose();
+    super.dispose();
+  }
+
   void _go(_Step step) => setState(() {
     _step = step;
     _line = 0;
@@ -51,8 +60,14 @@ class _Level1ScreenState extends State<Level1Screen> {
     if (line != _line) setState(() => _line = line);
   }
 
-  Future<void> _finish() async {
-    await context.read<ProgressStore>().markCompleted(1);
+  Future<void> _finish(List<List<String>> attempts) async {
+    final progress = context.read<ProgressStore>();
+    await context.read<ResultsStore>().saveResult(1, {
+      'plays': _plays,
+      'attempts': attempts,
+      'activeMs': _clock.elapsedMs,
+    });
+    await progress.markCompleted(1);
     if (mounted) _go(_Step.done);
   }
 

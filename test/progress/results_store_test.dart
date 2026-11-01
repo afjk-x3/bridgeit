@@ -49,6 +49,25 @@ void main() {
     expect(store.level2Resume, isNull);
   });
 
+  test('the first result of a level is kept', () async {
+    final store = await _store({});
+    expect(store.results, isEmpty);
+
+    await store.saveResult(1, {'plays': 3});
+    await store.saveResult(1, {'plays': 9});
+    await store.saveResult(2, {'bridges': []});
+
+    expect(store.results['1'], {'plays': 3});
+    expect(store.results.keys, ['1', '2']);
+  });
+
+  test('corrupt results read as none', () async {
+    for (final bad in ['{not json', '[]']) {
+      final store = await _store({'results_v1': bad});
+      expect(store.results, isEmpty, reason: bad);
+    }
+  });
+
   test('corrupt level 2 resume reads as a fresh start', () async {
     for (final bad in [
       '{not json',

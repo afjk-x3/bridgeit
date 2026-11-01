@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:bridgeit/content/models.dart';
 import 'package:bridgeit/game/sentence_checker.dart';
 import 'package:bridgeit/progress/progress_store.dart';
+import 'package:bridgeit/progress/results_store.dart';
 import 'package:bridgeit/screens/level2_screen.dart';
 import 'package:bridgeit/widgets/bridge_scene.dart';
 import 'package:bridgeit/widgets/conjunction_piece.dart';
@@ -307,6 +308,56 @@ void main() {
 
     expect(find.text(_done), findsOneWidget);
     expect(progress.isCompleted(2), isTrue);
+
+    final results = tester
+        .element(find.byType(Level2Screen))
+        .read<ResultsStore>();
+    expect(results.level2Resume, isNull);
+    final bridges = (results.results['2'] as Map)['bridges'] as List;
+    expect(bridges, hasLength(7));
+    final sentences = bridges.expand((b) => (b as Map)['sentences'] as List);
+    expect(sentences, hasLength(12));
+    expect((bridges.first as Map)['conjunction'], 'for');
+    expect((sentences.first as Map)['attempts'], 1);
+  });
+
+  testWidgets('wrong tries, collapses and attempts are recorded and kept', (
+    tester,
+  ) async {
+    await _openBridge(tester);
+    for (final word in ['and', 'nor', 'but']) {
+      await _tryPiece(tester, word);
+    }
+    await _tap(tester, 'Try again');
+    await _tryPiece(tester, 'so');
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+    await _write(tester, 'the dog ran far, for it was late.');
+    await _write(tester, 'The dogg ran far, for it was late.');
+
+    // Leave and come back: the numbers must survive a resume.
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Building Bridges'));
+    await tester.pumpAndSettle();
+    await _tap(tester, 'Quick Facts');
+    await _tap(tester, 'Write now');
+    await _write(tester, 'The dog ran far because the cat sat down.');
+
+    final results = tester
+        .element(find.byType(Level2Screen))
+        .read<ResultsStore>();
+    final stats = results.level2Resume!.stats.first;
+    expect(stats['wrongTries'], 4);
+    expect(stats['collapses'], 1);
+    final sentences = stats['sentences'] as List;
+    expect(sentences.first, {
+      'text': 'The dogg ran far, for it was late.',
+      'attempts': 2,
+      'spellingWarnings': 1,
+      'unsure': false,
+    });
+    expect(sentences, hasLength(2));
   });
 
   testWidgets('a student continues at the bridge where they stopped', (

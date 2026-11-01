@@ -5,6 +5,7 @@ import 'content/lexicon.dart';
 import 'content/models.dart';
 import 'progress/progress_store.dart';
 import 'progress/results_store.dart';
+import 'report/answer_sender.dart';
 import 'screens/level1_screen.dart';
 import 'screens/level2_screen.dart';
 import 'screens/level3_screen.dart';
@@ -20,12 +21,14 @@ class BridgeItApp extends StatelessWidget {
     required this.progress,
     required this.results,
     required this.writing,
+    this.sender = const AnswerSender(),
   });
 
   final GameContent content;
   final ProgressStore progress;
   final ResultsStore results;
   final WritingTools writing;
+  final AnswerSender sender;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +36,7 @@ class BridgeItApp extends StatelessWidget {
       providers: [
         Provider<GameContent>.value(value: content),
         Provider<WritingTools>.value(value: writing),
+        Provider<AnswerSender>.value(value: sender),
         ChangeNotifierProvider<ProgressStore>.value(value: progress),
         ChangeNotifierProvider<ResultsStore>.value(value: results),
       ],

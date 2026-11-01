@@ -12,6 +12,7 @@ import '../widgets/bridge_gap.dart';
 import '../widgets/bridge_scene.dart';
 import '../widgets/hint_card.dart';
 import '../widgets/level_app_bar.dart';
+import '../widgets/level_clock.dart';
 import '../widgets/level_done_panel.dart';
 import '../widgets/piece_tray.dart';
 import '../widgets/speech_bubble.dart';
@@ -90,6 +91,12 @@ class _Level2ScreenState extends State<Level2Screen> {
   late final Map<String, List<QuickFact>> _quickFacts;
   late final WritingTools _writing;
   late final List<List<String>> _written;
+  // Each bridge's numbers for the report.
+  late final List<Map<String, dynamic>> _stats;
+  final _clock = LevelClock();
+  // This bridge's time from before the clock started.
+  int _earlierMs = 0;
+  int _attempts = 0;
   late BridgeRound _round;
   int _index = 0;
   _Step _step = _Step.story;
@@ -113,12 +120,26 @@ class _Level2ScreenState extends State<Level2Screen> {
     _quickFacts = game.quickFacts;
     _writing = context.read<WritingTools>();
     _written = [for (final _ in _content.bridges) <String>[]];
+    _stats = [
+      for (final bridge in _content.bridges)
+        {
+          'conjunction': bridge.conjunction,
+          'wrongTries': 0,
+          'collapses': 0,
+          'activeMs': 0,
+          'sentences': <Map<String, dynamic>>[],
+        },
+    ];
     final resume = context.read<ResultsStore>().level2Resume;
     if (resume != null && resume.bridgeIndex < _content.bridges.length) {
       _index = resume.bridgeIndex;
       for (var i = 0; i < resume.written.length; i++) {
         if (i < _written.length) _written[i].addAll(resume.written[i]);
       }
+      for (var i = 0; i < resume.stats.length; i++) {
+        if (i < _stats.length) _stats[i] = resume.stats[i];
+      }
+      _earlierMs = _stats[_index]['activeMs'] as int;
       _step = _Step.build;
     }
     _round = _newRound();
@@ -129,6 +150,12 @@ class _Level2ScreenState extends State<Level2Screen> {
     }
   }
 
+  @override
+  void dispose() {
+    _clock.dispose();
+    super.dispose();
+  }
+
   BridgeRound _newRound() =>
       BridgeRound(_bridge, maxWrongAnswers: _content.maxWrongAnswers);
 
@@ -136,9 +163,18 @@ class _Level2ScreenState extends State<Level2Screen> {
       ? _Step.askFacts
       : _Step.sturdy;
 
-  Future<void> _save() => context.read<ResultsStore>().saveLevel2Resume(
-    Level2Resume(bridgeIndex: _index, written: _written),
-  );
+  void _count(String stat) =>
+      _stats[_index][stat] = (_stats[_index][stat] as int) + 1;
+
+  void _recordTime() =>
+      _stats[_index]['activeMs'] = _earlierMs + _clock.elapsedMs;
+
+  Future<void> _save() {
+    _recordTime();
+    return context.read<ResultsStore>().saveLevel2Resume(
+      Level2Resume(bridgeIndex: _index, written: _written, stats: _stats),
+    );
+  }
 
   void _place(String word) => setState(() {
     _placed = word;
@@ -153,7 +189,13 @@ class _Level2ScreenState extends State<Level2Screen> {
       switch (_round.drop(word)) {
         case DropResult.correct:
           _step = _Step.built;
-        case DropResult.wrong || DropResult.broken:
+        case DropResult.wrong:
+          _count('wrongTries');
+          _lastWrong = word;
+          _placed = null;
+        case DropResult.broken:
+          _count('wrongTries');
+          _count('collapses');
           _lastWrong = word;
           _placed = null;
         case DropResult.ignored:
@@ -175,6 +217,7 @@ class _Level2ScreenState extends State<Level2Screen> {
   ];
 
   String? _submit(String text, String word, WordRule rule) {
+    _attempts++;
     final result = _writing.sentences.check(
       text,
       word: word,
@@ -185,6 +228,13 @@ class _Level2ScreenState extends State<Level2Screen> {
       case Failed(:final reason):
         return checkMessage(reason, word, rule);
       case Passed(:final unsureClause):
+        (_stats[_index]['sentences'] as List).add({
+          'text': text.trim(),
+          'attempts': _attempts,
+          'spellingWarnings': _writing.spelling.check(text).length,
+          'unsure': unsureClause,
+        });
+        _attempts = 0;
         setState(() {
           _foundations.add(text.trim());
           _unsure = unsureClause;
@@ -217,15 +267,20 @@ class _Level2ScreenState extends State<Level2Screen> {
 
   Future<void> _crossed() async {
     if (_step != _Step.crossing) return;
+    _recordTime();
     if (_index == _content.bridges.length - 1) {
-      await context.read<ProgressStore>().markCompleted(2);
-      if (!mounted) return;
-      await context.read<ResultsStore>().clearLevel2Resume();
+      final results = context.read<ResultsStore>();
+      final progress = context.read<ProgressStore>();
+      await results.saveResult(2, {'bridges': _stats});
+      await progress.markCompleted(2);
+      await results.clearLevel2Resume();
       if (mounted) setState(() => _step = _Step.done);
       return;
     }
     setState(() {
       _index++;
+      _earlierMs = 0;
+      _clock.timer.reset();
       _round = _newRound();
       _selected = _placed = _lastWrong = null;
       _unsure = false;

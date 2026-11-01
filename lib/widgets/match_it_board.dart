@@ -18,7 +18,9 @@ class MatchItBoard extends StatefulWidget {
   });
 
   final List<MatchPair> pairs;
-  final VoidCallback onDone;
+
+  /// Gets the wrong conjunctions of each attempt.
+  final ValueChanged<List<List<String>>> onDone;
   final Random? random;
 
   @override
@@ -58,7 +60,7 @@ class _MatchItBoardState extends State<MatchItBoard> {
           ? 'One pair went back to the bottom. Try it again.'
           : '$wrong pairs went back to the bottom. Try them again.';
     });
-    if (_round.isDone) widget.onDone();
+    if (_round.isDone) widget.onDone(_round.attempts);
   }
 
   @override

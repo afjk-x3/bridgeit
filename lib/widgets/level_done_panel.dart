@@ -3,18 +3,16 @@ import 'package:provider/provider.dart';
 
 import '../progress/progress_store.dart';
 import '../theme/app_theme.dart';
+import 'send_answers_button.dart';
 import 'unlock_code_form.dart';
 
-/// Shown when a level is finished: a check, the teacher-code message and a
-/// way back to the level menu. Levels 1 and 2 also ask for the teacher's code
-/// right here, then offer to play the level it unlocked.
+/// Shown when level 1 or 2 is finished: a check, the teacher-code message, a
+/// way to send the answers and a way back to the level menu. It also asks for
+/// the teacher's code right here, then offers to play the level it unlocked.
 class LevelDonePanel extends StatefulWidget {
-  const LevelDonePanel({super.key, required this.level, this.message});
+  const LevelDonePanel({super.key, required this.level});
 
   final int level;
-
-  /// Replaces the default "Level N done!" text.
-  final String? message;
 
   @override
   State<LevelDonePanel> createState() => _LevelDonePanelState();
@@ -27,9 +25,7 @@ class _LevelDonePanelState extends State<LevelDonePanel> {
   Widget build(BuildContext context) {
     final progress = context.watch<ProgressStore>();
     final next = widget.level + 1;
-    final hasNext = next <= 3;
-    final play =
-        _unlocked ?? (hasNext && progress.isUnlocked(next) ? next : null);
+    final play = _unlocked ?? (progress.isUnlocked(next) ? next : null);
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
@@ -37,19 +33,20 @@ class _LevelDonePanelState extends State<LevelDonePanel> {
         const Icon(Icons.check_circle, size: 72, color: AppColors.correct),
         const SizedBox(height: 16),
         Text(
-          widget.message ??
-              'Level ${widget.level} done! Ask your teacher for the code.',
+          'Level ${widget.level} done! Ask your teacher for the code.',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 24),
+        const SendAnswersButton(),
+        const SizedBox(height: 12),
         if (play != null)
           FilledButton(
             onPressed: () =>
                 Navigator.pushReplacementNamed(context, '/level/$play'),
             child: Text('Play level $play'),
           )
-        else if (hasNext)
+        else
           UnlockCodeForm(onUnlocked: (l) => setState(() => _unlocked = l)),
         const SizedBox(height: 12),
         OutlinedButton(

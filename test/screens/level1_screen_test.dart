@@ -244,6 +244,42 @@ void main() {
     expect(find.textContaining('Oh no! The bridge is broken'), findsOneWidget);
   });
 
+  testWidgets('Send my answers shares the recorded result', (tester) async {
+    final sender = FakeSender();
+    await pumpApp(tester, sender: sender);
+    await openMenu(tester);
+    await tester.tap(find.text('Conjunction Theme Song'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('PLAY THE SONG'));
+    await tester.pumpAndSettle();
+    await _reachMatchIt(tester);
+    await _placeAllRight(tester);
+    await _tapText(tester, 'Submit');
+
+    await _tapText(tester, 'Send my answers');
+
+    final result = sender.sent!['1'] as Map<String, dynamic>;
+    expect(result['plays'], 3);
+    expect(result['attempts'], [<String>[]]);
+    expect(result['activeMs'], isA<int>());
+  });
+
+  testWidgets('a failed send says so', (tester) async {
+    await pumpApp(tester, sender: FakeSender(fails: true));
+    await openMenu(tester);
+    await tester.tap(find.text('Conjunction Theme Song'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('PLAY THE SONG'));
+    await tester.pumpAndSettle();
+    await _reachMatchIt(tester);
+    await _placeAllRight(tester);
+    await _tapText(tester, 'Submit');
+
+    await _tapText(tester, 'Send my answers');
+
+    expect(find.text("Couldn't send your answers. Try again."), findsOneWidget);
+  });
+
   testWidgets('MatchIt fits a 360x640 phone', (tester) async {
     await _openLevel(tester);
     tester.view.physicalSize = const Size(360, 640);

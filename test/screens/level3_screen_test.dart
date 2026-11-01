@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:bridgeit/content/models.dart';
 import 'package:bridgeit/progress/progress_store.dart';
+import 'package:bridgeit/progress/results_store.dart';
 import 'package:bridgeit/screens/level3_screen.dart';
 
 import '../support/pump_app.dart';
@@ -149,6 +150,19 @@ void main() {
 
     expect(find.textContaining('Congratulations'), findsOneWidget);
     expect(progress.isCompleted(3), isTrue);
+
+    final result =
+        tester
+                .element(find.byType(Level3Screen))
+                .read<ResultsStore>()
+                .results['3']
+            as Map<String, dynamic>;
+    expect(result['place'], 'Laoag La Paz Sand Dunes');
+    expect(result['entry'], _entry);
+    expect(result['sentences'], 5);
+    expect(result['conjunctions'], ['and', 'but', 'yet', 'so']);
+    expect(result['spellingWarnings'], 0);
+    expect(find.text('Send my answers'), findsOneWidget);
 
     await _tap(tester, 'Back to levels');
     expect(find.text('Choose a level'), findsOneWidget);

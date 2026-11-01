@@ -13,10 +13,17 @@ class Profile {
 /// Where a student stopped in Level 2. [written] holds each bridge's accepted
 /// sentences, one list per bridge so far.
 class Level2Resume {
-  const Level2Resume({required this.bridgeIndex, required this.written});
+  const Level2Resume({
+    required this.bridgeIndex,
+    required this.written,
+    this.stats = const [],
+  });
 
   final int bridgeIndex;
   final List<List<String>> written;
+
+  /// Each bridge's numbers for the report, one map per bridge so far.
+  final List<Map<String, dynamic>> stats;
 }
 
 /// Owns what the student enters: their profile, shown on the answer report,
@@ -26,6 +33,7 @@ class ResultsStore extends ChangeNotifier {
 
   static const _profileKey = 'profile_v1';
   static const _level2Key = 'level2_resume_v1';
+  static const _resultsKey = 'results_v1';
 
   final SharedPreferences _prefs;
   Profile? _profile;
@@ -44,6 +52,10 @@ class ResultsStore extends ChangeNotifier {
           for (final bridge in json['written'] as List)
             [for (final sentence in bridge as List) sentence as String],
         ],
+        stats: [
+          for (final bridge in json['stats'] as List? ?? const [])
+            bridge as Map<String, dynamic>,
+        ],
       );
     } catch (_) {
       return null;
@@ -52,10 +64,34 @@ class ResultsStore extends ChangeNotifier {
 
   Future<void> saveLevel2Resume(Level2Resume resume) => _prefs.setString(
     _level2Key,
-    jsonEncode({'bridgeIndex': resume.bridgeIndex, 'written': resume.written}),
+    jsonEncode({
+      'bridgeIndex': resume.bridgeIndex,
+      'written': resume.written,
+      'stats': resume.stats,
+    }),
   );
 
   Future<void> clearLevel2Resume() => _prefs.remove(_level2Key);
+
+  /// Finished levels' results for the report, keyed by level number. A
+  /// corrupt value reads as no results.
+  Map<String, dynamic> get results {
+    final raw = _prefs.getString(_resultsKey);
+    if (raw == null) return {};
+    try {
+      return jsonDecode(raw) as Map<String, dynamic>;
+    } catch (_) {
+      return {};
+    }
+  }
+
+  /// Keeps the first completed attempt: a replay doesn't overwrite it.
+  Future<void> saveResult(int level, Map<String, dynamic> result) async {
+    final all = results;
+    if (all.containsKey('$level')) return;
+    all['$level'] = result;
+    await _prefs.setString(_resultsKey, jsonEncode(all));
+  }
 
   /// A corrupt value reads as no profile, so it can't brick the app.
   static Profile? _readProfile(SharedPreferences prefs) {

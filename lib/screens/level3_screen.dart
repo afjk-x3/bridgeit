@@ -7,10 +7,13 @@ import '../content/models.dart';
 import '../game/spell_checker.dart';
 import '../game/travelogue_analyzer.dart';
 import '../progress/progress_store.dart';
+import '../progress/results_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/level_app_bar.dart';
+import '../widgets/level_clock.dart';
 import '../widgets/montage_player.dart';
 import '../widgets/place_map.dart';
+import '../widgets/send_answers_button.dart';
 import '../widgets/speech_bubble.dart';
 import '../widgets/travelogue_editor.dart';
 
@@ -38,6 +41,7 @@ class _Level3ScreenState extends State<Level3Screen> {
   late final Level3Content _content;
   late final TravelogueAnalyzer _analyzer;
   late final SpellChecker _baseSpelling;
+  final _clock = LevelClock();
   _Step _step = _Step.tollGate;
   Place? _place;
 
@@ -50,6 +54,12 @@ class _Level3ScreenState extends State<Level3Screen> {
     _baseSpelling = writing.spelling;
   }
 
+  @override
+  void dispose() {
+    _clock.dispose();
+    super.dispose();
+  }
+
   void _go(_Step step) => setState(() => _step = step);
 
   /// Words a student may copy from the captions, such as "sandboard".
@@ -59,7 +69,20 @@ class _Level3ScreenState extends State<Level3Screen> {
   });
 
   Future<void> _submit(String entry) async {
-    await context.read<ProgressStore>().markCompleted(3);
+    final progress = context.read<ProgressStore>();
+    final result = _analyzer.analyze(entry);
+    await context.read<ResultsStore>().saveResult(3, {
+      'place': _place?.name,
+      'entry': entry.trim(),
+      'sentences': result.sentenceCount,
+      'conjunctions': [
+        for (final span in result.counted)
+          entry.substring(span.start, span.end),
+      ],
+      'spellingWarnings': _spelling.check(entry).length,
+      'activeMs': _clock.elapsedMs,
+    });
+    await progress.markCompleted(3);
     if (mounted) _go(_Step.ending);
   }
 
@@ -211,6 +234,8 @@ class _Level3ScreenState extends State<Level3Screen> {
         ),
         const SpeechBubble('Thank you for traveling with me!'),
         const SizedBox(height: 8),
+        const SendAnswersButton(),
+        const SizedBox(height: 12),
         OutlinedButton(
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(56),
