@@ -146,7 +146,13 @@ const List<(String, String, WordRule, Object)> _table = [
   // Unsure: passes with a hint.
   ('Hurry up now, or you will miss the bus.', 'or', WordRule.fanboys, _unsure),
   ('I like cats, and dogs like me.', 'and', WordRule.fanboys, _unsure),
-  ('My three dogs, and the cat sleeps here.', 'and', WordRule.fanboys, _unsure),
+  ('We flaxed it, and the cat sleeps here.', 'and', WordRule.fanboys, _unsure),
+  (
+    'My three dogs, and the cat sleeps here.',
+    'and',
+    WordRule.fanboys,
+    CheckFailure.leftClause,
+  ),
   // Shape.
   ('', 'and', WordRule.fanboys, CheckFailure.empty),
   ('   ', 'and', WordRule.fanboys, CheckFailure.empty),

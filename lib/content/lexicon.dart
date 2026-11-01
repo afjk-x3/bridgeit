@@ -7,8 +7,13 @@ import 'models.dart';
 
 /// The checkers for student writing, built once at startup.
 class WritingTools {
-  const WritingTools({required this.sentences, required this.spelling});
+  const WritingTools({
+    required this.clauses,
+    required this.sentences,
+    required this.spelling,
+  });
 
+  final ClauseChecker clauses;
   final SentenceChecker sentences;
   final SpellChecker spelling;
 }
@@ -19,10 +24,10 @@ Future<WritingTools> loadWritingTools(
 ) async {
   final verbs = await loadLexicon(bundle, 'assets/lexicon/verbs.txt');
   final words = await loadLexicon(bundle, 'assets/lexicon/words.txt');
+  final clauses = ClauseChecker(verbs, minWords: content.minClauseWords);
   return WritingTools(
-    sentences: SentenceChecker(
-      ClauseChecker(verbs, minWords: content.minClauseWords),
-    ),
+    clauses: clauses,
+    sentences: SentenceChecker(clauses),
     spelling: SpellChecker(
       words,
       allowed: {

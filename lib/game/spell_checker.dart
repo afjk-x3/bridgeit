@@ -17,6 +17,9 @@ class SpellChecker {
   final Set<String> _dictionary;
   final Set<String> allowed;
 
+  SpellChecker withAllowed(Set<String> extra) =>
+      SpellChecker(_dictionary, allowed: {...allowed, ...extra});
+
   List<SpellSpan> check(String text) {
     final spans = <SpellSpan>[];
     final pattern = RegExp(r"[A-Za-z0-9]+(?:['’][A-Za-z]+)?");

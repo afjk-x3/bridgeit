@@ -31,6 +31,7 @@ void main() {
     await pumpApp(tester);
     await openMenu(tester);
     expect(find.text('Play Level 2'), findsNothing);
+    expect(find.text('Play Level 3'), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'bridge2');
     await tester.tap(find.text('Unlock'));

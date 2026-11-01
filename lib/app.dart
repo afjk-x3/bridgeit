@@ -7,8 +7,8 @@ import 'progress/progress_store.dart';
 import 'progress/results_store.dart';
 import 'screens/level1_screen.dart';
 import 'screens/level2_screen.dart';
+import 'screens/level3_screen.dart';
 import 'screens/level_menu_screen.dart';
-import 'screens/level_stub_screen.dart';
 import 'screens/start_screen.dart';
 import 'screens/welcome_screen.dart';
 import 'theme/app_theme.dart';
@@ -46,7 +46,7 @@ class BridgeItApp extends StatelessWidget {
           '/levels': (_) => const LevelMenuScreen(),
           '/level/1': (_) => const Level1Screen(),
           '/level/2': (_) => const Level2Screen(),
-          '/level/3': (_) => const LevelStubScreen(level: 3),
+          '/level/3': (_) => const Level3Screen(),
         },
       ),
     );

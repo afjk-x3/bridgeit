@@ -32,24 +32,8 @@ const _determiners = {
   'this', 'that', 'these', 'those', 'some', 'every', 'each',
 };
 
-/// Words ending in -s or -ed that are not verbs.
-const _notVerbs = {
-  'always',
-  'as',
-  'bus',
-  'class',
-  'glass',
-  'his',
-  'its',
-  'news',
-  'perhaps',
-  'red',
-  'sometimes',
-  'this',
-  'thus',
-  'us',
-  'was',
-};
+/// Words ending in -ed that are not verbs.
+const _notVerbs = {'bed', 'hundred', 'naked', 'red', 'sacred', 'shed', 'sled'};
 
 const _contractionVerbs = {
   'm': 'am',
@@ -172,9 +156,9 @@ class ClauseChecker {
     return -1;
   }
 
+  /// An -ed word the verb list lacks. A plain -s word is more likely a plural.
   bool _looksLikeVerb(_Token t) =>
-      (t.lower.endsWith('ed') || t.lower.endsWith('s')) &&
-      !_notVerbs.contains(t.lower);
+      t.lower.endsWith('ed') && !_notVerbs.contains(t.lower);
 
   static List<_Token> _tokenize(String text) {
     final tokens = <_Token>[];
