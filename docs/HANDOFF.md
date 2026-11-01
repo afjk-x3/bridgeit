@@ -8,7 +8,7 @@ Context for picking up this work in a new session. Read this first, then [PRD.md
 - **The client sent new screens** (Canva, 39 pages) that change all three levels. We reviewed them with the client and collected their decisions (below).
 - **Branch `ccr-44e736fd-ezneqa`** was squashed into `main` as `4220a7d` and deleted.
 - **v2 work lives on branch `v2`**, pushed to `origin/v2`. `main` stays runnable until v2 lands. All three levels are playable on `v2` with placeholder art.
-- **Done on `v2`:** task 1 (schema v2), the vector logo, the waving character, task 2 (theme, Start, Welcome + profile, menu, journey sheet), task 3 (Level 1: silent song player, play counter, sing-along card, MatchIt), task 4 (`SentenceChecker`, clause check, `assets/lexicon/verbs.txt`; used by a screen from task 6), task 5 (`SpellChecker`, `assets/lexicon/words.txt`), task 6 (Level 2: 7 bridges, Cross the bridge, collapse, writing steps, Quick Facts, foundations, resume), task 7 (Level 3: toll gate, map, montage, `TravelogueAnalyzer`, editor, ending), task 8 (`ActiveTimer`, `results_v1`, PDF report, Send my answers). Next is task 9, the art.
+- **Done on `v2`:** task 1 (schema v2), the vector logo, the waving character, task 2 (theme, Start, Welcome + profile, menu, journey sheet), task 3 (Level 1: silent song player, play counter, sing-along card, MatchIt), task 4 (`SentenceChecker`, clause check, `assets/lexicon/verbs.txt`; used by a screen from task 6), task 5 (`SpellChecker`, `assets/lexicon/words.txt`), task 6 (Level 2: 7 bridges, Cross the bridge, collapse, writing steps, Quick Facts, foundations, resume), task 7 (Level 3: toll gate, map, montage, `TravelogueAnalyzer`, editor, ending), task 8 (`ActiveTimer`, `results_v1`, PDF report, Send my answers). task 9 (art). Next is task 10, when the client's files arrive.
 - **Deadline: 21 November 2026.** About 14 working days remain against 26–34 days of estimate, so cut polish first. Client files are due 7 November.
 - **Local checks:** `flutter analyze` is clean and 257 tests pass.
 - **Client notice:** `docs/client/BridgeIt-Checker-Changes.md` lists the checker changes and four client decisions. Stricter grammar rules (dependent clauses, *nor*) need the client's OK, since they originally asked for no grammar checks.
@@ -72,16 +72,13 @@ Still unanswered: grade level, teacher-guided or self-paced, sound effects, appr
 - Estimate: 30–39 working days in total, with art added as task 9. Tasks 1–9 can run on placeholders.
 - No Claude attribution in commits or PRs.
 
-## Starting task 9
+## Art (task 9 done)
 
-Drawn so far: `scenes/drive.svg` (Level 1 background), the suspension bridge and blue car (`_ScenePainter`, `_CarPainter`), `map.svg`, and `icon.svg` with the launcher PNGs rendered from it. `map.svg` pins follow Canva's layout, not real geography, and sit on its road, so move them together.
+Drawn: `scenes/drive.svg` (Level 1 background), the suspension bridge and blue car (`_ScenePainter`, `_CarPainter`), `map.svg`, `icon.svg` with the launcher PNGs rendered from it, `girl_drive.svg` and `girl_journal.svg` (Level 3 story), and one picture per lyric line in `lyrics/`. `map.svg` pins follow Canva's layout, not real geography, and sit on its road, so move them together. The Welcome screen and the ending keep `girl_wave.svg`, since she is greeting and saying goodbye there.
+
+The lyric pictures are set per line in `levels.json`, so keep each `image` when the client's timings replace the placeholder lines.
 
 Photos and music are in, with sources in `docs/MEDIA-CREDITS.md` and the in-app Credits. Commons has only one photo of the Currimao rocks, so that place's set and captions mostly show the beach; the client should send better ones.
-
-Still to make:
-
-- **Level 1:** lyric pictures (`LyricLine.image`, not shown yet).
-- **Character:** new poses replace `girl_wave.svg` in the Level 3 story and the Welcome screen. Canva has her in the driver's seat.
 
 An unfinished travelogue is lost on back; only a submitted entry is saved.
 
@@ -89,7 +86,6 @@ Student spelling is American, which matches Philippine English and `words.txt`.
 
 ## Next steps
 
-1. Finish DEV-PRD task 9 (character poses, lyric pictures).
-2. When the client's files arrive on 7 November, swap in the song, timings and sentences (task 10).
-3. Send the client `docs/client/BridgeIt-Checker-Changes.md` and rebuild `BridgeIt-PRD-v2.pdf` from `PRD.md` v2.1.
-4. Update `PROJECT_NOTES.md` status and the old `logo_placeholder.svg` references, and delete this file when it's no longer needed.
+1. When the client's files arrive on 7 November, swap in the song, timings and sentences (task 10).
+2. Send the client `docs/client/BridgeIt-Checker-Changes.md` and rebuild `BridgeIt-PRD-v2.pdf` from `PRD.md` v2.1.
+3. Update `PROJECT_NOTES.md` status and the old `logo_placeholder.svg` references, and delete this file when it's no longer needed.
