@@ -7,10 +7,10 @@ Context for picking up this work in a new session. Read this first, then [PRD.md
 - **Phase 1 is done** and on `main` (3 levels, unlock codes, 91 tests, CI). See [PROJECT_NOTES.md](PROJECT_NOTES.md).
 - **The client sent new screens** (Canva, 39 pages) that change all three levels. We reviewed them with the client and collected their decisions (below).
 - **Branch `ccr-44e736fd-ezneqa`** was squashed into `main` as `4220a7d` and deleted.
-- **v2 work lives on branch `v2`**, pushed to `origin/v2`. `main` stays runnable until v2 lands. Level 3 is `LevelStubScreen` until DEV-PRD task 7.
-- **Done on `v2`:** task 1 (schema v2), the vector logo, the waving character, task 2 (theme, Start, Welcome + profile, menu, journey sheet), task 3 (Level 1: silent song player, play counter, sing-along card, MatchIt), task 4 (`SentenceChecker`, clause check, `assets/lexicon/verbs.txt`; used by a screen from task 6), task 5 (`SpellChecker`, `assets/lexicon/words.txt`), task 6 (Level 2: 7 bridges, Cross the bridge, collapse, writing steps, Quick Facts, foundations, resume). Next is task 7.
+- **v2 work lives on branch `v2`**, pushed to `origin/v2`. `main` stays runnable until v2 lands. All three levels are playable on `v2` with placeholder art.
+- **Done on `v2`:** task 1 (schema v2), the vector logo, the waving character, task 2 (theme, Start, Welcome + profile, menu, journey sheet), task 3 (Level 1: silent song player, play counter, sing-along card, MatchIt), task 4 (`SentenceChecker`, clause check, `assets/lexicon/verbs.txt`; used by a screen from task 6), task 5 (`SpellChecker`, `assets/lexicon/words.txt`), task 6 (Level 2: 7 bridges, Cross the bridge, collapse, writing steps, Quick Facts, foundations, resume), task 7 (Level 3: toll gate, map, montage, `TravelogueAnalyzer`, editor, ending). Next is task 8.
 - **Deadline: 21 November 2026.** About 14 working days remain against 26–34 days of estimate, so cut polish first. Client files are due 7 November.
-- **Local checks:** `flutter analyze` is clean and 216 tests pass.
+- **Local checks:** `flutter analyze` is clean and 236 tests pass.
 - **Client notice:** `docs/client/BridgeIt-Checker-Changes.md` lists the checker changes and four client decisions. Stricter grammar rules (dependent clauses, *nor*) need the client's OK, since they originally asked for no grammar checks.
 
 ## External links
@@ -72,19 +72,21 @@ Still unanswered: grade level, teacher-guided or self-paced, sound effects, appr
 - Estimate: 30–39 working days in total, with art added as task 9. Tasks 1–9 can run on placeholders.
 - No Claude attribution in commits or PRs.
 
-## Starting task 7
+## Starting task 8
 
-Level 3 is still `LevelStubScreen`. Notes for what comes next:
+Students' work isn't kept for the report yet. Notes for what comes next:
 
-- **Reuse:** `levelAppBar`, `SpeechBubble`, `WritingPanel`'s `SpellingController`, and `WritingTools` from `context`. `ClauseChecker` is what `TravelogueAnalyzer` needs.
-- **`SpellChecker`:** add caption words such as *sandboard* to `allowed`.
-- **Task 8 needs data Level 2 doesn't keep yet:** wrong tries, collapses, attempts, spelling warnings and the unsure flag per sentence. `level2_resume_v1` only holds accepted sentences.
+- **Level 1 must record:** song plays and `MatchItRound.attempts`.
+- **Level 2 must record:** wrong tries, collapses, attempts, spelling warnings and the unsure flag per sentence. `level2_resume_v1` only holds accepted sentences, and it is cleared when the level ends, so copy them to `results_v1` first.
+- **Level 3 must record:** place, entry text, sentence count, counted conjunctions and spelling warnings. `_submit` in `level3_screen.dart` currently drops the entry. An unfinished entry is also lost on back.
+- **Send my answers:** goes on `LevelDonePanel` and the Level 3 ending, which is its own screen, not the panel. `LevelDonePanel.message` is unused and can go.
+- **First attempt wins:** freeze a level's result at first completion. Level 2 and 3 replays don't skip anything today.
 
 Student spelling is American, which matches Philippine English and `words.txt`.
 
 ## Next steps
 
-1. Start DEV-PRD task 7 (Level 3: toll gate, map, montage, `TravelogueAnalyzer`, editor, ending), then tasks 8–9.
+1. Start DEV-PRD task 8 (`ActiveTimer`, `results_v1`, PDF report, share), then task 9 (art, map, photos, music, app icon).
 2. When the client's files arrive on 7 November, swap in the song, timings and sentences (task 10).
 3. Send the client `docs/client/BridgeIt-Checker-Changes.md` and rebuild `BridgeIt-PRD-v2.pdf` from `PRD.md` v2.1.
 4. Update `PROJECT_NOTES.md` status and the old `logo_placeholder.svg` references, and delete this file when it's no longer needed.

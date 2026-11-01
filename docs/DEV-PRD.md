@@ -167,7 +167,7 @@ For one side:
 2. Fewer than `minClauseWords` words → **fail**.
 3. Starts with a preposition (`to, in, on, at, with, of, from, by, for, about, into`) and has no verb → **fail** (phrase).
 4. Find the first verb: a token in `assets/lexicon/verbs.txt` (common verbs, all forms) or an auxiliary (`am is are was were be been being has have had do does did can could will would shall should may might must`).
-   - none, but a token ends in *-ed*/*-s* and isn't a known noun-ish stop word → **unsure**
+   - none, but a token ends in *-ed* and isn't a known non-verb → **unsure** (plain *-s* words are treated as plurals)
    - none at all → **fail**
 5. A subject token before that verb: pronoun (`i you he she it we they`), determiner/pointer (`the a an my your his her its our their this that these those there some many every each`), or a capitalised word in the original text that isn't sentence-initial.
    - a capitalised sentence-initial word before the verb also counts ("Maria sings")
@@ -300,8 +300,8 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 | 4 | `SentenceChecker`, clause check, lexicons, tests | 3–4 | Done |
 | 5 | `SpellChecker` + word list | 1–2 | Done |
 | 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | Done, needs art |
-| 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | Next |
-| 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | |
+| 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | Done, needs art and music |
+| 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | Next |
 | 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | Logo and waving pose done |
 | 10 | Swap in client song, timings, sentences | 1 | |
 | 11 | Real-phone testing, fixes, one client review round | 3–4 | |
@@ -309,7 +309,7 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 
 **Deadline: 21 November 2026.** That leaves about 14 working days from 1 November, against 26–34 days of estimate remaining, so polish gets cut first (journey sheet detail, Ken Burns zoom, foundation visuals). Tasks 1–9 run on placeholders; only task 10 waits for the client's files, due 7 November.
 
-Level 3 is `LevelStubScreen` until task 7. Without audio, `SongPlayer` plays silently for the length of the placeholder lyrics, so Level 1 stays playable. Lyric images and the driver's-seat background wait for task 9. The play count isn't saved yet: leaving Level 1 before finishing resets it.
+Without images or music, the montage shows a placeholder panel and runs silently, and the map is a plain panel. Without audio, `SongPlayer` plays silently for the length of the placeholder lyrics, so Level 1 stays playable. Lyric images and the driver's-seat background wait for task 9. The play count isn't saved yet: leaving Level 1 before finishing resets it.
 
 ## 14. Open items (from client PRD Section 11)
 
