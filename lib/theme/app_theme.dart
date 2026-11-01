@@ -13,9 +13,9 @@ abstract final class AppColors {
   static const cliff = Color(0xFF15803D);
   static const vehicle = Color(0xFF3A8FDB);
   // The Level 2 bridge.
-  static const tower = Color(0xFFD9682F);
-  static const cable = Color(0xFF8A93A0);
-  static const deck = Color(0xFF5B6472);
+  static const tower = Color(0xFF309090);
+  static const cable = Color(0xFF183870);
+  static const deck = Color(0xFF183870);
   static const water = Color(0xFF56B9D6);
   static const rock = Color(0xFF6F7B6A);
   static const correct = Color(0xFF22C55E);

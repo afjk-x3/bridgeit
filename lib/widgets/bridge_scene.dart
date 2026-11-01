@@ -20,6 +20,10 @@ const _towerTop = 0.32; // top of the towers (of height)
 const _deckEnd = 0.38; // where the left deck stops (of width)
 const _gapSize = Size(64, 48);
 const _carSize = Size(46, 22);
+final _outline = Paint()
+  ..color = AppColors.ink
+  ..style = PaintingStyle.stroke
+  ..strokeWidth = 2;
 
 /// A suspension bridge over water, with a gap in it. The sentence card, the
 /// [gap] drop target and the vehicle are widgets over a painted backdrop. The
@@ -328,24 +332,30 @@ class _ScenePainter extends CustomPainter {
     final top = h * _towerTop;
     final foot = waterTop + 8;
     final paint = Paint()..color = AppColors.rock;
-    canvas.drawRect(Rect.fromLTRB(x - 15, waterTop - 8, x + 15, foot), paint);
+    void outlined(Rect rect) {
+      canvas.drawRect(rect, paint);
+      canvas.drawRect(rect, _outline);
+    }
+
+    outlined(Rect.fromLTRB(x - 15, waterTop - 8, x + 15, foot));
+    canvas.drawLine(
+      Offset(x - 11, deck),
+      Offset(x + 11, waterTop - 8),
+      _outline,
+    );
+    canvas.drawLine(
+      Offset(x + 11, deck),
+      Offset(x - 11, waterTop - 8),
+      _outline,
+    );
     paint.color = AppColors.tower;
     for (final dx in const [-11.0, 11.0]) {
-      canvas.drawRect(
-        Rect.fromLTRB(x + dx - 3.5, top, x + dx + 3.5, waterTop - 8),
-        paint,
-      );
+      outlined(Rect.fromLTRB(x + dx - 3.5, top, x + dx + 3.5, waterTop - 8));
     }
-    canvas.drawRect(Rect.fromLTRB(x - 14, top, x + 14, top + 5), paint);
-    canvas.drawRect(
+    outlined(Rect.fromLTRB(x - 14, top, x + 14, top + 5));
+    outlined(
       Rect.fromLTRB(x - 11, (top + deck) / 2, x + 11, (top + deck) / 2 + 4),
-      paint,
     );
-    final brace = Paint()
-      ..color = AppColors.tower
-      ..strokeWidth = 3;
-    canvas.drawLine(Offset(x - 11, deck), Offset(x + 11, waterTop - 8), brace);
-    canvas.drawLine(Offset(x + 11, deck), Offset(x - 11, waterTop - 8), brace);
   }
 
   /// The main cables with their hangers, on both halves.
@@ -424,19 +434,18 @@ class _CarPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final paint = Paint()..color = AppColors.vehicle;
-    canvas.drawPath(
-      Path()
-        ..moveTo(2, 18)
-        ..quadraticBezierTo(0, 11, 8, 10)
-        ..lineTo(14, 3)
-        ..quadraticBezierTo(16, 1, 20, 1)
-        ..lineTo(w - 18, 1)
-        ..quadraticBezierTo(w - 15, 1, w - 13, 4)
-        ..lineTo(w - 8, 10)
-        ..quadraticBezierTo(w, 11, w, 18)
-        ..close(),
-      paint,
-    );
+    final body = Path()
+      ..moveTo(2, 18)
+      ..quadraticBezierTo(0, 11, 8, 10)
+      ..lineTo(14, 3)
+      ..quadraticBezierTo(16, 1, 20, 1)
+      ..lineTo(w - 18, 1)
+      ..quadraticBezierTo(w - 15, 1, w - 13, 4)
+      ..lineTo(w - 8, 10)
+      ..quadraticBezierTo(w, 11, w, 18)
+      ..close();
+    canvas.drawPath(body, paint);
+    canvas.drawPath(body, _outline);
     paint.color = AppColors.sky;
     canvas.drawPath(
       Path()

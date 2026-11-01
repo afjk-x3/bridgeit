@@ -95,11 +95,17 @@ class _Pin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onRight = place.pinX > 0.55;
-    final label = SizedBox(
-      width: _labelWidth,
+    final label = Container(
+      constraints: const BoxConstraints(maxWidth: _labelWidth),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.card.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Text(
         place.name,
         textAlign: onRight ? TextAlign.right : TextAlign.left,
+        textWidthBasis: TextWidthBasis.longestLine,
         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
       ),
     );

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="img" aria-label="Two arrows clashing"><g stroke="#183870" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
 <path d="M14 46 H72 V26 L106 60 L72 94 V74 H14Z" fill="#309090"/>
 <path d="M226 46 H168 V26 L134 60 L168 94 V74 H226Z" fill="#D88858"/>
-<path d="M120 18 V36 M120 84 V102" fill="none" stroke="#9C2F3E" stroke-width="7"/>
+<path d="M120 18 V36 M120 84 V102" fill="none" stroke="#183870" stroke-width="7"/>
 </g></svg>

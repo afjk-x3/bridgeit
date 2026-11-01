@@ -66,11 +66,11 @@
       <path d="M240 412 C214 418 198 440 190 470 L228 492 C232 470 236 446 240 412Z" fill="#FFFFFF"/><path d="M195 458 L232 480" fill="none" stroke="#309090" stroke-width="3"/>
     </g>
       <use href="#arm-journal" transform="matrix(-1 0 0 1 600 0)"/>
-      <rect x="226" y="474" width="148" height="104" rx="8" fill="#D88858"/>
+      <rect x="226" y="474" width="148" height="104" rx="8" fill="#309090"/>
       <path d="M244 474 V578" fill="none" stroke-width="4"/>
       <rect x="264" y="494" width="92" height="30" rx="5" fill="#FFFFFF" stroke-width="3.5"/>
-      <path d="M276 506 H344 M276 514 H326" fill="none" stroke="#309090" stroke-width="3"/>
-      <path d="M340 578 V600 L350 592 L360 600 V578Z" fill="#309090" stroke-width="3.5"/>
+      <path d="M276 506 H344 M276 514 H326" fill="none" stroke="#183870" stroke-width="3"/>
+      <path d="M340 578 V600 L350 592 L360 600 V578Z" fill="#D88858" stroke-width="3.5"/>
       <circle cx="232" cy="538" r="19" fill="#F4C7A1"/>
       <circle cx="368" cy="538" r="19" fill="#F4C7A1"/>
     </g>
