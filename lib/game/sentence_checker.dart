@@ -12,6 +12,7 @@ enum CheckFailure {
   comma,
   extraComma,
   semicolon,
+  notClause,
   leftClause,
   rightClause,
   norNeedsNegative,
@@ -40,6 +41,9 @@ final class Failed extends CheckResult {
 class SentenceChecker {
   const SentenceChecker(this._clauses);
 
+  // Purdue OWL allows a comma before these to mark a strong contrast.
+  static const _commaAllowed = {'although', 'even though'};
+
   final ClauseChecker _clauses;
 
   CheckResult check(
@@ -61,7 +65,8 @@ class SentenceChecker {
     if (hits.isEmpty) return const Failed(CheckFailure.missingWord);
 
     final String left;
-    final String right;
+    // Null when the word sits inside one clause: "We, however, stayed home."
+    final String? right;
     var leftStartsSentence = true;
     switch (rule) {
       case WordRule.fanboys:
@@ -73,13 +78,22 @@ class SentenceChecker {
         right = text.substring(hit.first.end);
       case WordRule.linking:
         final hit = hits.where(
-          (m) =>
-              text.substring(0, m.start).trimRight().endsWith(';') &&
-              text.substring(m.end).trimLeft().startsWith(','),
+          (m) => text.substring(0, m.start).trimRight().endsWith(';'),
         );
-        if (hit.isEmpty) return const Failed(CheckFailure.semicolon);
-        left = text.substring(0, hit.first.start);
-        right = text.substring(hit.first.end);
+        if (hit.isNotEmpty) {
+          left = text.substring(0, hit.first.start);
+          right = text.substring(hit.first.end);
+        } else {
+          final before = text.substring(0, hits.first.start);
+          final after = text.substring(hits.first.end);
+          if (_isRunOn(before, after)) {
+            return const Failed(CheckFailure.semicolon);
+          }
+          left =
+              '${before.replaceAll(RegExp(r'[,\s]+$'), '')} '
+              '${after.replaceAll(RegExp(r'^[,\s]+'), '')}';
+          right = null;
+        }
       case WordRule.joining:
         final hit = hits.first;
         if (hit.start == 0) {
@@ -91,7 +105,8 @@ class SentenceChecker {
         } else {
           left = text.substring(0, hit.start);
           right = text.substring(hit.end);
-          if (left.trimRight().endsWith(',')) {
+          if (left.trimRight().endsWith(',') &&
+              !_commaAllowed.contains(word.toLowerCase())) {
             return const Failed(CheckFailure.extraComma);
           }
         }
@@ -102,13 +117,18 @@ class SentenceChecker {
       imperativeAllowed: leftStartsSentence,
     );
     if (leftVerdict == ClauseVerdict.fail) {
-      return const Failed(CheckFailure.leftClause);
+      return Failed(
+        right == null ? CheckFailure.notClause : CheckFailure.leftClause,
+      );
     }
     // Two commands can be joined: "Open the door, and come in."
-    final rightVerdict = _clauses.check(
-      right,
-      imperativeAllowed: leftStartsSentence && _clauses.startsWithVerb(left),
-    );
+    final rightVerdict = right == null
+        ? ClauseVerdict.ok
+        : _clauses.check(
+            right,
+            imperativeAllowed:
+                leftStartsSentence && _clauses.startsWithVerb(left),
+          );
     if (rightVerdict == ClauseVerdict.fail) {
       return const Failed(CheckFailure.rightClause);
     }
@@ -117,7 +137,7 @@ class SentenceChecker {
       if (!ClauseChecker.isNegative(left)) {
         return const Failed(CheckFailure.norNeedsNegative);
       }
-      if (!_clauses.isInverted(right)) {
+      if (!_clauses.isInverted(right!)) {
         return const Failed(CheckFailure.norWordOrder);
       }
     }
@@ -132,6 +152,16 @@ class SentenceChecker {
           rightVerdict == ClauseVerdict.unsure,
     );
   }
+
+  /// True when a full clause stands on both sides of a word with no semicolon
+  /// or FANBOYS word to join them.
+  bool _isRunOn(String before, String after) =>
+      !RegExp(
+        r'\b(?:and|but|or|yet|so)[\s,]*$',
+        caseSensitive: false,
+      ).hasMatch(before) &&
+      _clauses.check(before, imperativeAllowed: true) != ClauseVerdict.fail &&
+      _clauses.check(after) != ClauseVerdict.fail;
 
   static String _normalise(String input) => input
       .replaceAll(RegExp('[‘’]'), "'")

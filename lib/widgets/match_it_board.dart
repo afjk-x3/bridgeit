@@ -31,6 +31,7 @@ class _MatchItBoardState extends State<MatchItBoard> {
   late final MatchItRound _round;
   String? _selected;
   String? _message;
+  Set<String> _wrong = const {};
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _MatchItBoardState extends State<MatchItBoard> {
     _round.place(conjunction, function);
     _selected = null;
     _message = null;
+    _wrong = {..._wrong}..remove(conjunction);
   });
 
   void _tapSlot(String conjunction) {
@@ -54,11 +56,12 @@ class _MatchItBoardState extends State<MatchItBoard> {
   }
 
   void _submit() {
-    final wrong = _round.submit().length;
+    final wrong = _round.submit();
     setState(() {
-      _message = wrong == 1
+      _wrong = wrong.toSet();
+      _message = wrong.length == 1
           ? 'One pair went back to the bottom. Try it again.'
-          : '$wrong pairs went back to the bottom. Try them again.';
+          : '${wrong.length} pairs went back to the bottom. Try them again.';
     });
     if (_round.isDone) widget.onDone(_round.attempts);
   }
@@ -87,6 +90,7 @@ class _MatchItBoardState extends State<MatchItBoard> {
                     conjunction: pair.conjunction,
                     function: _round.placed[pair.conjunction],
                     locked: _round.isLocked(pair.conjunction),
+                    wrong: _wrong.contains(pair.conjunction),
                     armed: _selected != null,
                     onDrop: (function) => _place(pair.conjunction, function),
                     onTap: () => _tapSlot(pair.conjunction),
@@ -132,6 +136,7 @@ class _SlotRow extends StatelessWidget {
     required this.conjunction,
     required this.function,
     required this.locked,
+    required this.wrong,
     required this.armed,
     required this.onDrop,
     required this.onTap,
@@ -140,6 +145,7 @@ class _SlotRow extends StatelessWidget {
   final String conjunction;
   final String? function;
   final bool locked;
+  final bool wrong;
   final bool armed;
   final ValueChanged<String> onDrop;
   final VoidCallback onTap;
@@ -166,7 +172,9 @@ class _SlotRow extends StatelessWidget {
               onAcceptWithDetails: (details) => onDrop(details.data),
               builder: (context, hovering, _) => Semantics(
                 button: true,
-                label: 'Slot for $conjunction: ${placed ?? 'empty'}',
+                label:
+                    'Slot for $conjunction: ${placed ?? 'empty'}'
+                    '${wrong ? ', wrong, try again' : ''}',
                 excludeSemantics: true,
                 onTap: onTap,
                 child: GestureDetector(
@@ -181,15 +189,19 @@ class _SlotRow extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.card,
+                      color: wrong
+                          ? AppColors.wrong.withValues(alpha: 0.12)
+                          : AppColors.card,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: locked
                             ? AppColors.correct
+                            : wrong
+                            ? AppColors.wrong
                             : hovering.isNotEmpty || armed
                             ? AppColors.accent
                             : AppColors.teal,
-                        width: hovering.isNotEmpty || locked ? 3 : 2,
+                        width: hovering.isNotEmpty || locked || wrong ? 3 : 2,
                       ),
                     ),
                     child: Row(

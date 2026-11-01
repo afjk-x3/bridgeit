@@ -111,7 +111,21 @@ const List<(String, String, WordRule, Object)> _table = [
     WordRule.joining,
     _pass,
   ),
+  ('She was upset, although she won.', 'although', WordRule.joining, _pass),
   // Passing: linking.
+  ('It rained; however we went out.', 'however', WordRule.linking, _pass),
+  ('However, we stayed home.', 'however', WordRule.linking, _pass),
+  ('We, however, stayed home.', 'however', WordRule.linking, _pass),
+  ('I therefore stayed home.', 'therefore', WordRule.linking, _pass),
+  ('As a result, we left.', 'as a result', WordRule.linking, _pass),
+  ('In addition to rice, we ate fish.', 'in addition', WordRule.linking, _pass),
+  ('We stayed home, however.', 'however', WordRule.linking, _pass),
+  (
+    'We were late, and therefore we left.',
+    'therefore',
+    WordRule.linking,
+    _pass,
+  ),
   ('It was raining; however, we went out.', 'however', WordRule.linking, _pass),
   (
     'She studied hard; therefore, she passed.',
@@ -218,10 +232,16 @@ const List<(String, String, WordRule, Object)> _table = [
     CheckFailure.comma,
   ),
   (
-    'It rained; however we went out.',
+    'The dog ran however the cat sat.',
     'however',
     WordRule.linking,
     CheckFailure.semicolon,
+  ),
+  (
+    'However, the big red house.',
+    'however',
+    WordRule.linking,
+    CheckFailure.notClause,
   ),
   (
     'It rained, however, we went out.',
@@ -348,12 +368,6 @@ const List<(String, String, WordRule, Object)> _table = [
   (
     'We stayed home, because it rained.',
     'because',
-    WordRule.joining,
-    CheckFailure.extraComma,
-  ),
-  (
-    'It rained, although we went out.',
-    'although',
     WordRule.joining,
     CheckFailure.extraComma,
   ),

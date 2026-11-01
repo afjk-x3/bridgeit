@@ -260,6 +260,39 @@ void main() {
     expect(find.text(_sturdy), findsOneWidget);
   });
 
+  testWidgets('tapping a filled gap empties it', (tester) async {
+    await _openBridge(tester);
+    await tester.tap(_piece('for'));
+    await tester.pump();
+    await tester.tap(_gap);
+    await tester.pump();
+    expect(_crossEnabled(tester), isTrue);
+
+    await tester.tap(_gap);
+    await tester.pump();
+
+    expect(_crossEnabled(tester), isFalse);
+    expect(find.descendant(of: _gap, matching: find.text('?')), findsOneWidget);
+  });
+
+  testWidgets('the Quick Facts words stay on the writing screen', (
+    tester,
+  ) async {
+    await _open(
+      tester,
+      prefs: {
+        'level2_resume_v1':
+            '{"bridgeIndex":1,"written":[["A"],["The dog ran, and I sat."]]}',
+      },
+    );
+    await _tap(tester, 'Quick Facts');
+    await _tap(tester, 'Write now');
+
+    for (final fact in _game(tester).quickFacts['and']!) {
+      expect(find.text(fact.word), findsOneWidget);
+    }
+  });
+
   testWidgets('a similar word follows its own punctuation', (tester) async {
     await _open(
       tester,

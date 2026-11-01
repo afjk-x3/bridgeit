@@ -35,6 +35,7 @@ class _Level1ScreenState extends State<Level1Screen> {
   _Step _step = _Step.intro;
   int _plays = 0;
   int _line = 0;
+  bool _songEnded = false;
 
   @override
   void initState() {
@@ -58,7 +59,12 @@ class _Level1ScreenState extends State<Level1Screen> {
 
   void _positionChanged(Duration position) {
     final line = activeLine(_content.lyrics, position.inMilliseconds);
-    if (line != _line) setState(() => _line = line);
+    if (line != _line || _songEnded) {
+      setState(() {
+        _line = line;
+        _songEnded = false;
+      });
+    }
   }
 
   Future<void> _finish(List<List<String>> attempts) async {
@@ -140,7 +146,11 @@ class _Level1ScreenState extends State<Level1Screen> {
             milliseconds: lyrics.last.startMs + _lastLineMs,
           ),
           onPosition: _positionChanged,
-          onCompleted: () => setState(() => _plays++),
+          autoPlay: true,
+          onCompleted: () => setState(() {
+            _plays++;
+            _songEnded = true;
+          }),
         ),
         const SizedBox(height: 12),
         Card(
@@ -179,13 +189,22 @@ class _Level1ScreenState extends State<Level1Screen> {
                     ),
                   ),
                 const SizedBox(height: 8),
-                if (_required > 0)
+                if (_required > 0) ...[
+                  _PlaysRoad(plays: _plays, required: _required),
                   Text(
                     '${_plays.clamp(0, _required)}/$_required',
                     key: const ValueKey('play-counter'),
                     style: text.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
+                  ),
+                ],
+                if (_songEnded && _plays < _required)
+                  Text(
+                    'The song has ended. Tap play to hear it again: '
+                    '${_required - _plays} more to go.',
+                    key: const ValueKey('song-ended'),
+                    style: text.titleSmall,
                   ),
               ],
             ),
@@ -197,6 +216,39 @@ class _Level1ScreenState extends State<Level1Screen> {
           child: const Text('Next'),
         ),
       ],
+    );
+  }
+}
+
+/// A car that moves along a road with each full play of the song.
+class _PlaysRoad extends StatelessWidget {
+  const _PlaysRoad({required this.plays, required this.required});
+
+  final int plays;
+  final int required;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 36,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Container(height: 4, color: AppColors.primary),
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeInOut,
+            alignment: Alignment(
+              plays.clamp(0, required) / required * 2 - 1,
+              1,
+            ),
+            child: const Padding(
+              padding: EdgeInsets.only(bottom: 2),
+              child: Icon(Icons.directions_car, color: AppColors.vehicle),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -266,20 +318,38 @@ class _MatchItIntro extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'MatchIt',
-              textAlign: TextAlign.center,
-              style: text.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+            Card(
+              color: AppColors.card,
+              margin: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Text(
+                      'MatchIt',
+                      textAlign: TextAlign.center,
+                      style: text.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Instructions:\nDrag the right function to its '
+                      'corresponding coordinating conjunction, or tap the '
+                      'function and then its slot.\n\nAre you ready?',
+                      textAlign: TextAlign.center,
+                      style: text.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Instructions:\nDrag the right function to its corresponding '
-              'coordinating conjunction, or tap the function and then its '
-              'slot.\n\nAre you ready?',
-              textAlign: TextAlign.center,
-              style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
             FilledButton(
               style: tealButton,
               onPressed: onYes,

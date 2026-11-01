@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../content/lexicon.dart';
@@ -46,6 +47,8 @@ String checkMessage(CheckFailure failure, String word, WordRule rule) =>
       CheckFailure.extraComma => "Remove the comma before '$word'.",
       CheckFailure.semicolon =>
         "Put a semicolon before '$word' and a comma after it.",
+      CheckFailure.notClause =>
+        'Your sentence must be a full clause, with a subject and a verb.',
       CheckFailure.leftClause =>
         "The part before '$word' must be a full clause, with a subject and a "
             'verb.',
@@ -320,6 +323,12 @@ class _Level2ScreenState extends State<Level2Screen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SvgPicture.asset(
+              'assets/images/girl_drive.svg',
+              height: 200,
+              semanticsLabel: 'Your guide, driving',
+            ),
+            const SizedBox(height: 12),
             const SpeechBubble(
               'Oh no! The bridge is broken, so I cannot cross.\n\nTo cross the '
               'broken bridge, drag the right coordinating conjunction to '
@@ -374,6 +383,7 @@ class _Level2ScreenState extends State<Level2Screen> {
                       selected: _selected,
                       placed: _placed,
                       onDrop: _place,
+                      onClear: () => setState(() => _placed = null),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -477,6 +487,13 @@ class _Level2ScreenState extends State<Level2Screen> {
             ),
             _scene(),
             const SizedBox(height: 12),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [for (final fact in _facts) _FactWord(fact.word)],
+            ),
+            const SizedBox(height: 12),
             WritingPanel(
               key: const ValueKey('write-similar'),
               spelling: _writing.spelling,
@@ -514,6 +531,25 @@ class _Level2ScreenState extends State<Level2Screen> {
   );
 }
 
+class _FactWord extends StatelessWidget {
+  const _FactWord(this.word);
+
+  final String word;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.accent, width: 2),
+      ),
+      child: Text(word, style: const TextStyle(fontWeight: FontWeight.bold)),
+    );
+  }
+}
+
 class _QuickFactsDialog extends StatelessWidget {
   const _QuickFactsDialog({required this.conjunction, required this.facts});
 
@@ -521,8 +557,8 @@ class _QuickFactsDialog extends StatelessWidget {
   final List<QuickFact> facts;
 
   static String _punctuation(QuickFactRule rule) => switch (rule) {
-    QuickFactRule.linking => 'semicolon before, comma after',
-    QuickFactRule.joining => 'no comma before',
+    QuickFactRule.linking => 'semicolon if it joins two sentences',
+    QuickFactRule.joining => 'usually no comma before',
   };
 
   @override
@@ -555,8 +591,17 @@ class _QuickFactsDialog extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 8),
-            const Text(
-              'Task: Use one of these words to write another sentence.',
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.lightTeal,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'Task: Use one of these words to write another sentence.',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),

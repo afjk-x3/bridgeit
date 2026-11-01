@@ -76,7 +76,8 @@ class Level2Content {
   final List<Bridge> bridges;
 }
 
-/// Linking words take `; … ,`, joining words take no comma.
+/// Linking words take `;` when they join two clauses, joining words usually
+/// take no comma.
 enum QuickFactRule { joining, linking }
 
 class QuickFact {

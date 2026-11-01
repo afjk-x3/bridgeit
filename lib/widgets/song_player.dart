@@ -15,6 +15,7 @@ class SongPlayer extends StatefulWidget {
     required this.silentLength,
     this.onPosition,
     this.onCompleted,
+    this.autoPlay = false,
   });
 
   final String? assetPath;
@@ -25,6 +26,9 @@ class SongPlayer extends StatefulWidget {
 
   /// Called each time the song plays through to its end.
   final VoidCallback? onCompleted;
+
+  /// Starts playing as soon as the song is ready.
+  final bool autoPlay;
 
   @override
   State<SongPlayer> createState() => _SongPlayerState();
@@ -51,6 +55,10 @@ class _SongPlayerState extends State<SongPlayer> with WidgetsBindingObserver {
     if (path != null) {
       _loading = true;
       _load(path);
+    } else if (widget.autoPlay) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _play();
+      });
     }
   }
 
@@ -67,7 +75,9 @@ class _SongPlayerState extends State<SongPlayer> with WidgetsBindingObserver {
       _player = null;
       unawaited(player.dispose());
     }
-    if (mounted) setState(() => _loading = false);
+    if (!mounted) return;
+    setState(() => _loading = false);
+    if (widget.autoPlay) _play();
   }
 
   void _moved(Duration position) {

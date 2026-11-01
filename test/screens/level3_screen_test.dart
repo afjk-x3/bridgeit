@@ -49,7 +49,7 @@ Future<void> _reachMontage(WidgetTester tester) async {
   await _reachMap(tester);
   await tester.tap(find.byKey(const ValueKey('pin-la_paz')));
   await tester.pump();
-  await tester.pump(const Duration(seconds: 1));
+  await tester.pump(const Duration(seconds: 2));
   await tester.pump();
 }
 
@@ -210,7 +210,7 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('pin-la_paz')));
     await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 2));
     await tester.pump();
     await _pumpPass(tester);
     expect(tester.takeException(), isNull);

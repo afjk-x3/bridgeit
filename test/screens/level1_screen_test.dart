@@ -38,7 +38,10 @@ Future<void> _openLevel(
 /// Plays the silent song through once.
 Future<void> _playOnce(WidgetTester tester) async {
   final content = _content(tester);
-  await tester.tap(find.byTooltip('Play'));
+  // The first play starts by itself.
+  if (find.byTooltip('Play').evaluate().isNotEmpty) {
+    await tester.tap(find.byTooltip('Play'));
+  }
   await tester.pump();
   await tester.pump(Duration(milliseconds: content.lyrics.last.startMs + 7000));
 }
@@ -85,9 +88,12 @@ void main() {
     expect(find.text('0/3'), findsOneWidget);
     expect(nextEnabled(), isFalse);
 
+    expect(find.byTooltip('Pause'), findsOneWidget);
     await _playOnce(tester);
     expect(find.text('1/3'), findsOneWidget);
     expect(nextEnabled(), isFalse);
+    expect(find.byKey(const ValueKey('song-ended')), findsOneWidget);
+    expect(find.textContaining('2 more to go'), findsOneWidget);
 
     await _playOnce(tester);
     await _playOnce(tester);
@@ -101,9 +107,7 @@ void main() {
     Text now() => tester.widget<Text>(find.byKey(const ValueKey('lyric-now')));
     expect(now().data, lyrics.first.text);
 
-    await tester.tap(find.byTooltip('Play'));
-    await tester.pump();
-    await tester.pump(Duration(milliseconds: lyrics[2].startMs + 200));
+    await tester.pump(Duration(milliseconds: lyrics[2].startMs));
 
     expect(now().data, lyrics[2].text);
     expect(find.text(lyrics[3].text), findsOneWidget);
@@ -216,6 +220,7 @@ void main() {
       find.text('2 pairs went back to the bottom. Try them again.'),
       findsOneWidget,
     );
+    expect(find.bySemanticsLabel(RegExp('wrong, try again')), findsNWidgets(2));
     expect(_function(a.function), findsOneWidget);
     expect(_function(b.function), findsOneWidget);
     expect(find.byIcon(Icons.check), findsNWidgets(5));

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
@@ -20,6 +22,8 @@ const _towerTop = 0.32; // top of the towers (of height)
 const _deckEnd = 0.38; // where the left deck stops (of width)
 const _gapSize = Size(64, 48);
 const _carSize = Size(46, 22);
+const _fallTime = Duration(milliseconds: 500);
+const _fallAngle = 0.35; // how far a broken deck tilts (radians)
 final _outline = Paint()
   ..color = AppColors.ink
   ..style = PaintingStyle.stroke
@@ -27,8 +31,8 @@ final _outline = Paint()
 
 /// A suspension bridge over water, with a gap in it. The sentence card, the
 /// [gap] drop target and the vehicle are widgets over a painted backdrop. The
-/// student's [foundations] sit under the deck, and the vehicle drives to the
-/// far cliff when [crossed].
+/// student's [foundations] sit under the scene, so long sentences can wrap,
+/// and the vehicle drives to the far cliff when [crossed].
 class BridgeScene extends StatelessWidget {
   const BridgeScene({
     super.key,
@@ -71,94 +75,101 @@ class BridgeScene extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
-        child: AspectRatio(
-          aspectRatio: 350 / 260,
-          child: Semantics(
-            container: true,
-            explicitChildNodes: true,
-            label: _labels[state],
-            child: Container(
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color: AppColors.sky,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                  width: 2,
-                ),
-              ),
-              child: LayoutBuilder(
-                builder: (context, box) {
-                  final (w, h) = (box.maxWidth, box.maxHeight);
-                  // Puts the car's wheels on the deck line.
-                  final carY =
-                      2 *
-                          (h * _deck - _carSize.height) /
-                          (h - _carSize.height) -
-                      1;
-                  return Stack(
-                    children: [
-                      Positioned.fill(
-                        child: CustomPaint(painter: _ScenePainter(state)),
-                      ),
-                      Positioned(
-                        left: 8,
-                        right: 8,
-                        top: 8,
-                        child: _SentenceCard(
-                          left: left,
-                          right: right,
-                          word: complete ? word : null,
-                        ),
-                      ),
-                      if (state != BridgeState.broken)
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          top: h * _deck - _gapSize.height / 2,
-                          child: Center(
-                            child: SizedBox.fromSize(
-                              size: _gapSize,
-                              child: complete && word != null
-                                  ? _PlacedWord(word, onTap: onTapWord)
-                                  : gap,
-                            ),
-                          ),
-                        ),
-                      Positioned(
-                        left: 8,
-                        right: 8,
-                        top: h * _deck + _gapSize.height / 2 + 4,
-                        child: Column(
-                          children: [
-                            for (final sentence in foundations)
-                              _Foundation(sentence),
-                          ],
-                        ),
-                      ),
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: AnimatedAlign(
-                              duration: const Duration(milliseconds: 600),
-                              curve: Curves.easeInOut,
-                              onEnd: onCrossed,
-                              alignment: Alignment(crossed ? 1 : -1, carY),
-                              child: CustomPaint(
-                                size: _carSize,
-                                painter: _CarPainter(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AspectRatio(
+              aspectRatio: 350 / 260,
+              child: Semantics(
+                container: true,
+                explicitChildNodes: true,
+                label: _labels[state],
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: AppColors.sky,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, box) {
+                      final (w, h) = (box.maxWidth, box.maxHeight);
+                      // Puts the car's wheels on the deck line.
+                      final carY =
+                          2 *
+                              (h * _deck - _carSize.height) /
+                              (h - _carSize.height) -
+                          1;
+                      return Stack(
+                        children: [
+                          Positioned.fill(
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween(
+                                begin: 0,
+                                end: state == BridgeState.broken ? 1 : 0,
+                              ),
+                              duration: _fallTime,
+                              curve: Curves.easeIn,
+                              builder: (context, fall, _) => CustomPaint(
+                                painter: _ScenePainter(state, fall),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
+                          Positioned(
+                            left: 8,
+                            right: 8,
+                            top: 8,
+                            child: _SentenceCard(
+                              left: left,
+                              right: right,
+                              word: complete ? word : null,
+                            ),
+                          ),
+                          if (state != BridgeState.broken)
+                            Positioned(
+                              left: 0,
+                              right: 0,
+                              top: h * _deck - _gapSize.height / 2,
+                              child: Center(
+                                child: SizedBox.fromSize(
+                                  size: _gapSize,
+                                  child: complete && word != null
+                                      ? _PlacedWord(word, onTap: onTapWord)
+                                      : gap,
+                                ),
+                              ),
+                            ),
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                child: AnimatedAlign(
+                                  duration: const Duration(milliseconds: 600),
+                                  curve: Curves.easeInOut,
+                                  onEnd: onCrossed,
+                                  alignment: Alignment(crossed ? 1 : -1, carY),
+                                  child: CustomPaint(
+                                    size: _carSize,
+                                    painter: _CarPainter(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
-          ),
+            for (final sentence in foundations) _Foundation(sentence),
+          ],
         ),
       ),
     );
@@ -258,27 +269,26 @@ class _Foundation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 3),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: AppColors.deck,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         sentence,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
-        style: const TextStyle(color: AppColors.card, fontSize: 11),
+        style: const TextStyle(color: AppColors.card, fontSize: 13),
       ),
     );
   }
 }
 
 class _ScenePainter extends CustomPainter {
-  _ScenePainter(this.state);
+  _ScenePainter(this.state, this.fall);
 
   final BridgeState state;
+  final double fall;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -302,7 +312,8 @@ class _ScenePainter extends CustomPainter {
     canvas.drawOval(Rect.fromLTRB(-16, h * 0.86, w * 0.09, h * 1.08), paint);
     canvas.drawOval(Rect.fromLTRB(w * 0.92, h * 0.84, w + 16, h * 1.08), paint);
 
-    _cables(canvas, w, deck);
+    final angle = state == BridgeState.broken ? _fallAngle * fall : 0.0;
+    _cables(canvas, w, deck, angle);
     _tower(canvas, w * _towerX, h, deck, waterTop);
     _tower(canvas, w * (1 - _towerX), h, deck, waterTop);
 
@@ -315,8 +326,8 @@ class _ScenePainter extends CustomPainter {
       case BridgeState.built:
         _plank(canvas, Rect.fromLTRB(0, deck, w, deck + thick), paint);
       case BridgeState.broken:
-        _plank(canvas, left, paint, pivot: leftPivot, angle: 0.35);
-        _plank(canvas, right, paint, pivot: rightPivot, angle: -0.35);
+        _plank(canvas, left, paint, pivot: leftPivot, angle: angle);
+        _plank(canvas, right, paint, pivot: rightPivot, angle: -angle);
       case BridgeState.open || BridgeState.cracked:
         _plank(canvas, left, paint);
         _plank(canvas, right, paint);
@@ -358,8 +369,9 @@ class _ScenePainter extends CustomPainter {
     );
   }
 
-  /// The main cables with their hangers, on both halves.
-  void _cables(Canvas canvas, double w, double deck) {
+  /// The main cables with their hangers, on both halves. They stay tied to
+  /// the tower top, and their far ends follow the deck down by [angle].
+  void _cables(Canvas canvas, double w, double deck, double angle) {
     final stroke = Paint()
       ..color = AppColors.cable
       ..style = PaintingStyle.stroke
@@ -368,22 +380,35 @@ class _ScenePainter extends CustomPainter {
       ..color = AppColors.cable
       ..strokeWidth = 1;
     final top = _towerTopY(deck);
-    for (final (from, to) in [
-      (w * _towerX, w * _deckEnd),
-      (w * (1 - _towerX), w * (1 - _deckEnd)),
+    for (final (from, to, tilt) in [
+      (w * _towerX, w * _deckEnd, angle),
+      (w * (1 - _towerX), w * (1 - _deckEnd), -angle),
     ]) {
+      final pivot = Offset(from, deck);
+      Offset down(Offset point) {
+        final d = point - pivot;
+        return pivot +
+            Offset(
+              d.dx * cos(tilt) - d.dy * sin(tilt),
+              d.dx * sin(tilt) + d.dy * cos(tilt),
+            );
+      }
+
       final mid = deck - 8.0;
+      final start = Offset(from, top);
+      final bend = down(Offset((from + to) / 2, mid + 4));
+      final end = down(Offset(to, mid));
       canvas.drawPath(
         Path()
-          ..moveTo(from, top)
-          ..quadraticBezierTo((from + to) / 2, mid + 4, to, mid),
+          ..moveTo(start.dx, start.dy)
+          ..quadraticBezierTo(bend.dx, bend.dy, end.dx, end.dy),
         stroke,
       );
       for (var t = 0.2; t < 1; t += 0.2) {
-        final x = from + (to - from) * t;
         final u = 1 - t;
-        final y = u * u * top + 2 * u * t * (mid + 4) + t * t * mid;
-        canvas.drawLine(Offset(x, y), Offset(x, deck), hanger);
+        final point = start * (u * u) + bend * (2 * u * t) + end * (t * t);
+        final foot = down(Offset(from + (to - from) * t, deck));
+        canvas.drawLine(point, foot, hanger);
       }
     }
   }
@@ -426,7 +451,8 @@ class _ScenePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ScenePainter old) => old.state != state;
+  bool shouldRepaint(_ScenePainter old) =>
+      old.state != state || old.fall != fall;
 }
 
 class _CarPainter extends CustomPainter {
