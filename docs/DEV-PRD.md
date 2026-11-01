@@ -151,7 +151,7 @@ Pipeline; the first failure wins:
 | 2 | Shape | empty; no capital at start; no . ! ? at end; more than one sentence | `empty`, `capital`, `endPunctuation`, `oneSentence` |
 | 3 | Junk | a run of 4+ same letters; a word over 20 letters; under 60% letters | `notReal` |
 | 4 | Target word | whole-word, case-insensitive match missing (phrases like *as a result* allowed) | `missingWord` |
-| 5 | Punctuation | `fanboys`: no comma right before. `linking`: no `;` before or no `,` after. `joining`: a comma before the word in mid-sentence, or no comma after a sentence-initial clause | `comma`, `extraComma`, `semicolon` |
+| 5 | Punctuation | `fanboys`: no comma right before. `linking`: two full clauses around the word with no `;` or FANBOYS word between them; the word may also open a sentence or sit inside one clause. `joining`: a comma before the word in mid-sentence (allowed for *although* and *even though*), or no comma after a sentence-initial clause | `comma`, `extraComma`, `semicolon` |
 | 6 | Split | – left/right of the word. Sentence-initial `joining` word splits at the first comma | – |
 | 7 | Clause check | either side fails (5.4). A command on the left allows a command on the right | `leftClause`, `rightClause` |
 | 8 | *Nor* | no negative in the left clause, or the right clause isn't inverted | `norNeedsNegative`, `norWordOrder` |

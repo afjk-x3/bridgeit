@@ -8,6 +8,8 @@ The sentence checker in Level 2 decides whether a student's sentence can become 
 
 You asked for simple offline checks with no grammar or meaning checks. Changes 1, 2 and 3 below do check grammar, because your focus is FANBOYS joining independent clauses. Without them, the app would accept sentences that break the rule being taught.
 
+Changes 7, 8 and 9 go the other way. You confirmed that linking words take a semicolon before and a comma after, and joining words take no comma. Applied strictly, that rejected correct sentences, so the app now accepts them. It still rejects run-ons such as "The dog ran however the cat sat." The Quick Facts labels now read "semicolon if it joins two sentences" and "usually no comma before".
+
 ## What changed
 
 | # | Student writes | Before | Now | Why |
@@ -18,6 +20,9 @@ You asked for simple offline checks with no grammar or meaning checks. Changes 1
 | 4 | We stayed home, because it rained. | Accepted | Rejected: remove the comma | No comma when the main clause comes first. This also matches your Quick Facts |
 | 5 | Because it rained we stayed home. | Rejected, but with the wrong message | Rejected: add a comma | A comma is needed when the *because* part comes first |
 | 6 | Open the door, and come in. | Rejected | Accepted, with a hint | A command has an understood "you", so it is a full clause |
+| 7 | However, we stayed home. | Rejected | Accepted | Words like *however* can open a sentence, or sit inside one: "We, however, stayed home." |
+| 8 | It rained; however we went out. | Rejected | Accepted | The semicolon joins the two clauses; the comma after *however* is optional |
+| 9 | She was upset, although she won. | Rejected | Accepted | Purdue OWL allows a comma before *although* for strong contrast |
 
 We also fixed some good sentences that were being rejected:
 
@@ -28,9 +33,9 @@ We also fixed some good sentences that were being rejected:
 ## Decisions we need from you
 
 1. **Do you approve changes 1, 2 and 3?** They are stricter than "no grammar checks". If you prefer the simpler version, we can turn them off.
-2. **Should *although* and *even though* allow a comma before them?** Purdue OWL allows one for strong contrast, as in "She was still upset, although she had won." Your Quick Facts say no comma, so the app rejects it for now.
+2. **Do you approve changes 7, 8 and 9?** They relax the Quick Facts punctuation you confirmed. If you prefer the strict version, we can restore it.
 3. **Should very short clauses need the comma?** The Chicago Manual of Style lets very short clauses skip it. Purdue OWL does not mention this, and your lesson teaches the comma, so the app requires it for now.
-4. **Can a teacher review our test sentences?** We test 76 sentences, and we can send you the list. Published rules can't show how well the checker works with real student writing, so a teacher's review, and if possible a few real student sentences, would help most.
+4. **Can a teacher review our test sentences?** We test 86 sentences, and we can send you the list. Published rules can't show how well the checker works with real student writing, so a teacher's review, and if possible a few real student sentences, would help most.
 
 ## What the checker still can't do
 

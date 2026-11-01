@@ -126,7 +126,7 @@ When the bridge is sturdy, the car drives across to the next bridge. Progress is
 Every sentence a student writes in Level 2 is checked before it can become part of the bridge. Each sentence must:
 
 - use the right word: the coordinating conjunction, or one of the similar words from Quick Facts;
-- have the right punctuation for that word: a comma before a FANBOYS word, a semicolon before and a comma after words like *however*, no comma before words like *because* in the middle of a sentence, and a comma after the first part when the sentence starts with one;
+- have the right punctuation for that word: a comma before a FANBOYS word, a semicolon before words like *however* when they join two sentences, no comma before words like *because* in the middle of a sentence (a comma is allowed before *although* and *even though*), and a comma after the first part when the sentence starts with one;
 - have a full clause on both sides, each with a subject and a verb. "I like apples, and she likes oranges." passes; "I like apples, and oranges." does not. A part that starts with a word like *because* or *although* is not a full clause;
 - for *nor*, follow a negative clause and put the helping verb before the subject: "She did not call, nor did she write.";
 - start with a capital letter and end with . ! or ?;
@@ -172,13 +172,13 @@ Time spent counts only while the level is open on screen; it pauses when the stu
 
 | Conjunction | What it does (from MatchIt) | Similar words (Quick Facts) | Punctuation of similar words |
 |---|------|-----|------|
-| for | Expresses a reason or explanation | because, since, as | No comma before |
-| and | Adds or connects related ideas | moreover, in addition, furthermore | Semicolon before, comma after |
+| for | Expresses a reason or explanation | because, since, as | Usually no comma before |
+| and | Adds or connects related ideas | moreover, in addition, furthermore | Semicolon if it joins two sentences |
 | nor | Connects negative alternatives | None | – |
-| but | Shows contrast between ideas | however, although | *however:* semicolon before, comma after. *although:* no comma before |
+| but | Shows contrast between ideas | however, although | *however:* semicolon if it joins two sentences. *although:* usually no comma before |
 | or | Presents choices or alternatives | None | – |
-| yet | Shows an unexpected result | nevertheless, even though | *nevertheless:* semicolon before, comma after. *even though:* no comma before |
-| so | Expresses a result or consequence | therefore, as a result | Semicolon before, comma after |
+| yet | Shows an unexpected result | nevertheless, even though | *nevertheless:* semicolon if it joins two sentences. *even though:* usually no comma before |
+| so | Expresses a result or consequence | therefore, as a result | Semicolon if it joins two sentences |
 
 **Level 2 sentences.** The 7 sentence pairs, with the explanation for each right answer and a hint for each wrong piece: **To confirm** (you will send these). Until then the app uses **Placeholder** sentences, starting with "She went to bed early, for she was tired." from your screens.
 
