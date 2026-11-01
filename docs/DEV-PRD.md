@@ -302,14 +302,14 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 | 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | Done, needs art |
 | 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | Done, needs art and music |
 | 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | Done |
-| 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | Next. Logo and waving pose done |
+| 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | In progress. Logo, waving pose, scenes, car, map and icon done |
 | 10 | Swap in client song, timings, sentences | 1 | |
 | 11 | Real-phone testing, fixes, one client review round | 3–4 | |
 | | **Total** | **30–39** | |
 
 **Deadline: 21 November 2026.** That leaves about 14 working days from 1 November, against 26–34 days of estimate remaining, so polish gets cut first (journey sheet detail, Ken Burns zoom, foundation visuals). Tasks 1–9 run on placeholders; only task 10 waits for the client's files, due 7 November.
 
-Without images or music, the montage shows a placeholder panel and runs silently, and the map is a plain panel. Without audio, `SongPlayer` plays silently for the length of the placeholder lyrics, so Level 1 stays playable. Lyric images and the driver's-seat background wait for task 9. The play count isn't saved yet: leaving Level 1 before finishing resets it.
+Without images or music, the montage shows a placeholder panel and runs silently. Without audio, `SongPlayer` plays silently for the length of the placeholder lyrics, so Level 1 stays playable. Lyric images and the driver's-seat background wait for task 9. The play count isn't saved yet: leaving Level 1 before finishing resets it.
 
 ## 14. Open items (from client PRD Section 11)
 

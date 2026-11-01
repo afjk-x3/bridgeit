@@ -74,13 +74,13 @@ Still unanswered: grade level, teacher-guided or self-paced, sound effects, appr
 
 ## Starting task 9
 
-Everything plays on placeholders. What the art has to replace:
+Drawn so far: `scenes/drive.svg` (Level 1 background), the suspension bridge and blue car (`_ScenePainter`, `_CarPainter`), `map.svg`, and `icon.svg` with the launcher PNGs rendered from it. `map.svg` pins follow Canva's layout, not real geography, and sit on its road, so move them together.
 
-- **Level 1:** driver's-seat background; lyric pictures (`LyricLine.image`, not shown yet).
-- **Level 2:** `BridgeScene` cliffs, river, deck and car are drawn in `_ScenePainter` and `_CarPainter`. The Canva scene is a suspension bridge.
-- **Level 3:** map (`PlaceMap` is a plain panel, and `levels.json` pins are placeholders), 35 free-licensed photos with sources recorded, montage music.
+Still to make:
+
+- **Level 1:** lyric pictures (`LyricLine.image`, not shown yet).
+- **Level 3:** 35 free-licensed photos with sources recorded, montage music.
 - **Character:** new poses replace `girl_wave.svg` in the Level 3 story and the Welcome screen. Canva has her in the driver's seat.
-- **App icon:** a simplified icon-only logo.
 
 An unfinished travelogue is lost on back; only a submitted entry is saved.
 
@@ -88,7 +88,7 @@ Student spelling is American, which matches Philippine English and `words.txt`.
 
 ## Next steps
 
-1. Start DEV-PRD task 9 (art, map, photos, music, app icon).
+1. Finish DEV-PRD task 9 (photos, music, character poses, lyric pictures).
 2. When the client's files arrive on 7 November, swap in the song, timings and sentences (task 10).
 3. Send the client `docs/client/BridgeIt-Checker-Changes.md` and rebuild `BridgeIt-PRD-v2.pdf` from `PRD.md` v2.1.
 4. Update `PROJECT_NOTES.md` status and the old `logo_placeholder.svg` references, and delete this file when it's no longer needed.
