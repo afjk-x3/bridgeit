@@ -154,7 +154,7 @@
       {
         "id": "la_paz",
         "name": "Laoag La Paz Sand Dunes",
-        "mapPin": { "x": 0.38, "y": 0.48 },
+        "mapPin": { "x": 0.4, "y": 0.12 },
         "pictures": [
           { "asset": "assets/images/places/la_paz/1.webp", "caption": "The La Paz Sand Dunes stretch along the coast of Laoag City." },
           { "asset": "assets/images/places/la_paz/2.webp", "caption": "Visitors ride 4x4 jeeps up and down the dunes." },
@@ -166,7 +166,7 @@
       {
         "id": "burgos",
         "name": "Burgos Lighthouse (Cape Bojeador)",
-        "mapPin": { "x": 0.22, "y": 0.22 },
+        "mapPin": { "x": 0.72, "y": 0.2 },
         "pictures": [
           { "asset": "assets/images/places/burgos/1.webp", "caption": "Cape Bojeador Lighthouse stands on a hill in Burgos." },
           { "asset": "assets/images/places/burgos/2.webp", "caption": "It was first lit in 1892, during the Spanish period." },
@@ -178,7 +178,7 @@
       {
         "id": "bangui",
         "name": "Bangui Windmills",
-        "mapPin": { "x": 0.4, "y": 0.14 },
+        "mapPin": { "x": 0.35, "y": 0.33 },
         "pictures": [
           { "asset": "assets/images/places/bangui/1.webp", "caption": "The Bangui Windmills line the shore of Bangui Bay." },
           { "asset": "assets/images/places/bangui/2.webp", "caption": "Twenty giant wind turbines stand in a row." },
@@ -190,7 +190,7 @@
       {
         "id": "paoay",
         "name": "San Agustin Church of Paoay",
-        "mapPin": { "x": 0.28, "y": 0.62 },
+        "mapPin": { "x": 0.3, "y": 0.52 },
         "pictures": [
           { "asset": "assets/images/places/paoay/1.webp", "caption": "San Agustin Church in Paoay is a UNESCO World Heritage Site." },
           { "asset": "assets/images/places/paoay/2.webp", "caption": "It was finished in 1710 and built of coral stone and bricks." },
@@ -202,7 +202,7 @@
       {
         "id": "saud",
         "name": "Saud Beach, Pagudpud",
-        "mapPin": { "x": 0.62, "y": 0.08 },
+        "mapPin": { "x": 0.7, "y": 0.47 },
         "pictures": [
           { "asset": "assets/images/places/saud/1.webp", "caption": "Saud Beach in Pagudpud has fine white sand." },
           { "asset": "assets/images/places/saud/2.webp", "caption": "Coconut trees line the shore." },
@@ -214,7 +214,7 @@
       {
         "id": "badoc",
         "name": "La Virgen Milagrosa de Badoc Church",
-        "mapPin": { "x": 0.3, "y": 0.88 },
+        "mapPin": { "x": 0.62, "y": 0.84 },
         "pictures": [
           { "asset": "assets/images/places/badoc/1.webp", "caption": "The church in Badoc is home to La Virgen Milagrosa." },
           { "asset": "assets/images/places/badoc/2.webp", "caption": "A legend says fishermen found the image of the Virgin floating at sea." },
@@ -226,7 +226,7 @@
       {
         "id": "pangil",
         "name": "Pangil Coral Rock Formations, Currimao",
-        "mapPin": { "x": 0.22, "y": 0.72 },
+        "mapPin": { "x": 0.12, "y": 0.7 },
         "pictures": [
           { "asset": "assets/images/places/pangil/1.webp", "caption": "Coral rock formations line the coast of Currimao." },
           { "asset": "assets/images/places/pangil/2.webp", "caption": "Waves and wind have shaped the rocks over many years." },

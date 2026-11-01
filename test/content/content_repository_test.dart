@@ -112,7 +112,7 @@ void main() {
 
     final place = content.level3.places.first;
     expect(place.id, 'la_paz');
-    expect(place.pinX, 0.38);
+    expect(place.pinX, 0.4);
     expect(place.pictures, hasLength(5));
   });
 

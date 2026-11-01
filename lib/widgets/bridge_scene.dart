@@ -15,12 +15,13 @@ const _labels = {
 const _deck = 0.58; // top of the cliffs and of the bridge deck (of height)
 const _deckThickness = 0.05; // deck plank height (of height)
 const _waterTop = 0.8; // top of the river (of height)
-const _cliff = 0.22; // cliff width (of width)
-const _stub = 0.16; // plank stub length (of width)
+const _towerX = 0.17; // left tower center (of width); the right one mirrors it
+const _towerTop = 0.32; // top of the towers (of height)
+const _deckEnd = 0.38; // where the left deck stops (of width)
 const _gapSize = Size(64, 48);
-const _carSize = Size(40, 22);
+const _carSize = Size(46, 22);
 
-/// Two cliffs over a river with a bridge between them. The sentence card, the
+/// A suspension bridge over water, with a gap in it. The sentence card, the
 /// [gap] drop target and the vehicle are widgets over a painted backdrop. The
 /// student's [foundations] sit under the deck, and the vehicle drives to the
 /// far cliff when [crossed].
@@ -256,7 +257,7 @@ class _Foundation extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 3),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.bridge,
+        color: AppColors.deck,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -280,37 +281,38 @@ class _ScenePainter extends CustomPainter {
     final (w, h) = (size.width, size.height);
     final deck = h * _deck;
     final thick = h * _deckThickness;
-    final paint = Paint()..color = AppColors.primary;
-    canvas.drawRect(Rect.fromLTRB(0, h * _waterTop, w, h), paint);
-    paint.color = AppColors.cliff;
-    const lip = Radius.circular(12);
-    canvas.drawRRect(
-      RRect.fromLTRBAndCorners(0, deck, w * _cliff, h, topRight: lip),
-      paint,
-    );
-    canvas.drawRRect(
-      RRect.fromLTRBAndCorners(w * (1 - _cliff), deck, w, h, topLeft: lip),
-      paint,
-    );
+    final waterTop = h * _waterTop;
+    final paint = Paint()..color = AppColors.water;
+    canvas.drawRect(Rect.fromLTRB(0, waterTop, w, h), paint);
+    paint.color = AppColors.sky.withValues(alpha: 0.5);
+    for (final (x, y) in const [(0.3, 0.86), (0.62, 0.93), (0.8, 0.85)]) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(center: Offset(w * x, h * y), width: 30, height: 3),
+          const Radius.circular(2),
+        ),
+        paint,
+      );
+    }
+    paint.color = AppColors.rock;
+    canvas.drawOval(Rect.fromLTRB(-16, h * 0.86, w * 0.09, h * 1.08), paint);
+    canvas.drawOval(Rect.fromLTRB(w * 0.92, h * 0.84, w + 16, h * 1.08), paint);
 
-    paint.color = AppColors.bridge;
-    final left = Rect.fromLTWH(w * _cliff, deck, w * _stub, thick);
-    final right = Rect.fromLTWH(
-      w * (1 - _cliff - _stub),
-      deck,
-      w * _stub,
-      thick,
-    );
+    _cables(canvas, w, deck);
+    _tower(canvas, w * _towerX, h, deck, waterTop);
+    _tower(canvas, w * (1 - _towerX), h, deck, waterTop);
+
+    paint.color = AppColors.deck;
+    final left = Rect.fromLTWH(0, deck, w * _deckEnd, thick);
+    final right = Rect.fromLTWH(w * (1 - _deckEnd), deck, w * _deckEnd, thick);
+    final leftPivot = Offset(w * _towerX, deck);
+    final rightPivot = Offset(w * (1 - _towerX), deck);
     switch (state) {
       case BridgeState.built:
-        _plank(
-          canvas,
-          Rect.fromLTRB(left.left, deck, right.right, deck + thick),
-          paint,
-        );
+        _plank(canvas, Rect.fromLTRB(0, deck, w, deck + thick), paint);
       case BridgeState.broken:
-        _plank(canvas, left, paint, pivot: left.topLeft, angle: 0.8);
-        _plank(canvas, right, paint, pivot: right.topRight, angle: -0.8);
+        _plank(canvas, left, paint, pivot: leftPivot, angle: 0.35);
+        _plank(canvas, right, paint, pivot: rightPivot, angle: -0.35);
       case BridgeState.open || BridgeState.cracked:
         _plank(canvas, left, paint);
         _plank(canvas, right, paint);
@@ -320,6 +322,63 @@ class _ScenePainter extends CustomPainter {
         }
     }
   }
+
+  /// Two legs with a cross-brace and a cap, on a stone pier in the water.
+  void _tower(Canvas canvas, double x, double h, double deck, double waterTop) {
+    final top = h * _towerTop;
+    final foot = waterTop + 8;
+    final paint = Paint()..color = AppColors.rock;
+    canvas.drawRect(Rect.fromLTRB(x - 15, waterTop - 8, x + 15, foot), paint);
+    paint.color = AppColors.tower;
+    for (final dx in const [-11.0, 11.0]) {
+      canvas.drawRect(
+        Rect.fromLTRB(x + dx - 3.5, top, x + dx + 3.5, waterTop - 8),
+        paint,
+      );
+    }
+    canvas.drawRect(Rect.fromLTRB(x - 14, top, x + 14, top + 5), paint);
+    canvas.drawRect(
+      Rect.fromLTRB(x - 11, (top + deck) / 2, x + 11, (top + deck) / 2 + 4),
+      paint,
+    );
+    final brace = Paint()
+      ..color = AppColors.tower
+      ..strokeWidth = 3;
+    canvas.drawLine(Offset(x - 11, deck), Offset(x + 11, waterTop - 8), brace);
+    canvas.drawLine(Offset(x + 11, deck), Offset(x - 11, waterTop - 8), brace);
+  }
+
+  /// The main cables with their hangers, on both halves.
+  void _cables(Canvas canvas, double w, double deck) {
+    final stroke = Paint()
+      ..color = AppColors.cable
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    final hanger = Paint()
+      ..color = AppColors.cable
+      ..strokeWidth = 1;
+    final top = _towerTopY(deck);
+    for (final (from, to) in [
+      (w * _towerX, w * _deckEnd),
+      (w * (1 - _towerX), w * (1 - _deckEnd)),
+    ]) {
+      final mid = deck - 8.0;
+      canvas.drawPath(
+        Path()
+          ..moveTo(from, top)
+          ..quadraticBezierTo((from + to) / 2, mid + 4, to, mid),
+        stroke,
+      );
+      for (var t = 0.2; t < 1; t += 0.2) {
+        final x = from + (to - from) * t;
+        final u = 1 - t;
+        final y = u * u * top + 2 * u * t * (mid + 4) + t * t * mid;
+        canvas.drawLine(Offset(x, y), Offset(x, deck), hanger);
+      }
+    }
+  }
+
+  double _towerTopY(double deck) => deck * _towerTop / _deck;
 
   void _plank(
     Canvas canvas,
@@ -363,26 +422,46 @@ class _ScenePainter extends CustomPainter {
 class _CarPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    final w = size.width;
     final paint = Paint()..color = AppColors.vehicle;
-    const round = Radius.circular(4);
-    canvas.drawRRect(RRect.fromLTRBR(0, 8, size.width, 18, round), paint);
-    canvas.drawRRect(
-      RRect.fromLTRBAndCorners(
-        9,
-        0,
-        size.width - 9,
-        10,
-        topLeft: round,
-        topRight: round,
-      ),
+    canvas.drawPath(
+      Path()
+        ..moveTo(2, 18)
+        ..quadraticBezierTo(0, 11, 8, 10)
+        ..lineTo(14, 3)
+        ..quadraticBezierTo(16, 1, 20, 1)
+        ..lineTo(w - 18, 1)
+        ..quadraticBezierTo(w - 15, 1, w - 13, 4)
+        ..lineTo(w - 8, 10)
+        ..quadraticBezierTo(w, 11, w, 18)
+        ..close(),
       paint,
     );
     paint.color = AppColors.sky;
-    canvas.drawRect(const Rect.fromLTWH(12, 2, 7, 6), paint);
-    canvas.drawRect(Rect.fromLTWH(size.width - 19, 2, 7, 6), paint);
+    canvas.drawPath(
+      Path()
+        ..moveTo(12, 10)
+        ..lineTo(17, 4)
+        ..lineTo(23, 4)
+        ..lineTo(23, 10)
+        ..close(),
+      paint,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(26, 10)
+        ..lineTo(26, 4)
+        ..lineTo(w - 16, 4)
+        ..lineTo(w - 11, 10)
+        ..close(),
+      paint,
+    );
     paint.color = AppColors.ink;
-    canvas.drawCircle(const Offset(10, 18), 4, paint);
-    canvas.drawCircle(Offset(size.width - 10, 18), 4, paint);
+    canvas.drawCircle(const Offset(11, 18), 4, paint);
+    canvas.drawCircle(Offset(w - 11, 18), 4, paint);
+    paint.color = AppColors.card;
+    canvas.drawCircle(const Offset(11, 18), 1.5, paint);
+    canvas.drawCircle(Offset(w - 11, 18), 1.5, paint);
   }
 
   @override

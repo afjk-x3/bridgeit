@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../content/models.dart';
@@ -75,7 +76,21 @@ class _Level1ScreenState extends State<Level1Screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: levelAppBar(context, 1, 'Conjunction Theme Song'),
-      body: SafeArea(child: _buildStep()),
+      body: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (_step != _Step.match && _step != _Step.done)
+              SvgPicture.asset(
+                'assets/images/scenes/drive.svg',
+                fit: BoxFit.cover,
+                alignment: Alignment.bottomCenter,
+                excludeFromSemantics: true,
+              ),
+            _buildStep(),
+          ],
+        ),
+      ),
     );
   }
 

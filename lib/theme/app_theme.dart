@@ -11,7 +11,13 @@ abstract final class AppColors {
   static const ink = Color(0xFF183870);
   static const bridge = Color(0xFFB45309);
   static const cliff = Color(0xFF15803D);
-  static const vehicle = Color(0xFFF59E0B);
+  static const vehicle = Color(0xFF3A8FDB);
+  // The Level 2 bridge.
+  static const tower = Color(0xFFD9682F);
+  static const cable = Color(0xFF8A93A0);
+  static const deck = Color(0xFF5B6472);
+  static const water = Color(0xFF56B9D6);
+  static const rock = Color(0xFF6F7B6A);
   static const correct = Color(0xFF22C55E);
   static const wrong = Color(0xFFDC2626);
   // White surfaces (cards) and text on dark fills.

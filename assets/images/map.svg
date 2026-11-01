@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420" preserveAspectRatio="none" role="img" aria-label="Map of Ilocos Norte">
+  <title>Map of Ilocos Norte</title>
+  <rect id="sea" width="300" height="420" fill="#BFE6F2"/>
+  <path id="land" d="M42 0 H300 V420 H96 C70 390 18 376 12 318 C8 280 40 262 44 226 C48 186 12 160 18 118 C24 76 56 56 42 0Z" fill="#CFE6B4"/>
+  <path id="hills" d="M300 0 C262 40 276 96 252 150 C232 196 274 244 256 296 C240 342 274 384 262 420 H300Z" fill="#B3D69A"/>
+  <g id="road" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path id="road-bed" d="M30 21 C120 8 196 28 216 84 C232 132 120 104 105 139 C92 172 250 158 210 197 C180 230 100 186 90 218 C78 252 28 258 36 294 C44 340 150 300 186 353 C200 376 232 392 246 412" stroke="#E8D6A8" stroke-width="20"/>
+    <path id="road-line" d="M30 21 C120 8 196 28 216 84 C232 132 120 104 105 139 C92 172 250 158 210 197 C180 230 100 186 90 218 C78 252 28 258 36 294 C44 340 150 300 186 353 C200 376 232 392 246 412" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="8 8"/>
+  </g>
+</svg>

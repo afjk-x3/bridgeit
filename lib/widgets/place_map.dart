@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../content/models.dart';
 import '../theme/app_theme.dart';
@@ -7,7 +8,7 @@ const _carSize = 32.0;
 const _labelWidth = 120.0;
 
 /// The map of places. Tapping a pin drives the car there, then calls
-/// [onChosen]. The land is a plain panel until the map art exists.
+/// [onChosen]. Pins sit on the road in `map.svg`, so move them together.
 class PlaceMap extends StatefulWidget {
   const PlaceMap({super.key, required this.places, required this.onChosen});
 
@@ -35,6 +36,13 @@ class _PlaceMapState extends State<PlaceMap> {
           final chosen = _chosen;
           return Stack(
             children: [
+              Positioned.fill(
+                child: SvgPicture.asset(
+                  'assets/images/map.svg',
+                  fit: BoxFit.fill,
+                  excludeFromSemantics: true,
+                ),
+              ),
               for (final place in widget.places)
                 _Pin(
                   place: place,
@@ -48,8 +56,8 @@ class _PlaceMapState extends State<PlaceMap> {
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 800),
                 curve: Curves.easeInOut,
-                left: (chosen == null ? 0.06 : chosen.pinX) * w - _carSize / 2,
-                top: (chosen == null ? 0.96 : chosen.pinY) * h - _carSize / 2,
+                left: (chosen == null ? 0.1 : chosen.pinX) * w - _carSize / 2,
+                top: (chosen == null ? 0.05 : chosen.pinY) * h - _carSize / 2,
                 onEnd: () {
                   if (chosen != null) widget.onChosen(chosen);
                 },

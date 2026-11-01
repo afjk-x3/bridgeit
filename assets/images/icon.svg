@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="BridgeIt app icon">
+  <title>BridgeIt icon</title>
+  <rect id="background" width="512" height="512" fill="#E6F5FF"/>
+  <g id="cables" fill="none" stroke-linecap="round">
+    <path d="M116 132 Q186 190 232 196 M396 132 Q326 190 280 196 M116 268 Q186 262 228 244 M396 268 Q326 262 284 244" stroke="#183870" stroke-width="22"/>
+    <path d="M116 132 Q186 190 232 196 M396 132 Q326 190 280 196 M116 268 Q186 262 228 244 M396 268 Q326 262 284 244" stroke="#55AB9E" stroke-width="12"/>
+  </g>
+  <g id="towers" fill="#309090" stroke="#183870" stroke-width="7">
+    <rect x="96" y="110" width="40" height="196"/>
+    <rect x="376" y="110" width="40" height="196"/>
+  </g>
+  <g id="links" fill="none">
+    <ellipse cx="296" cy="220" rx="62" ry="46" stroke="#183870" stroke-width="30"/>
+    <ellipse cx="296" cy="220" rx="62" ry="46" stroke="#E09A6C" stroke-width="18"/>
+    <ellipse cx="216" cy="220" rx="62" ry="46" stroke="#183870" stroke-width="30"/>
+    <ellipse cx="216" cy="220" rx="62" ry="46" stroke="#309090" stroke-width="18"/>
+    <path d="M234 220 A62 46 0 0 0 276 264" stroke="#183870" stroke-width="30"/>
+    <path d="M236 208 A62 46 0 0 0 288 266" stroke="#E09A6C" stroke-width="18"/>
+  </g>
+  <g id="book" fill="#1B3F78">
+    <path d="M96 312 L66 342 C150 346 220 364 256 412 C222 356 170 324 96 312Z"/>
+    <path d="M60 362 L42 396 C140 388 210 400 256 436 C210 386 140 366 60 362Z"/>
+    <path d="M416 312 L446 342 C362 346 292 364 256 412 C290 356 342 324 416 312Z"/>
+    <path d="M452 362 L470 396 C372 388 302 400 256 436 C302 386 372 366 452 362Z"/>
+  </g>
+</svg>
