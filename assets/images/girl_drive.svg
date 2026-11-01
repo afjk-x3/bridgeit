@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 500" role="img" aria-label="Guide character driving">
+  <title>Guide character, driving</title>
+  <defs>
+    <clipPath id="window-clip"><path d="M150 322 V110 C150 62 190 30 250 30 H350 C420 30 468 84 508 322Z"/></clipPath>
+    <path id="tee-shape" d="M238 414 C262 402 338 402 362 414 C370 450 372 470 368 500 C366 530 372 556 380 578 H220 C228 556 234 530 232 500 C228 470 230 450 238 414Z"/>
+    <clipPath id="tee-clip"><use href="#tee-shape"/></clipPath>
+    <g id="eye">
+      <ellipse cx="249" cy="284" rx="21" ry="25" fill="#FFFFFF" stroke="none"/>
+      <ellipse cx="250" cy="288" rx="16" ry="20" fill="#6B3E22" stroke="none"/>
+      <circle cx="250" cy="290" r="9" fill="#21140A" stroke="none"/>
+      <circle cx="257" cy="280" r="5.5" fill="#FFFFFF" stroke="none"/>
+      <circle cx="244" cy="297" r="3" fill="#FFFFFF" stroke="none"/>
+      <path d="M226 278 C234 254 264 252 274 274" fill="none" stroke-width="6"/>
+    </g>
+    <g id="leg">
+      <path d="M250 684 C248 714 245 746 248 778 H290 C292 746 292 714 293 686Z" fill="#F4C7A1" stroke="#183870" stroke-width="4.5"/>
+      <path d="M247 766 H291 L290 804 H248Z" fill="#FFFFFF"/>
+      <path d="M248 776 H290" fill="none" stroke="#309090" stroke-width="3"/>
+      <path d="M248 800 H291 C294 812 294 826 293 838 C268 846 236 846 216 838 C212 820 228 808 248 800Z" fill="#D88858"/>
+      <path d="M216 838 C236 846 268 846 293 838 V828 C268 836 236 836 215 826" fill="#FFFFFF" stroke-width="3.5"/>
+    </g>
+  </defs>
+
+  <g stroke="#183870" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M130 330 V108 C130 50 182 12 250 12 H352 C434 12 486 76 530 330Z" fill="#3A8FDB"/>
+    <path d="M150 322 V110 C150 62 190 30 250 30 H350 C420 30 468 84 508 322Z" fill="#E6F5FF"/>
+
+    <g clip-path="url(#window-clip)">
+      <g transform="translate(85 -20) scale(0.7)">
+        <g id="hair-back">
+      <path d="M188 240 C160 316 152 404 166 472 C172 504 194 520 216 506 C228 498 238 488 246 476 H354 C362 488 372 498 384 506 C406 520 428 504 434 472 C448 404 440 316 412 240Z" fill="#7A4A2B"/>
+      <path d="M186 330 C178 390 184 442 198 482 M414 330 C422 390 416 442 402 482 M212 350 C206 400 212 440 222 470 M388 350 C394 400 388 440 378 470" fill="none" stroke="#5E3820" stroke-width="3.5"/>
+    </g>
+        <g id="arm-relaxed">
+      <path d="M214 438 C196 466 180 500 176 530 C174 552 178 574 180 590 C180 606 186 618 198 620 C210 622 218 610 218 596 C216 574 212 552 216 530 C222 508 236 486 246 468Z" fill="#F4C7A1" stroke="#183870" stroke-width="4.5"/>
+      <path d="M200 604 C204 610 210 608 212 600" fill="none" stroke="#D9A27C" stroke-width="3"/>
+    </g>
+        <g id="torso">
+      <use href="#tee-shape" fill="#FFFFFF"/>
+      <g clip-path="url(#tee-clip)" fill="none" stroke="#309090" stroke-width="11">
+        <path d="M220 450 Q300 458 380 450 M220 482 Q300 490 380 482 M220 514 Q300 522 380 514 M220 546 Q300 554 380 546"/>
+      </g>
+      <use href="#tee-shape" fill="none"/>
+      <path d="M224 576 H376" fill="none" stroke-width="8" stroke-linecap="butt"/>
+    </g>
+        <g id="vest">
+      <path d="M240 412 C254 406 266 404 274 404 C280 430 282 452 278 476 C274 520 270 556 268 584 H216 C226 556 232 530 230 500 C226 470 230 448 240 412Z" fill="#80C0A8"/>
+      <path d="M360 412 C346 406 334 404 326 404 C320 430 318 452 322 476 C326 520 330 556 332 584 H384 C374 556 368 530 370 500 C374 470 370 448 360 412Z" fill="#80C0A8"/>
+      <path d="M240 412 C214 418 198 440 190 470 L228 492 C232 470 236 446 240 412Z" fill="#FFFFFF"/>
+      <path d="M195 458 L232 480" fill="none" stroke="#309090" stroke-width="3"/>
+      <rect x="230" y="522" width="34" height="38" rx="6" fill="#5FAFA0"/>
+      <rect x="336" y="522" width="34" height="38" rx="6" fill="#5FAFA0"/>
+      <path d="M228 576 H266 M334 576 H372" fill="none" stroke="#3F9C97" stroke-width="3"/>
+    </g>
+        <g id="neck">
+      <path d="M272 366 V410 C286 430 314 430 328 410 V366Z" fill="#E8B48C" stroke="#183870" stroke-width="4.5"/>
+    </g>
+        <g id="head" transform="translate(0 18)">
+      <circle cx="187" cy="264" r="18" fill="#F4C7A1" stroke="#183870" stroke-width="4.5"/>
+      <circle cx="413" cy="264" r="18" fill="#F4C7A1" stroke="#183870" stroke-width="4.5"/>
+      <path d="M188 214 C184 300 226 372 300 372 C374 372 416 300 412 214Z" fill="#F4C7A1" stroke="#183870" stroke-width="4.5"/>
+
+      <path id="hair-front" d="M190 180 H410 C424 250 418 296 402 330 C392 296 388 256 366 224 C342 234 306 230 288 212 C272 228 250 232 234 224 C214 256 210 296 198 330 C182 296 176 250 190 180Z" fill="#7A4A2B"/>
+      <path d="M204 230 C196 256 196 282 200 304 M396 230 C404 256 404 282 400 304" fill="none" stroke="#5E3820" stroke-width="3.5"/>
+
+      <g id="face">
+        <path d="M224 246 C238 234 256 234 268 242 M332 242 C344 234 362 234 376 246" fill="none" stroke="#5A3520" stroke-width="5.5"/>
+        <use href="#eye"/>
+        <use href="#eye" transform="matrix(-1 0 0 1 600 0)"/>
+        <ellipse cx="218" cy="320" rx="19" ry="11" fill="#EE9E86" stroke="none" opacity="0.55"/>
+        <ellipse cx="382" cy="320" rx="19" ry="11" fill="#EE9E86" stroke="none" opacity="0.55"/>
+        <path d="M295 316 Q300 321 305 316" fill="none" stroke="#C78A68" stroke-width="3.5"/>
+        <path d="M266 332 C286 340 314 340 334 332 C330 356 316 362 300 362 C284 362 270 356 266 332Z" fill="#9C2F3E" stroke-width="4"/>
+        <path d="M274 336 C290 342 310 342 326 336 L323 344 C308 349 292 349 277 344Z" fill="#FFFFFF" stroke="none"/>
+        <path d="M284 356 C294 350 306 350 316 356 C308 361 292 361 284 356Z" fill="#D8606C" stroke="none"/>
+      </g>
+
+      <g id="beanie">
+        <path d="M180 192 C178 110 248 78 300 78 C352 78 422 110 420 192Z" fill="#309090"/>
+        <path d="M242 100 C226 132 222 156 222 176 M272 86 C262 124 260 150 260 170 M300 80 V166 M328 86 C338 124 340 150 340 170 M358 100 C374 132 378 156 378 176" fill="none" stroke="#237A7C" stroke-width="4"/>
+        <path d="M178 180 C252 152 348 152 422 180 C430 184 432 188 432 196 L432 208 C432 216 426 220 418 218 C340 192 260 192 182 218 C174 220 168 216 168 208 L168 196 C168 188 170 184 178 180Z" fill="#3FA39C"/>
+        <path d="M204 172 V206 M240 164 V196 M278 160 V190 M322 160 V190 M360 164 V196 M396 172 V206" fill="none" stroke="#237A7C" stroke-width="3.5"/>
+      </g>
+    </g>
+      </g>
+      <ellipse cx="450" cy="290" rx="11" ry="38" transform="rotate(12 450 290)" fill="none" stroke-width="8"/>
+      <path d="M454 304 L492 330" fill="none" stroke-width="8"/>
+      <path d="M332 274 C366 282 398 292 432 284 L438 316 C400 324 360 322 326 314Z" fill="#F4C7A1"/>
+      <path d="M326 266 C344 268 358 274 366 282 L352 324 C342 324 332 322 324 318Z" fill="#FFFFFF"/>
+      <path d="M356 304 L350 322" fill="none" stroke="#309090" stroke-width="3"/>
+      <circle cx="442" cy="300" r="20" fill="#F4C7A1"/>
+    </g>
+
+    <path d="M30 420 C20 362 42 330 92 322 H512 C572 326 620 352 622 400 C624 426 612 436 596 436 H44 C36 436 31 430 30 420Z" fill="#3A8FDB"/>
+    <path d="M320 324 V432 M150 368 H500" fill="none" stroke="#2E74B5" stroke-width="4"/>
+    <path d="M250 352 H292" fill="none" stroke-width="7"/>
+    <path d="M364 352 H406" fill="none" stroke-width="7"/>
+    <path d="M582 370 C600 372 612 382 616 396 L586 396Z" fill="#D88858"/>
+    <path d="M30 382 C34 366 40 356 50 348 L58 382Z" fill="#9C2F3E"/>
+
+    <g id="wheels">
+      <circle cx="170" cy="436" r="52" fill="#183870"/>
+      <circle cx="170" cy="436" r="24" fill="#FFFFFF"/>
+      <circle cx="486" cy="436" r="52" fill="#183870"/>
+      <circle cx="486" cy="436" r="24" fill="#FFFFFF"/>
+    </g>
+  </g>
+</svg>

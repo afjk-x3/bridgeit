@@ -154,6 +154,14 @@ class _Level1ScreenState extends State<Level1Screen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (lyrics[_line].image case final image?) ...[
+                  SvgPicture.asset(
+                    image,
+                    height: 96,
+                    excludeFromSemantics: true,
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 Text(
                   lyrics[_line].text,
                   key: const ValueKey('lyric-now'),

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="img" aria-label="A road that forks in two"><g stroke="#183870" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M16 60 H96 C128 60 132 26 172 26 H204 M96 60 C128 60 132 94 172 94 H204" fill="none" stroke="#183870" stroke-width="20"/>
+<path d="M16 60 H96 C128 60 132 26 172 26 H204 M96 60 C128 60 132 94 172 94 H204" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="12 12"/>
+<path d="M204 8 L232 26 L204 44Z" fill="#309090"/><path d="M204 76 L232 94 L204 112Z" fill="#D88858"/>
+</g></svg>

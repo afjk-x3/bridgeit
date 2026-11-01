@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="img" aria-label="A question and its reason"><g stroke="#183870" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M24 22 H100 C108 22 112 26 112 34 V76 C112 84 108 88 100 88 H58 L38 106 V88 H24 C16 88 12 84 12 76 V34 C12 26 16 22 24 22Z" fill="#FFFFFF"/>
+<path d="M48 44 C50 28 76 28 76 46 C76 58 62 56 62 68" fill="none" stroke="#309090" stroke-width="8"/>
+<circle cx="62" cy="79" r="2.5" fill="#309090" stroke="#309090"/>
+<path d="M132 55 H156 M146 45 L158 55 L146 65" fill="none" stroke-width="7"/>
+<path d="M200 22 C180 22 170 38 174 52 C176 62 186 66 186 78 H214 C214 66 224 62 226 52 C230 38 220 22 200 22Z" fill="#F2C14E"/>
+<path d="M188 88 H212 M192 98 H208" fill="none" stroke-width="6"/>
+</g></svg>

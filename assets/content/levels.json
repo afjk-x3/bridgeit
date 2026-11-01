@@ -9,13 +9,13 @@
     "audioAsset": null,
     "playsRequired": 3,
     "lyrics": [
-      { "startMs": 0, "text": "And is when we join similar situations", "image": null },
-      { "startMs": 6000, "text": "For is when we give the reason why", "image": null },
-      { "startMs": 12000, "text": "Nor is used when none chosen from the given option", "image": null },
-      { "startMs": 18000, "text": "But is when two ideas clash", "image": null },
-      { "startMs": 24000, "text": "Or is when we have a choice", "image": null },
-      { "startMs": 30000, "text": "Yet is when the ending is a surprise", "image": null },
-      { "startMs": 36000, "text": "So is when we show the result", "image": null }
+      { "startMs": 0, "text": "And is when we join similar situations", "image": "assets/images/lyrics/and.svg" },
+      { "startMs": 6000, "text": "For is when we give the reason why", "image": "assets/images/lyrics/for.svg" },
+      { "startMs": 12000, "text": "Nor is used when none chosen from the given option", "image": "assets/images/lyrics/nor.svg" },
+      { "startMs": 18000, "text": "But is when two ideas clash", "image": "assets/images/lyrics/but.svg" },
+      { "startMs": 24000, "text": "Or is when we have a choice", "image": "assets/images/lyrics/or.svg" },
+      { "startMs": 30000, "text": "Yet is when the ending is a surprise", "image": "assets/images/lyrics/yet.svg" },
+      { "startMs": 36000, "text": "So is when we show the result", "image": "assets/images/lyrics/so.svg" }
     ],
     "matchIt": [
       { "conjunction": "for", "function": "Expresses a reason or explanation." },

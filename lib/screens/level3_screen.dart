@@ -96,6 +96,8 @@ class _Level3ScreenState extends State<Level3Screen> {
 
   Widget _buildStep() => switch (_step) {
     _Step.tollGate => _Story(
+      picture: 'assets/images/girl_drive.svg',
+      pictureLabel: 'Your guide, driving',
       lines: const [
         "We've finally arrived at the toll gate. Are you ready to pass "
             'through?',
@@ -104,6 +106,8 @@ class _Level3ScreenState extends State<Level3Screen> {
       onPressed: () => _go(_Step.crossed),
     ),
     _Step.crossed => _Story(
+      picture: 'assets/images/girl_drive.svg',
+      pictureLabel: 'Your guide, driving',
       lines: const [
         'I have finally crossed the bridge! Thank you, Bridge Builder! Now, '
             "let's go explore, shall we?",
@@ -119,6 +123,8 @@ class _Level3ScreenState extends State<Level3Screen> {
       onDone: () => _go(_Step.goodbye),
     ),
     _Step.goodbye => _Story(
+      picture: 'assets/images/girl_journal.svg',
+      pictureLabel: 'Your guide, holding her journal',
       lines: const [
         'Thank you so much for joining me in this amazing experience!',
         "I'll never forget this experience. I'll definitely write about it in "
@@ -250,11 +256,15 @@ class _Level3ScreenState extends State<Level3Screen> {
 
 class _Story extends StatelessWidget {
   const _Story({
+    required this.picture,
+    required this.pictureLabel,
     required this.lines,
     required this.button,
     required this.onPressed,
   });
 
+  final String picture;
+  final String pictureLabel;
   final List<String> lines;
   final String button;
   final VoidCallback onPressed;
@@ -269,9 +279,9 @@ class _Story extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SvgPicture.asset(
-              'assets/images/girl_wave.svg',
+              picture,
               height: 200,
-              semanticsLabel: 'Your guide, waving',
+              semanticsLabel: pictureLabel,
             ),
             const SizedBox(height: 12),
             for (final line in lines) SpeechBubble(line),

@@ -63,6 +63,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/lyrics/
     - assets/images/scenes/
     - assets/images/places/la_paz/
     - assets/images/places/burgos/
