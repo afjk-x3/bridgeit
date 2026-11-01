@@ -199,7 +199,7 @@ Stopwatch per level and per bridge, paused by an `AppLifecycleListener` on `paus
 
 ## 6. Persistence
 
-`shared_preferences`, JSON strings, versioned. `ResultsStore` exists with `profile_v1` and `level2_resume_v1`; `results_v1` arrives with task 8. The resume value is `{bridgeIndex, written}`, one list of accepted sentences per bridge; the step follows from how many the current bridge has.
+`shared_preferences`, JSON strings, versioned. `ResultsStore` owns all three keys below. The resume value is `{bridgeIndex, written, stats}`: accepted sentences and report numbers, one entry per bridge. The step follows from how many sentences the current bridge has.
 
 | Key | Contents |
 |---|---|
@@ -214,7 +214,7 @@ Wrap reads in try/catch and treat bad JSON as empty, so a corrupt value can't br
 ## 7. Answer report (PDF)
 
 - **Trigger:** **Send my answers** on each end-of-level panel and on the ending screen. Builds the report from `results_v1` (all levels done so far) and opens the system share sheet.
-- **Build:** `pdf` package. Embed fonts from TTF, because the `pdf` package can't use the variable Nunito; bundle static Nunito Regular and Bold (OFL), or fall back to the built-in Helvetica.
+- **Build:** `pdf` package with the built-in Helvetica, because it can't use the variable Nunito. It covers Latin-1, so characters outside it print as `?`; *ñ* is fine, Baybayin or emoji are not.
 - **File:** written to the temp dir (`path_provider`), shared with `share_plus` as `BridgeIt_<section>_<name>_<yyyy-mm-dd>.pdf`, with names sanitised to `[A-Za-z0-9_-]`.
 - **Contents:**
 
@@ -301,8 +301,8 @@ The client owes only the 7 sentence pairs, the song and its timings; the art is 
 | 5 | `SpellChecker` + word list | 1–2 | Done |
 | 6 | Level 2: 7-bridge flow, collapse, writing steps, Quick Facts, foundations, resume | 4–5 | Done, needs art |
 | 7 | Level 3: toll gate, map, montage player, `TravelogueAnalyzer`, editor, ending | 4–5 | Done, needs art and music |
-| 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | Next |
-| 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | Logo and waving pose done |
+| 8 | `ActiveTimer`, `ResultsStore` results, PDF report, share | 3 | Done |
+| 9 | Art: character poses, scenes, car, bridge parts, map, 35 photos, app icon | 4–6 | Next. Logo and waving pose done |
 | 10 | Swap in client song, timings, sentences | 1 | |
 | 11 | Real-phone testing, fixes, one client review round | 3–4 | |
 | | **Total** | **30–39** | |
