@@ -64,6 +64,13 @@ flutter:
   assets:
     - assets/images/
     - assets/images/scenes/
+    - assets/images/places/la_paz/
+    - assets/images/places/burgos/
+    - assets/images/places/bangui/
+    - assets/images/places/paoay/
+    - assets/images/places/saud/
+    - assets/images/places/badoc/
+    - assets/images/places/pangil/
     - assets/content/
     - assets/audio/
     - assets/lexicon/

@@ -1,5 +1,5 @@
 {
-  "_note": "PLACEHOLDER until the client's files arrive: lyrics timings, bridges, map pins, captions (PRD Appendix A), unlock codes. Asset paths are the expected locations; the files do not exist yet.",
+  "_note": "PLACEHOLDER until the client's files arrive: lyrics, timings, bridges, unlock codes. Captions (PRD Appendix A) await client approval.",
   "schemaVersion": 2,
   "unlockCodes": {
     "2": "BRIDGE2",
@@ -144,7 +144,7 @@
     "minClauseWords": 2
   },
   "level3": {
-    "musicAsset": "assets/audio/montage_placeholder.mp3",
+    "musicAsset": "assets/audio/montage.ogg",
     "travelogue": {
       "minSentences": 5,
       "maxSentences": 7,
@@ -156,11 +156,11 @@
         "name": "Laoag La Paz Sand Dunes",
         "mapPin": { "x": 0.4, "y": 0.12 },
         "pictures": [
-          { "asset": "assets/images/places/la_paz/1.webp", "caption": "The La Paz Sand Dunes stretch along the coast of Laoag City." },
-          { "asset": "assets/images/places/la_paz/2.webp", "caption": "Visitors ride 4x4 jeeps up and down the dunes." },
-          { "asset": "assets/images/places/la_paz/3.webp", "caption": "Sliding down the slopes on a sandboard is a favorite activity." },
-          { "asset": "assets/images/places/la_paz/4.webp", "caption": "The wind shapes the sand into waves and ridges." },
-          { "asset": "assets/images/places/la_paz/5.webp", "caption": "At sunset, the dunes turn gold and orange." }
+          { "asset": "assets/images/places/la_paz/1.jpg", "caption": "The La Paz Sand Dunes stretch along the coast of Laoag City." },
+          { "asset": "assets/images/places/la_paz/2.jpg", "caption": "Visitors ride 4x4 jeeps up and down the dunes." },
+          { "asset": "assets/images/places/la_paz/3.jpg", "caption": "Sliding down the slopes on a sandboard is a favorite activity." },
+          { "asset": "assets/images/places/la_paz/4.jpg", "caption": "The wind shapes the sand into waves and ridges." },
+          { "asset": "assets/images/places/la_paz/5.jpg", "caption": "At sunset, the dunes turn gold and orange." }
         ]
       },
       {
@@ -168,11 +168,11 @@
         "name": "Burgos Lighthouse (Cape Bojeador)",
         "mapPin": { "x": 0.72, "y": 0.2 },
         "pictures": [
-          { "asset": "assets/images/places/burgos/1.webp", "caption": "Cape Bojeador Lighthouse stands on a hill in Burgos." },
-          { "asset": "assets/images/places/burgos/2.webp", "caption": "It was first lit in 1892, during the Spanish period." },
-          { "asset": "assets/images/places/burgos/3.webp", "caption": "A brick path leads up to the lighthouse tower." },
-          { "asset": "assets/images/places/burgos/4.webp", "caption": "From the hill, visitors can see the wide blue sea." },
-          { "asset": "assets/images/places/burgos/5.webp", "caption": "The lighthouse still guides ships at night." }
+          { "asset": "assets/images/places/burgos/1.jpg", "caption": "Cape Bojeador Lighthouse stands on a hill in Burgos." },
+          { "asset": "assets/images/places/burgos/2.jpg", "caption": "It was first lit in 1892, during the Spanish period." },
+          { "asset": "assets/images/places/burgos/3.jpg", "caption": "A brick path leads up to the lighthouse tower." },
+          { "asset": "assets/images/places/burgos/4.jpg", "caption": "From the hill, visitors can see the wide blue sea." },
+          { "asset": "assets/images/places/burgos/5.jpg", "caption": "The lighthouse still guides ships at night." }
         ]
       },
       {
@@ -180,11 +180,11 @@
         "name": "Bangui Windmills",
         "mapPin": { "x": 0.35, "y": 0.33 },
         "pictures": [
-          { "asset": "assets/images/places/bangui/1.webp", "caption": "The Bangui Windmills line the shore of Bangui Bay." },
-          { "asset": "assets/images/places/bangui/2.webp", "caption": "Twenty giant wind turbines stand in a row." },
-          { "asset": "assets/images/places/bangui/3.webp", "caption": "The turbines turn the strong sea wind into electricity." },
-          { "asset": "assets/images/places/bangui/4.webp", "caption": "Waves crash on the rocky beach below the windmills." },
-          { "asset": "assets/images/places/bangui/5.webp", "caption": "The windmills look beautiful against the evening sky." }
+          { "asset": "assets/images/places/bangui/1.jpg", "caption": "The Bangui Windmills line the shore of Bangui Bay." },
+          { "asset": "assets/images/places/bangui/2.jpg", "caption": "Twenty giant wind turbines stand in a row." },
+          { "asset": "assets/images/places/bangui/3.jpg", "caption": "The turbines turn the strong sea wind into electricity." },
+          { "asset": "assets/images/places/bangui/4.jpg", "caption": "Waves crash on the rocky beach below the windmills." },
+          { "asset": "assets/images/places/bangui/5.jpg", "caption": "The windmills look beautiful against the deep blue sky." }
         ]
       },
       {
@@ -192,11 +192,11 @@
         "name": "San Agustin Church of Paoay",
         "mapPin": { "x": 0.3, "y": 0.52 },
         "pictures": [
-          { "asset": "assets/images/places/paoay/1.webp", "caption": "San Agustin Church in Paoay is a UNESCO World Heritage Site." },
-          { "asset": "assets/images/places/paoay/2.webp", "caption": "It was finished in 1710 and built of coral stone and bricks." },
-          { "asset": "assets/images/places/paoay/3.webp", "caption": "Its huge side buttresses help it stand strong during earthquakes." },
-          { "asset": "assets/images/places/paoay/4.webp", "caption": "A separate bell tower stands beside the church." },
-          { "asset": "assets/images/places/paoay/5.webp", "caption": "Visitors walk around the grounds to admire its old walls." }
+          { "asset": "assets/images/places/paoay/1.jpg", "caption": "San Agustin Church in Paoay is a UNESCO World Heritage Site." },
+          { "asset": "assets/images/places/paoay/2.jpg", "caption": "It was finished in 1710 and built of coral stone and bricks." },
+          { "asset": "assets/images/places/paoay/3.jpg", "caption": "Its huge side buttresses help it stand strong during earthquakes." },
+          { "asset": "assets/images/places/paoay/4.jpg", "caption": "A separate bell tower stands beside the church." },
+          { "asset": "assets/images/places/paoay/5.jpg", "caption": "Visitors walk around the grounds to admire its old walls." }
         ]
       },
       {
@@ -204,11 +204,11 @@
         "name": "Saud Beach, Pagudpud",
         "mapPin": { "x": 0.7, "y": 0.47 },
         "pictures": [
-          { "asset": "assets/images/places/saud/1.webp", "caption": "Saud Beach in Pagudpud has fine white sand." },
-          { "asset": "assets/images/places/saud/2.webp", "caption": "Coconut trees line the shore." },
-          { "asset": "assets/images/places/saud/3.webp", "caption": "The clear blue water is calm and good for swimming." },
-          { "asset": "assets/images/places/saud/4.webp", "caption": "Families have picnics in the shade of the trees." },
-          { "asset": "assets/images/places/saud/5.webp", "caption": "In the afternoon, the beach is quiet and peaceful." }
+          { "asset": "assets/images/places/saud/1.jpg", "caption": "Saud Beach in Pagudpud has fine white sand." },
+          { "asset": "assets/images/places/saud/2.jpg", "caption": "Coconut trees line the shore." },
+          { "asset": "assets/images/places/saud/3.jpg", "caption": "The clear blue water is calm and good for swimming." },
+          { "asset": "assets/images/places/saud/4.jpg", "caption": "Families swim and play near the shore." },
+          { "asset": "assets/images/places/saud/5.jpg", "caption": "In the afternoon, the beach is quiet and peaceful." }
         ]
       },
       {
@@ -216,11 +216,11 @@
         "name": "La Virgen Milagrosa de Badoc Church",
         "mapPin": { "x": 0.62, "y": 0.84 },
         "pictures": [
-          { "asset": "assets/images/places/badoc/1.webp", "caption": "The church in Badoc is home to La Virgen Milagrosa." },
-          { "asset": "assets/images/places/badoc/2.webp", "caption": "A legend says fishermen found the image of the Virgin floating at sea." },
-          { "asset": "assets/images/places/badoc/3.webp", "caption": "The church has thick walls and an old stone facade." },
-          { "asset": "assets/images/places/badoc/4.webp", "caption": "Many people visit to pray and light candles." },
-          { "asset": "assets/images/places/badoc/5.webp", "caption": "The church stands at the heart of the town of Badoc." }
+          { "asset": "assets/images/places/badoc/1.jpg", "caption": "The church in Badoc is home to La Virgen Milagrosa." },
+          { "asset": "assets/images/places/badoc/2.jpg", "caption": "A legend says fishermen found the image of the Virgin floating at sea." },
+          { "asset": "assets/images/places/badoc/3.jpg", "caption": "The church has thick walls and an old stone facade." },
+          { "asset": "assets/images/places/badoc/4.jpg", "caption": "Many people visit to pray and light candles." },
+          { "asset": "assets/images/places/badoc/5.jpg", "caption": "The church stands at the heart of the town of Badoc." }
         ]
       },
       {
@@ -228,11 +228,11 @@
         "name": "Pangil Coral Rock Formations, Currimao",
         "mapPin": { "x": 0.12, "y": 0.7 },
         "pictures": [
-          { "asset": "assets/images/places/pangil/1.webp", "caption": "Coral rock formations line the coast of Currimao." },
-          { "asset": "assets/images/places/pangil/2.webp", "caption": "Waves and wind have shaped the rocks over many years." },
-          { "asset": "assets/images/places/pangil/3.webp", "caption": "At low tide, visitors can walk among the rocks and tide pools." },
-          { "asset": "assets/images/places/pangil/4.webp", "caption": "Small sea creatures live in the pools between the rocks." },
-          { "asset": "assets/images/places/pangil/5.webp", "caption": "At sunset, the rocks glow in warm colors." }
+          { "asset": "assets/images/places/pangil/1.jpg", "caption": "Colorful fishing boats line the beach of Currimao." },
+          { "asset": "assets/images/places/pangil/2.jpg", "caption": "Fishers work together to pull in their nets." },
+          { "asset": "assets/images/places/pangil/3.jpg", "caption": "A fisher pushes off from the shallow water." },
+          { "asset": "assets/images/places/pangil/4.jpg", "caption": "Bright boats rest on the sand between trips." },
+          { "asset": "assets/images/places/pangil/5.jpg", "caption": "At sunset, the rocks in the water glow in warm colors." }
         ]
       }
     ]

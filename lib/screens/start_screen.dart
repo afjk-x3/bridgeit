@@ -38,9 +38,33 @@ class StartScreen extends StatelessWidget {
                       : '/levels',
                 ),
               ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => _showCredits(context),
+                child: const Text('Credits'),
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _showCredits(BuildContext context) async {
+    final credits = await DefaultAssetBundle.of(context)
+        .loadString('assets/content/credits.txt');
+    if (!context.mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Credits'),
+        content: SingleChildScrollView(child: Text(credits)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }

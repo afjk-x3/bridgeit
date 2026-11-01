@@ -89,6 +89,7 @@ class _MontagePlayerState extends State<MontagePlayer>
     return Stack(
       fit: StackFit.expand,
       children: [
+        const ColoredBox(color: AppColors.primary),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 500),
           child: _Picture(
@@ -145,7 +146,8 @@ class _Picture extends StatelessWidget {
       scale: Tween(begin: 1.0, end: 1 + _zoom).animate(clock),
       child: Image.asset(
         asset,
-        fit: BoxFit.cover,
+        // Whole photo: most are landscape, and a phone is tall.
+        fit: BoxFit.contain,
         errorBuilder: (_, _, _) => const ColoredBox(
           color: AppColors.lightTeal,
           child: Center(
