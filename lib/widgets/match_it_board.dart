@@ -68,17 +68,10 @@ class _MatchItBoardState extends State<MatchItBoard> {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     final message = _message;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'MatchIt',
-          textAlign: TextAlign.center,
-          style: text.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
         // Only the slots scroll: a scroll view around the tray would take the
         // vertical drags away from the functions.
         Expanded(
@@ -191,7 +184,7 @@ class _SlotRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final placed = function;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
           Container(

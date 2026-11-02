@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
@@ -314,6 +315,22 @@ void main() {
       find.descendant(of: find.byType(AppBar), matching: find.text('MatchIt')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('every MatchIt slot is visible without scrolling', (
+    tester,
+  ) async {
+    // The test font draws every glyph as a square, which makes the function
+    // chips far taller than on a phone, so measure with the real font.
+    final nunito = rootBundle.load('assets/fonts/Nunito-Variable.ttf');
+    await (FontLoader('Nunito')..addFont(nunito)).load();
+    await _openLevel(tester);
+    // A 20:9 phone below its status and navigation bars.
+    tester.view.physicalSize = const Size(411, 840);
+    await _reachMatchIt(tester);
+    for (final pair in _content(tester).matchIt) {
+      expect(_slot(pair.conjunction).hitTestable(), findsOneWidget);
+    }
   });
 
   testWidgets('MatchIt fits a 360x640 phone', (tester) async {
