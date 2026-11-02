@@ -340,8 +340,9 @@ class _Level2ScreenState extends State<Level2Screen> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
+        // Scrolls for large text; the bottom padding keeps it clear of Next.
+        SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 84),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

@@ -11,6 +11,7 @@ Future<void> _pump(
   List<BridgePier> piers = const [],
   int piersNeeded = 2,
   bool still = false,
+  bool screenReader = false,
 }) async {
   tester.view.physicalSize = const Size(390, 700);
   tester.view.devicePixelRatio = 1;
@@ -18,7 +19,10 @@ Future<void> _pump(
   await tester.pumpWidget(
     MaterialApp(
       home: MediaQuery(
-        data: MediaQueryData(disableAnimations: still),
+        data: MediaQueryData(
+          disableAnimations: still,
+          accessibleNavigation: screenReader,
+        ),
         child: Scaffold(
           body: SingleChildScrollView(
             child: BridgeScene(
@@ -98,6 +102,16 @@ void main() {
 
   testWidgets('no movement when animations are off', (tester) async {
     await _pump(tester, still: true);
+    final deck = find.byKey(const ValueKey('deck-layer'));
+    final before = tester.getTopLeft(deck);
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(tester.getTopLeft(deck), before);
+    }
+  });
+
+  testWidgets('no movement while a screen reader is on', (tester) async {
+    await _pump(tester, screenReader: true);
     final deck = find.byKey(const ValueKey('deck-layer'));
     final before = tester.getTopLeft(deck);
     for (var i = 0; i < 6; i++) {

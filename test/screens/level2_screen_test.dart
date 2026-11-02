@@ -597,6 +597,20 @@ void main() {
     expect(_amplitude(tester), 0);
   });
 
+  testWidgets('the story fits a 360x640 phone with large text', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _open(tester);
+    tester.view.physicalSize = const Size(360, 640);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    final last = find.textContaining('from each side of the bridge');
+    await tester.scrollUntilVisible(last, 100);
+    expect(last.hitTestable(), findsOneWidget);
+    expect(find.text('Next').hitTestable(), findsOneWidget);
+  });
+
   testWidgets('the story shows the broken bridge', (tester) async {
     await _open(tester);
 

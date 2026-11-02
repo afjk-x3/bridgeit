@@ -265,7 +265,8 @@ class BridgeScene extends StatelessWidget {
 }
 
 /// Shakes [child] by up to 2 px times [amplitude]; still when animations are
-/// off or [amplitude] is 0.
+/// off, a screen reader is on (moving nodes unsettle its focus), or
+/// [amplitude] is 0.
 class BridgeWobble extends StatefulWidget {
   const BridgeWobble({super.key, required this.amplitude, required this.child});
 
@@ -294,7 +295,9 @@ class _BridgeWobbleState extends State<BridgeWobble>
 
   void _sync() {
     final moving =
-        widget.amplitude > 0 && !MediaQuery.disableAnimationsOf(context);
+        widget.amplitude > 0 &&
+        !MediaQuery.disableAnimationsOf(context) &&
+        !MediaQuery.accessibleNavigationOf(context);
     if (moving && !_clock.isAnimating) _clock.repeat();
     if (!moving && _clock.isAnimating) _clock.reset();
   }
