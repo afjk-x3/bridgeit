@@ -24,7 +24,6 @@ enum _Step {
   build,
   built,
   writeConjunction,
-  askFacts,
   writeSimilar,
   sturdy,
   crossing,
@@ -163,7 +162,7 @@ class _Level2ScreenState extends State<Level2Screen> {
       BridgeRound(_bridge, maxWrongAnswers: _content.maxWrongAnswers);
 
   _Step _afterSentence() => _foundations.length == 1 && _facts.isNotEmpty
-      ? _Step.askFacts
+      ? _Step.writeSimilar
       : _Step.sturdy;
 
   void _count(String stat) =>
@@ -257,15 +256,6 @@ class _Level2ScreenState extends State<Level2Screen> {
         ? WordRule.linking
         : WordRule.joining;
     return _submit(text, fact.word, rule);
-  }
-
-  Future<void> _openFacts() async {
-    final write = await showDialog<bool>(
-      context: context,
-      builder: (context) =>
-          _QuickFactsDialog(conjunction: _bridge.conjunction, facts: _facts),
-    );
-    if (write == true && mounted) setState(() => _step = _Step.writeSimilar);
   }
 
   Future<void> _crossed() async {
@@ -385,7 +375,6 @@ class _Level2ScreenState extends State<Level2Screen> {
     foundations: _foundations,
     crossed: _step == _Step.crossing,
     onCrossed: _crossed,
-    onTapWord: _step == _Step.askFacts ? _openFacts : null,
   );
 
   // The tray stays outside the scroll view, which would take its drags.
@@ -500,36 +489,16 @@ class _Level2ScreenState extends State<Level2Screen> {
               onSubmit: (text) => _submit(text, conjunction, WordRule.fanboys),
             ),
           ],
-          _Step.askFacts => [
-            const SpeechBubble(
-              'Yay! But the bridge still seems unstable. Can you make it '
-              'sturdier?\n\n(Tap the coordinating conjunction)',
-            ),
-            _scene(),
-            const SizedBox(height: 12),
-            if (_unsure) _unsureHint,
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: _openFacts,
-              child: const Text('Quick Facts'),
-            ),
-          ],
           _Step.writeSimilar => [
-            const SpeechBubble(
-              'Use one of the Quick Facts words to write another sentence.',
-            ),
-            _scene(),
-            const SizedBox(height: 12),
             _QuickFactsCard(conjunction: conjunction, facts: _facts),
             const SizedBox(height: 12),
+            _scene(),
+            const SizedBox(height: 12),
+            if (_unsure) ...[_unsureHint, const SizedBox(height: 12)],
             WritingPanel(
               key: const ValueKey('write-similar'),
               spelling: _writing.spelling,
               onSubmit: _submitSimilar,
-            ),
-            TextButton(
-              onPressed: _openFacts,
-              child: const Text('See Quick Facts again'),
             ),
           ],
           _ => [
@@ -574,81 +543,6 @@ class _FactWord extends StatelessWidget {
         border: Border.all(color: AppColors.accent, width: 2),
       ),
       child: Text(word, style: const TextStyle(fontWeight: FontWeight.bold)),
-    );
-  }
-}
-
-class _QuickFactsDialog extends StatelessWidget {
-  const _QuickFactsDialog({required this.conjunction, required this.facts});
-
-  final String conjunction;
-  final List<QuickFact> facts;
-
-  static String _punctuation(QuickFactRule rule) => switch (rule) {
-    QuickFactRule.linking => 'semicolon if it joins two sentences',
-    QuickFactRule.joining => 'usually no comma before',
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Quick Facts'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Aside from '$conjunction', you may also use these words, but "
-              'note that they are not coordinating conjunctions:',
-            ),
-            const SizedBox(height: 8),
-            for (final fact in facts)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  children: [
-                    _FactWord(fact.word),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _punctuation(fact.rule),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 8),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.lightTeal,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'Task: Use one of these words to write another sentence.',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Close'),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-          onPressed: () => Navigator.pop(context, true),
-          child: const Text('Write now'),
-        ),
-      ],
     );
   }
 }

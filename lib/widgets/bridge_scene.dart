@@ -44,7 +44,6 @@ class BridgeScene extends StatelessWidget {
     this.foundations = const [],
     this.crossed = false,
     this.onCrossed,
-    this.onTapWord,
   });
 
   final BridgeState state;
@@ -64,9 +63,6 @@ class BridgeScene extends StatelessWidget {
 
   /// Called when the vehicle reaches the far cliff.
   final VoidCallback? onCrossed;
-
-  /// Called when the student taps the word in a built bridge.
-  final VoidCallback? onTapWord;
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +133,7 @@ class BridgeScene extends StatelessWidget {
                                 child: SizedBox.fromSize(
                                   size: _gapSize,
                                   child: complete && word != null
-                                      ? _PlacedWord(word, onTap: onTapWord)
+                                      ? _PlacedWord(word)
                                       : gap,
                                 ),
                               ),
@@ -226,34 +222,27 @@ class _SentenceCard extends StatelessWidget {
 }
 
 class _PlacedWord extends StatelessWidget {
-  const _PlacedWord(this.word, {this.onTap});
+  const _PlacedWord(this.word);
 
   final String word;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: onTap != null,
-      onTap: onTap,
-      child: GestureDetector(
-        key: const ValueKey('placed-word'),
-        onTap: onTap,
-        child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.correct, width: 3),
-          ),
-          child: Text(
-            word,
-            style: const TextStyle(
-              color: AppColors.cliff,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+    return Container(
+      key: const ValueKey('placed-word'),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.correct, width: 3),
+      ),
+      // The piece keeps its comma once the bridge is built.
+      child: Text(
+        ', $word',
+        style: const TextStyle(
+          color: AppColors.cliff,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

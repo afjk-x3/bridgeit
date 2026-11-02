@@ -16,6 +16,7 @@ import '../support/pump_app.dart';
 const _broke = "The bridge collapsed! Let's try this bridge again.";
 const _done = 'Level 2 done! Ask your teacher for the code.';
 const _sturdy = 'Now the bridge seems sturdy. I can finally cross!';
+const _factsTask = 'Task: Use one of these words to write another sentence.';
 const _animals = ['dog', 'cat', 'bird', 'horse', 'pig', 'duck', 'goat'];
 
 final _gap = find.byKey(const ValueKey('gap'));
@@ -92,8 +93,6 @@ Future<void> _playBridge(WidgetTester tester, int i) async {
   await _write(tester, _sentence(i, bridge.conjunction));
   final facts = game.quickFacts[bridge.conjunction];
   if (facts != null) {
-    await _tap(tester, 'Quick Facts');
-    await _tap(tester, 'Write now');
     await _write(tester, _similar(i, facts.last));
   }
   await _tap(tester, 'Cross the Bridge');
@@ -235,8 +234,8 @@ void main() {
     expect(find.textContaining("Don't copy"), findsOneWidget);
   });
 
-  testWidgets('sentences become foundations and Quick Facts opens from the '
-      'conjunction', (tester) async {
+  testWidgets('sentences become foundations and Quick Facts follow '
+      'the first', (tester) async {
     await _openBridge(tester);
     final facts = _game(tester).quickFacts['for']!;
     await _tryPiece(tester, 'for');
@@ -246,13 +245,10 @@ void main() {
     await _write(tester, first);
 
     expect(find.text(first), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('placed-word')));
-    await tester.pumpAndSettle();
     for (final fact in facts) {
       expect(find.textContaining(fact.word, findRichText: true), findsWidgets);
     }
 
-    await _tap(tester, 'Write now');
     await _write(tester, 'The dog ran far, for the cat sat down.');
     expect(find.textContaining('Quick Facts in your'), findsOneWidget);
 
@@ -289,8 +285,6 @@ void main() {
             '{"bridgeIndex":1,"written":[["A"],["The dog ran, and I sat."]]}',
       },
     );
-    await _tap(tester, 'Quick Facts');
-    await _tap(tester, 'Write now');
 
     for (final fact in _game(tester).quickFacts['and']!) {
       expect(find.text(fact.word), findsOneWidget);
@@ -305,8 +299,6 @@ void main() {
             '{"bridgeIndex":1,"written":[["A"],["The dog ran, and I sat."]]}',
       },
     );
-    await _tap(tester, 'Quick Facts');
-    await _tap(tester, 'Write now');
 
     await _write(tester, 'The dog ran, moreover the cat sat.');
 
@@ -377,8 +369,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Building Bridges'));
     await tester.pumpAndSettle();
-    await _tap(tester, 'Quick Facts');
-    await _tap(tester, 'Write now');
     await _write(tester, 'The dog ran far because the cat sat down.');
 
     final results = tester
@@ -442,7 +432,51 @@ void main() {
     expect(tester.takeException(), isNull);
     await _tap(tester, 'Strengthen the Bridge');
     await _write(tester, _sentence(0, 'for'));
-    expect(tester.takeException(), isNull);
+    // The list builds lazily, so scroll the way a student would.
+    await tester.scrollUntilVisible(find.text('Submit'), 200);
+    await tester.ensureVisible(find.text('Submit'));
+    await tester.pumpAndSettle();
+    expect(find.text('Submit').hitTestable(), findsOneWidget);
+  });
+
+  testWidgets('the first sentence leads straight to Write with Quick Facts', (
+    tester,
+  ) async {
+    await _openBridge(tester);
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+
+    await _write(tester, _sentence(0, 'for'));
+
+    expect(find.text(_factsTask), findsOneWidget);
+    expect(find.text('Write now'), findsNothing);
+  });
+
+  testWidgets('saved progress from the old Quick Facts step reopens on '
+      'Write with Quick Facts', (tester) async {
+    await _open(
+      tester,
+      prefs: {
+        'level2_resume_v1':
+            '{"bridgeIndex":0,"written":[["I stayed inside, for it was '
+            'raining."],[],[],[],[],[],[]],"stats":[]}',
+      },
+    );
+
+    expect(find.text(_factsTask), findsOneWidget);
+  });
+
+  testWidgets('the placed piece keeps its comma', (tester) async {
+    await _openBridge(tester);
+    await _tryPiece(tester, 'for');
+
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('placed-word')),
+        matching: find.text(', for'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('misspelt words are underlined and do not block', (tester) async {
