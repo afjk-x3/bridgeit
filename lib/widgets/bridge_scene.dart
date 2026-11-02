@@ -29,6 +29,8 @@ const _carSize = Size(46, 22);
 const _fallTime = Duration(milliseconds: 500);
 const _fallAngle = 0.35; // how far a broken deck tilts (radians)
 const _shakeTime = Duration(milliseconds: 1200);
+const _carFallTime = Duration(milliseconds: 1400);
+const _carRestY = 222.0; // where the fallen car comes to rest in the river
 final _outline = Paint()
   ..color = AppColors.ink
   ..style = PaintingStyle.stroke
@@ -57,6 +59,7 @@ class BridgeScene extends StatelessWidget {
     this.placedWord,
     this.piers = const [],
     this.piersNeeded = 2,
+    this.cracks = 0,
     this.crossed = false,
     this.onCrossed,
   });
@@ -73,6 +76,10 @@ class BridgeScene extends StatelessWidget {
 
   final List<BridgePier> piers;
   final int piersNeeded;
+
+  /// Wrong tries so far: the first cracks the left tower support, the second
+  /// the right one.
+  final int cracks;
   final bool crossed;
 
   /// Called when the vehicle reaches the far cliff.
@@ -116,8 +123,26 @@ class BridgeScene extends StatelessWidget {
                       return Stack(
                         children: [
                           Positioned.fill(
-                            child: CustomPaint(painter: _BackPainter(complete)),
+                            child: CustomPaint(
+                              painter: _BackPainter(complete, cracks),
+                            ),
                           ),
+                          for (final (i, side) in const [
+                            'Left',
+                            'Right',
+                          ].indexed)
+                            if (cracks > i)
+                              Positioned.fromRect(
+                                rect: at(
+                                  i == 0 ? 50 : 296,
+                                  _trussBottom,
+                                  44,
+                                  _size.height - _trussBottom,
+                                ),
+                                child: Semantics(
+                                  label: '$side support cracked',
+                                ),
+                              ),
                           for (final (i, pier) in piers.indexed)
                             _pier(i + 1, pier, s),
                           Positioned.fill(
@@ -257,7 +282,33 @@ class BridgeScene extends StatelessWidget {
           curve: Curves.easeInOut,
           onEnd: onCrossed,
           alignment: Alignment(crossed ? 1 : -1, 0),
-          child: CustomPaint(size: _carSize, painter: _CarPainter()),
+          // When the bridge collapses the car rolls to the broken edge and
+          // falls into the river.
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(end: state == BridgeState.broken ? 1 : 0),
+            duration: _carFallTime,
+            builder: (context, t, car) {
+              final roll = (t / 0.4).clamp(0.0, 1.0);
+              final fall = ((t - 0.4) / 0.6).clamp(0.0, 1.0);
+              return Transform.translate(
+                offset: Offset(
+                  roll * 70 * s,
+                  Curves.easeIn.transform(fall) * (_carRestY - _deckTop) * s,
+                ),
+                child: Transform.rotate(angle: fall * 0.9, child: car),
+              );
+            },
+            child: Semantics(
+              label: state == BridgeState.broken
+                  ? 'The car fell into the river'
+                  : null,
+              child: CustomPaint(
+                key: const ValueKey('bridge-car'),
+                size: _carSize,
+                painter: _CarPainter(),
+              ),
+            ),
+          ),
         ),
       ),
     ),
@@ -422,10 +473,13 @@ class _Caption extends StatelessWidget {
 
 /// Everything that stays still: river, banks, cables, towers and footings.
 class _BackPainter extends CustomPainter {
-  _BackPainter(this.whole);
+  _BackPainter(this.whole, this.cracks);
 
   /// The deck is joined, so one cable spans the river.
   final bool whole;
+
+  /// How many tower supports are cracked, left first.
+  final int cracks;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -524,7 +578,7 @@ class _BackPainter extends CustomPainter {
     }
 
     // Towers, then their footings in the river.
-    for (final x in const [58.0, 304.0]) {
+    for (final (i, x) in const [58.0, 304.0].indexed) {
       final tower = Rect.fromLTWH(x, 6, 28, 190);
       canvas.drawRect(tower, fill..color = AppColors.tower);
       canvas.drawRect(tower, line..strokeWidth = 3);
@@ -538,11 +592,43 @@ class _BackPainter extends CustomPainter {
       final footing = Rect.fromLTWH(x - 8, _trussBottom, 44, h - _trussBottom);
       canvas.drawRect(footing, fill..color = AppColors.stone);
       canvas.drawRect(footing, line..strokeWidth = 3);
+      if (cracks > i) _crack(canvas, footing);
     }
   }
 
   @override
-  bool shouldRepaint(_BackPainter old) => old.whole != whole;
+  bool shouldRepaint(_BackPainter old) =>
+      old.whole != whole || old.cracks != cracks;
+
+  /// A jagged split down the support, with a chip knocked out of its top.
+  void _crack(Canvas canvas, Rect footing) {
+    final c = footing.center.dx;
+    final top = footing.top;
+    final crack = Path()
+      ..moveTo(c - 4, top)
+      ..lineTo(c + 5, top + 8)
+      ..lineTo(c - 3, top + 16)
+      ..lineTo(c + 6, top + 26)
+      ..lineTo(c, footing.bottom)
+      ..moveTo(c - 3, top + 16)
+      ..lineTo(c - 14, top + 22);
+    canvas.drawPath(
+      Path()
+        ..moveTo(footing.right - 12, top)
+        ..lineTo(footing.right, top)
+        ..lineTo(footing.right, top + 10)
+        ..close(),
+      Paint()..color = AppColors.water,
+    );
+    canvas.drawPath(
+      crack,
+      Paint()
+        ..color = AppColors.ink
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
 }
 
 /// The deck: whole once built, split with jagged ends while open, and tilting

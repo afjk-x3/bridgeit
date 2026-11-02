@@ -260,8 +260,16 @@ void main() {
     final bridge = _first(tester);
     final wrong = fanboys.where((w) => w != bridge.conjunction).take(3);
 
-    for (final word in wrong) {
+    final crackedAfter = [
+      ['Left support cracked'],
+      ['Left support cracked', 'Right support cracked'],
+      <String>[],
+    ];
+    for (final (i, word) in wrong.indexed) {
       await _tryPiece(tester, word);
+      for (final label in crackedAfter[i]) {
+        expect(find.bySemanticsLabel(label), findsOneWidget, reason: '$i');
+      }
     }
 
     expect(find.text(_broke), findsOneWidget);

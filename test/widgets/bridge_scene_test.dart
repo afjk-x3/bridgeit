@@ -10,6 +10,7 @@ Future<void> _pump(
   BridgeState state = BridgeState.built,
   List<BridgePier> piers = const [],
   int piersNeeded = 2,
+  int cracks = 0,
   bool still = false,
   bool screenReader = false,
 }) async {
@@ -32,6 +33,7 @@ Future<void> _pump(
               placedWord: 'for',
               piers: piers,
               piersNeeded: piersNeeded,
+              cracks: cracks,
               gap: const SizedBox(key: ValueKey('scene-gap')),
             ),
           ),
@@ -129,6 +131,57 @@ void main() {
       seen.add(tester.getTopLeft(deck));
     }
     expect(seen.length, greaterThan(1));
+  });
+
+  testWidgets('the first wrong try cracks the left support', (tester) async {
+    await _pump(tester, state: BridgeState.cracked, cracks: 1);
+    expect(find.bySemanticsLabel('Left support cracked'), findsOneWidget);
+    expect(find.bySemanticsLabel('Right support cracked'), findsNothing);
+  });
+
+  testWidgets('the second wrong try cracks the right support too', (
+    tester,
+  ) async {
+    await _pump(tester, state: BridgeState.cracked, cracks: 2);
+    expect(find.bySemanticsLabel('Left support cracked'), findsOneWidget);
+    expect(find.bySemanticsLabel('Right support cracked'), findsOneWidget);
+  });
+
+  testWidgets('the car falls into the river when the bridge collapses', (
+    tester,
+  ) async {
+    await _pump(tester, state: BridgeState.broken, cracks: 2);
+    await tester.pump(const Duration(seconds: 3));
+    final scene = tester.getRect(find.byType(AspectRatio));
+    final car = tester.getCenter(find.byKey(const ValueKey('bridge-car')));
+    // The river starts at 196 of the 232-high scene.
+    expect(car.dy, greaterThan(scene.top + scene.height * 196 / 232));
+    expect(
+      find.bySemanticsLabel('The car fell into the river'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('after Try again the car is back on the road at once', (
+    tester,
+  ) async {
+    await _pump(tester, state: BridgeState.broken, cracks: 3);
+    await tester.pump(const Duration(seconds: 3));
+    await _pump(tester, state: BridgeState.open);
+    await tester.pump(const Duration(milliseconds: 100));
+    final scene = tester.getRect(find.byType(AspectRatio));
+    final car = tester.getCenter(find.byKey(const ValueKey('bridge-car')));
+    expect(car.dy, lessThan(scene.top + scene.height * 108 / 232));
+  });
+
+  testWidgets('the car stays on the road while the bridge stands', (
+    tester,
+  ) async {
+    await _pump(tester, state: BridgeState.cracked, cracks: 2);
+    await tester.pump(const Duration(seconds: 3));
+    final scene = tester.getRect(find.byType(AspectRatio));
+    final car = tester.getCenter(find.byKey(const ValueKey('bridge-car')));
+    expect(car.dy, lessThan(scene.top + scene.height * 108 / 232));
   });
 
   testWidgets('BridgeScene labels every state', (tester) async {

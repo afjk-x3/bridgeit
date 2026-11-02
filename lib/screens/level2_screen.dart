@@ -395,6 +395,7 @@ class _Level2ScreenState extends State<Level2Screen> {
     piers: _piers,
     // nor has no Quick Facts, so it takes one sentence.
     piersNeeded: _facts.isEmpty ? 1 : 2,
+    cracks: _round.wrongCount,
     crossed: _step == _Step.crossing,
     onCrossed: _crossed,
   );
