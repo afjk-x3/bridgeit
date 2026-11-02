@@ -46,12 +46,22 @@ Future<void> _reachMap(WidgetTester tester) async {
 }
 
 /// Chooses the first place. The montage loops, so only pump its frames.
-Future<void> _reachMontage(WidgetTester tester) async {
-  await _reachMap(tester);
-  await tester.tap(find.byKey(const ValueKey('pin-la_paz')));
+/// Picks La Paz on the map and drives there.
+Future<void> _driveToLaPaz(WidgetTester tester) async {
+  final pin = find.byKey(const ValueKey('pin-la_paz'));
+  await tester.ensureVisible(pin);
+  await tester.pump();
+  await tester.tap(pin);
+  await tester.pump();
+  await tester.tap(find.textContaining('Drive to'));
   await tester.pump();
   await tester.pump(const Duration(seconds: 2));
   await tester.pump();
+}
+
+Future<void> _reachMontage(WidgetTester tester) async {
+  await _reachMap(tester);
+  await _driveToLaPaz(tester);
 }
 
 Future<void> _pumpPass(WidgetTester tester) async {
@@ -236,10 +246,7 @@ void main() {
     await _tap(tester, 'Proceed');
     expect(tester.takeException(), isNull);
 
-    await tester.tap(find.byKey(const ValueKey('pin-la_paz')));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 2));
-    await tester.pump();
+    await _driveToLaPaz(tester);
     await _pumpPass(tester);
     expect(tester.takeException(), isNull);
   });

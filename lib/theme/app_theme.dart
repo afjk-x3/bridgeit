@@ -24,6 +24,9 @@ abstract final class AppColors {
   static const card = Color(0xFFFFFFFF);
   // Behind a hint or notice with an orange bar.
   static const note = Color(0xFFFFF6EC);
+  // The Level 3 place map.
+  static const land = Color(0xFFCDE6D8);
+  static const road = Color(0xFFE8D6A8);
   // Disabled button fill; the label stays navy.
   static const disabled = Color(0xFFC9D6E3);
 }

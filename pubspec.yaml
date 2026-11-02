@@ -72,6 +72,7 @@ flutter:
     - assets/images/places/saud/
     - assets/images/places/badoc/
     - assets/images/places/pangil/
+    - assets/images/places/icons/
     - assets/content/
     - assets/audio/
     - assets/lexicon/

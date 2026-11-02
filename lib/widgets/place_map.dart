@@ -4,42 +4,46 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../content/models.dart';
 import '../theme/app_theme.dart';
 
-const _carSize = 32.0;
-const _labelWidth = 120.0;
-const _driveTime = Duration(milliseconds: 1600);
-const _mapSize = Size(300, 420);
+/// Place ids from north to south along the coast road.
+const northToSouth = [
+  'saud',
+  'bangui',
+  'burgos',
+  'la_paz',
+  'paoay',
+  'pangil',
+  'badoc',
+];
 
-/// The road in `map.svg`, in its view box. Keep the two the same.
-final _road =
-    (Path()
-          ..moveTo(30, 21)
-          ..cubicTo(120, 8, 196, 28, 216, 84)
-          ..cubicTo(232, 132, 120, 104, 105, 139)
-          ..cubicTo(92, 172, 250, 158, 210, 197)
-          ..cubicTo(180, 230, 100, 186, 90, 218)
-          ..cubicTo(78, 252, 28, 258, 36, 294)
-          ..cubicTo(44, 340, 150, 300, 186, 353)
-          ..cubicTo(200, 376, 232, 392, 246, 412))
-        .computeMetrics()
-        .first;
-
-/// The point [distance] along the road, in `map.svg` units.
-Offset roadPoint(double distance) =>
-    _road.getTangentForOffset(distance)!.position;
-
-/// How far along the road its closest point to [point] is.
-double roadDistanceTo(Offset point) {
-  var best = 0.0;
-  var bestGap = double.infinity;
-  for (var d = 0.0; d <= _road.length; d += 2) {
-    final gap = (roadPoint(d) - point).distanceSquared;
-    if (gap < bestGap) (best, bestGap) = (d, gap);
+/// [places] north to south; ids not in [northToSouth] follow in content order.
+List<Place> mapOrder(List<Place> places) {
+  int rank(Place place) {
+    final i = northToSouth.indexOf(place.id);
+    return i < 0 ? northToSouth.length : i;
   }
-  return best;
+
+  // List.sort is not stable, so break ties by content order.
+  final indexed = places.indexed.toList()
+    ..sort((a, b) {
+      final byRank = rank(a.$2).compareTo(rank(b.$2));
+      return byRank != 0 ? byRank : a.$1.compareTo(b.$1);
+    });
+  return [for (final (_, place) in indexed) place];
 }
 
-/// The map of places. Pins snap to the road; tapping one drives the car along
-/// the road to it, then calls [onChosen].
+const _driveTime = Duration(milliseconds: 1600);
+const _startY = 24.0;
+const _firstStop = 70.0;
+const _stopGap = 100.0;
+const _pinRadius = 14.0;
+const _cardWidth = 118.0;
+const _cardGap = 6.0;
+const _edge = 8.0;
+const _carSize = Size(40, 20);
+
+/// The coast road with one numbered stop per place. The student picks a
+/// place, then "Drive to …" drives the car along the road to it and calls
+/// [onChosen].
 class PlaceMap extends StatefulWidget {
   const PlaceMap({super.key, required this.places, required this.onChosen});
 
@@ -50,138 +54,307 @@ class PlaceMap extends StatefulWidget {
   State<PlaceMap> createState() => _PlaceMapState();
 }
 
-class _PlaceMapState extends State<PlaceMap> {
-  Place? _chosen;
-
-  double _distance(Place place) => roadDistanceTo(
-    Offset(place.pinX * _mapSize.width, place.pinY * _mapSize.height),
+class _PlaceMapState extends State<PlaceMap>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _drive = AnimationController(
+    vsync: this,
+    duration: _driveTime,
   );
+  late final List<Place> _places = mapOrder(widget.places);
+  Place? _selected;
 
-  Offset _stop(Place place) => roadPoint(_distance(place));
+  @override
+  void dispose() {
+    _drive.dispose();
+    super.dispose();
+  }
+
+  Future<void> _go() async {
+    final place = _selected;
+    if (place == null) return;
+    await _drive.forward(from: 0);
+    if (mounted) widget.onChosen(place);
+  }
+
+  /// Stop [i]: left of centre for even stops, right for odd ones.
+  static Offset _stop(int i, double width) =>
+      Offset(width * (i.isEven ? 0.38 : 0.64), _firstStop + i * _stopGap);
+
+  /// The road from START through every stop, and how far along it each is.
+  static (Path, List<double>) _road(int count, double width) {
+    final start = Offset(_stop(0, width).dx, _startY);
+    final path = Path()..moveTo(start.dx, start.dy);
+    final distances = <double>[];
+    var from = start;
+    for (var i = 0; i < count; i++) {
+      final to = _stop(i, width);
+      final bend = (to.dy - from.dy) / 2;
+      path.cubicTo(from.dx, from.dy + bend, to.dx, to.dy - bend, to.dx, to.dy);
+      distances.add(
+        path.computeMetrics().fold(0.0, (sum, m) => sum + m.length),
+      );
+      from = to;
+    }
+    return (path, distances);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.lightTeal,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: LayoutBuilder(
-        builder: (context, box) {
-          final (w, h) = (box.maxWidth, box.maxHeight);
-          final chosen = _chosen;
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: SvgPicture.asset(
-                  'assets/images/map.svg',
-                  fit: BoxFit.fill,
-                  excludeFromSemantics: true,
-                ),
-              ),
-              for (final place in widget.places)
-                _Pin(
-                  place: place,
-                  x: _stop(place).dx * w / _mapSize.width,
-                  y: _stop(place).dy * h / _mapSize.height,
-                  width: w,
-                  chosen: identical(place, chosen),
-                  onTap: chosen == null
-                      ? () => setState(() => _chosen = place)
-                      : null,
-                ),
-              TweenAnimationBuilder<double>(
-                tween: Tween(
-                  begin: 0,
-                  end: chosen == null ? 0 : _distance(chosen),
-                ),
-                duration: _driveTime,
-                curve: Curves.easeInOut,
-                onEnd: () {
-                  if (chosen != null) widget.onChosen(chosen);
-                },
-                builder: (context, distance, car) {
-                  final at = roadPoint(distance);
-                  return Positioned(
-                    left: at.dx * w / _mapSize.width - _carSize / 2,
-                    top: at.dy * h / _mapSize.height - _carSize / 2,
-                    child: car!,
-                  );
-                },
-                child: const IgnorePointer(
-                  child: Icon(
-                    Icons.directions_car,
-                    size: _carSize,
-                    color: AppColors.vehicle,
+    final selected = _selected;
+    final driving = _drive.isAnimating;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: AppColors.land,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.ink, width: 2),
+            ),
+            child: LayoutBuilder(
+              builder: (context, box) {
+                final w = box.maxWidth;
+                final (road, distances) = _road(_places.length, w);
+                final metric = road.computeMetrics().first;
+                final height =
+                    _firstStop + (_places.length - 1) * _stopGap + 70;
+                return SingleChildScrollView(
+                  child: SizedBox(
+                    height: height,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: CustomPaint(painter: _MapPainter(road)),
+                        ),
+                        for (final (i, place) in _places.indexed)
+                          ..._stopWidgets(i, place, w, selected, driving),
+                        AnimatedBuilder(
+                          animation: _drive,
+                          builder: (context, car) {
+                            final end = selected == null
+                                ? 0.0
+                                : distances[_places.indexOf(selected)];
+                            final at = metric
+                                .getTangentForOffset(
+                                  end *
+                                      Curves.easeInOut.transform(_drive.value),
+                                )!
+                                .position;
+                            return Positioned(
+                              left: at.dx - _carSize.width / 2,
+                              top: at.dy - _carSize.height / 2,
+                              child: car!,
+                            );
+                          },
+                          child: IgnorePointer(
+                            child: SvgPicture.asset(
+                              'assets/images/car_small.svg',
+                              width: _carSize.width,
+                              height: _carSize.height,
+                              excludeFromSemantics: true,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+                );
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          onPressed: selected == null || driving ? null : _go,
+          icon: SvgPicture.asset(
+            'assets/images/car_small.svg',
+            width: 34,
+            height: 17,
+            excludeFromSemantics: true,
+          ),
+          label: Text(
+            selected == null ? 'Choose a place' : 'Drive to ${selected.name}',
+          ),
+        ),
+      ],
     );
+  }
+
+  List<Widget> _stopWidgets(
+    int i,
+    Place place,
+    double w,
+    Place? selected,
+    bool driving,
+  ) {
+    final at = _stop(i, w);
+    final onLeft = i.isEven;
+    // The card sits on the outer side of its pin, as wide as there is room.
+    final room = onLeft
+        ? at.dx - _pinRadius - _cardGap - _edge
+        : w - _edge - (at.dx + _pinRadius + _cardGap);
+    final width = room.clamp(0.0, _cardWidth);
+    return [
+      Positioned(
+        left: at.dx - _pinRadius,
+        top: at.dy - _pinRadius,
+        child: _Pin(number: i + 1),
+      ),
+      Positioned(
+        left: onLeft ? at.dx - _pinRadius - _cardGap - width : null,
+        right: onLeft ? null : w - (at.dx + _pinRadius + _cardGap + width),
+        top: at.dy - 30,
+        width: width,
+        child: _PlaceCard(
+          key: ValueKey('pin-${place.id}'),
+          place: place,
+          number: i + 1,
+          selected: identical(place, selected),
+          onTap: driving ? null : () => setState(() => _selected = place),
+        ),
+      ),
+    ];
   }
 }
 
 class _Pin extends StatelessWidget {
-  const _Pin({
+  const _Pin({required this.number});
+
+  final int number;
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: Container(
+      width: _pinRadius * 2,
+      height: _pinRadius * 2,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.accent,
+        border: Border.all(color: AppColors.ink, width: 2.5),
+      ),
+      child: Text(
+        '$number',
+        style: const TextStyle(
+          color: AppColors.card,
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    ),
+  );
+}
+
+class _PlaceCard extends StatelessWidget {
+  const _PlaceCard({
+    super.key,
     required this.place,
-    required this.x,
-    required this.y,
-    required this.width,
-    required this.chosen,
+    required this.number,
+    required this.selected,
     required this.onTap,
   });
 
   final Place place;
-  final double x;
-  final double y;
-  final double width;
-  final bool chosen;
+  final int number;
+  final bool selected;
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
-    final onRight = place.pinX > 0.55;
-    final label = Container(
-      constraints: const BoxConstraints(maxWidth: _labelWidth),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: AppColors.card.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        place.name,
-        textAlign: onRight ? TextAlign.right : TextAlign.left,
-        textWidthBasis: TextWidthBasis.longestLine,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-      ),
-    );
-    final pin = Icon(
-      Icons.location_on,
-      size: 36,
-      color: chosen ? AppColors.correct : AppColors.wrong,
-    );
-    return Positioned(
-      left: onRight ? null : x - 18,
-      right: onRight ? width - x - 18 : null,
-      top: y - 36,
-      child: Semantics(
-        button: true,
-        label: place.name,
-        excludeSemantics: true,
-        child: GestureDetector(
-          key: ValueKey('pin-${place.id}'),
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: onRight ? [label, pin] : [pin, label],
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    selected: selected,
+    label: '$number, ${place.name}',
+    excludeSemantics: true,
+    onTap: onTap,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? AppColors.accent : AppColors.ink,
+            width: selected ? 3 : 2,
           ),
         ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              'assets/images/places/icons/${place.id}.svg',
+              width: 54,
+              height: 33,
+              excludeFromSemantics: true,
+              errorBuilder: (_, _, _) => const SizedBox(height: 33),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              place.name,
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                height: 1.2,
+              ),
+            ),
+          ],
+        ),
       ),
-    );
+    ),
+  );
+}
+
+/// The sea along the west coast, the road and the START marker.
+class _MapPainter extends CustomPainter {
+  _MapPainter(this.road);
+
+  final Path road;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final (w, h) = (size.width, size.height);
+    final coast = w * 0.09;
+    final sea = Path()..moveTo(0, 0);
+    for (var y = 0.0; y <= h; y += 80) {
+      sea.quadraticBezierTo(coast + 10, y + 40, coast, y + 80);
+    }
+    sea
+      ..lineTo(0, h + 80)
+      ..close();
+    canvas.drawPath(sea, Paint()..color = AppColors.water);
+
+    Paint stroke(Color color, double width) => Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = width
+      ..strokeCap = StrokeCap.round;
+    canvas
+      ..drawPath(road, stroke(AppColors.ink, 30))
+      ..drawPath(road, stroke(AppColors.road, 25));
+
+    final start = road.computeMetrics().first.getTangentForOffset(0)!.position;
+    final label = TextPainter(
+      text: const TextSpan(
+        text: 'START',
+        style: TextStyle(
+          fontFamily: 'Nunito',
+          color: AppColors.ink,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    label.paint(canvas, start + Offset(20, -label.height / 2));
   }
+
+  @override
+  bool shouldRepaint(_MapPainter old) => old.road != road;
 }
