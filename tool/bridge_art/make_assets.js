@@ -20,16 +20,3 @@ function strip(car) {
 fs.writeFileSync(path.join(scenes, 'bridge_strip.svg'), strip('middle'));
 fs.writeFileSync(path.join(scenes, 'bridge_strip_crossed.svg'), strip('right'));
 
-// The Ending: the road and car give way to the bridge, car on the far bank.
-// It sits where the road was, clear of the buttons panel.
-const endingFile = path.join(scenes, 'ending.svg');
-const ending = fs.readFileSync(endingFile, 'utf8');
-const road = /<path d="M150 844 Q190 712[\s\S]*?<\/g>\n/;
-const bridge = strip('right')
-  .replace(/^<svg[^>]*>/, '<g transform="translate(0 420)">')
-  .replace(/<\/svg>\n$/, '</g>\n');
-if (road.test(ending)) {
-  fs.writeFileSync(endingFile, ending.replace(road, bridge));
-} else if (!ending.includes('translate(0 420)')) {
-  throw new Error('ending.svg: road not found');
-}

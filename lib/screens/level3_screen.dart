@@ -123,7 +123,6 @@ class _Level3ScreenState extends State<Level3Screen> {
       lines: const [
         'I have finally crossed the bridge! Thank you, Bridge Builder! Now, '
             "let's go explore, shall we?",
-        'Tap the map to choose which place we shall go.',
       ],
       button: 'Proceed',
       onPressed: () => _go(_Step.map),

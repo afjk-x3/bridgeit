@@ -98,6 +98,7 @@ void main() {
 
     await _tap(tester, 'Next');
     expect(find.textContaining('I have finally crossed'), findsOneWidget);
+    expect(find.textContaining('Tap the map'), findsNothing);
     expect(
       find.byWidgetPredicate((w) => w is BridgeStrip && w.crossed),
       findsOneWidget,

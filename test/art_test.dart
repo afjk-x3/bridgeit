@@ -35,7 +35,7 @@ void main() {
     '#F4C7A1',
   };
 
-  for (final path in [...strips, 'assets/images/scenes/ending.svg']) {
+  for (final path in strips) {
     test('$path draws the finished bridge with flutter_svg-safe markup', () {
       final svg = File(path).readAsStringSync();
       expect(svg, isNot(contains('<filter')));
