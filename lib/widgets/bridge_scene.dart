@@ -31,6 +31,8 @@ const _fallAngle = 0.35; // how far a broken deck tilts (radians)
 const _shakeTime = Duration(milliseconds: 1200);
 const _carFallTime = Duration(milliseconds: 1400);
 const _carRestY = 222.0; // where the fallen car comes to rest in the river
+const _carStart = 90.0; // just right of the left tower
+const _carEnd = 300.0; // just left of the right tower
 final _outline = Paint()
   ..color = AppColors.ink
   ..style = PaintingStyle.stroke
@@ -272,11 +274,15 @@ class BridgeScene extends StatelessWidget {
   Widget _car(double s, double width) => Positioned(
     left: 0,
     right: 0,
-    top: _deckTop * s - _carSize.height,
+    top: _slabTop * s - _carSize.height,
     height: _carSize.height,
     child: IgnorePointer(
+      // The car drives between the towers, on the deck.
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
+        padding: EdgeInsets.only(
+          left: (_carStart) * s,
+          right: (_size.width - _carEnd) * s,
+        ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
@@ -292,7 +298,7 @@ class BridgeScene extends StatelessWidget {
               final fall = ((t - 0.4) / 0.6).clamp(0.0, 1.0);
               return Transform.translate(
                 offset: Offset(
-                  roll * 70 * s,
+                  roll * (_halfEnd - _carStart - _carSize.width / 2) * s,
                   Curves.easeIn.transform(fall) * (_carRestY - _deckTop) * s,
                 ),
                 child: Transform.rotate(angle: fall * 0.9, child: car),
@@ -659,6 +665,7 @@ class _DeckPainter extends CustomPainter {
       ..strokeWidth = 3;
     if (state == BridgeState.built) {
       canvas.drawLine(const Offset(0, _deckTop), Offset(w, _deckTop), road);
+      _posts(canvas, 0, w);
       draw(Path()..addRect(Rect.fromLTRB(0, _slabTop, w, _slabBottom)));
       draw(Path()..addRect(Rect.fromLTRB(0, _slabBottom, w, _trussBottom)));
       _truss(canvas, 0, w);
@@ -681,6 +688,7 @@ class _DeckPainter extends CustomPainter {
         const Offset(_halfEnd, _deckTop),
         road,
       );
+      _posts(canvas, 0, _halfEnd);
       draw(
         Path()
           ..moveTo(0, _slabTop)
@@ -733,6 +741,16 @@ class _DeckPainter extends CustomPainter {
           ..quadraticBezierTo(x + 10, 218, x + 20, 228),
         splash,
       );
+    }
+  }
+
+  /// Railing posts holding the rail up off the deck.
+  void _posts(Canvas canvas, double from, double to) {
+    final post = Paint()
+      ..color = AppColors.ink
+      ..strokeWidth = 2;
+    for (var x = from + 12; x < to; x += 18) {
+      canvas.drawLine(Offset(x, _deckTop), Offset(x, _slabTop), post);
     }
   }
 

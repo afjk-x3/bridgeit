@@ -175,6 +175,20 @@ void main() {
     expect(find.text('Strengthen the Bridge'), findsNothing);
   });
 
+  testWidgets('the tries counter counts down in plain English', (tester) async {
+    await _openBridge(tester);
+    final bridge = _first(tester);
+    final wrong = fanboys
+        .where((w) => w != bridge.conjunction)
+        .take(2)
+        .toList();
+
+    await _tryPiece(tester, wrong[0]);
+    expect(find.text('2 tries left'), findsOneWidget);
+    await _tryPiece(tester, wrong[1]);
+    expect(find.text('1 try left'), findsOneWidget);
+  });
+
   testWidgets('a wrong piece stays in the gap with its hint', (tester) async {
     await _openBridge(tester);
     final bridge = _first(tester);

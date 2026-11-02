@@ -171,7 +171,19 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     final scene = tester.getRect(find.byType(AspectRatio));
     final car = tester.getCenter(find.byKey(const ValueKey('bridge-car')));
-    expect(car.dy, lessThan(scene.top + scene.height * 108 / 232));
+    expect(car.dy, lessThan(scene.top + scene.height * 118 / 232));
+  });
+
+  testWidgets('the car sits on the deck, clear of the left tower', (
+    tester,
+  ) async {
+    await _pump(tester);
+    final scene = tester.getRect(find.byType(AspectRatio));
+    final s = scene.width / 390;
+    final car = tester.getRect(find.byKey(const ValueKey('bridge-car')));
+    // Wheels on the slab top (118), right of the tower (x 58-86).
+    expect(car.bottom, closeTo(scene.top + 118 * s, 1));
+    expect(car.left, greaterThanOrEqualTo(scene.left + 86 * s));
   });
 
   testWidgets('the car stays on the road while the bridge stands', (
@@ -181,7 +193,7 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     final scene = tester.getRect(find.byType(AspectRatio));
     final car = tester.getCenter(find.byKey(const ValueKey('bridge-car')));
-    expect(car.dy, lessThan(scene.top + scene.height * 108 / 232));
+    expect(car.dy, lessThan(scene.top + scene.height * 118 / 232));
   });
 
   testWidgets('BridgeScene labels every state', (tester) async {

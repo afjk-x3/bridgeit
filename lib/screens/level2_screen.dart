@@ -112,6 +112,8 @@ class _Level2ScreenState extends State<Level2Screen> {
   bool _unsure = false;
 
   Bridge get _bridge => _content.bridges[_index];
+
+  static String _triesLeft(int n) => '$n ${n == 1 ? 'try' : 'tries'} left';
   bool get _placedWrong =>
       _placed != null && _round.triedWrong.contains(_placed!.toLowerCase());
   List<QuickFact> get _facts => _quickFacts[_bridge.conjunction] ?? const [];
@@ -414,8 +416,7 @@ class _Level2ScreenState extends State<Level2Screen> {
                 children: [
                   if (_round.wrongCount > 0 && !_round.isBroken)
                     Text(
-                      '${_content.maxWrongAnswers - _round.wrongCount} '
-                      'tries left',
+                      _triesLeft(_content.maxWrongAnswers - _round.wrongCount),
                       textAlign: TextAlign.right,
                       style: const TextStyle(
                         fontSize: 14,
