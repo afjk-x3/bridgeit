@@ -496,6 +496,12 @@ class _Level2ScreenState extends State<Level2Screen> {
             WritingPanel(
               key: const ValueKey('write-conjunction'),
               spelling: _writing.spelling,
+              checklistWord: conjunction,
+              hint: [
+                describeWord(conjunction, _functions[conjunction] ?? ''),
+                if (_bridge.examples.isNotEmpty)
+                  'Another example: ${_bridge.examples.first}',
+              ].join(' '),
               onSubmit: (text) => _submit(text, conjunction, WordRule.fanboys),
             ),
           ],

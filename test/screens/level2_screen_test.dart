@@ -186,6 +186,49 @@ void main() {
     expect(_crossEnabled(tester), isTrue);
   });
 
+  testWidgets('the checklist follows the sentence as it is typed', (
+    tester,
+  ) async {
+    await _openBridge(tester);
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+    bool met(String label) => find
+        .byWidgetPredicate(
+          (w) => w is Semantics && w.properties.label == '$label: done',
+        )
+        .evaluate()
+        .isNotEmpty;
+
+    expect(find.text("Comma right before 'for'"), findsOneWidget);
+    expect(met("Uses 'for'"), isFalse);
+
+    await tester.enterText(find.byType(TextField), 'I ran, for');
+    await tester.pump();
+
+    expect(met('Starts with a capital'), isTrue);
+    expect(met("Uses 'for'"), isTrue);
+    expect(met("Comma right before 'for'"), isTrue);
+    expect(met('Ends with . ! or ?'), isFalse);
+  });
+
+  testWidgets('a wrong sentence shows the hint once', (tester) async {
+    await _openBridge(tester);
+    final bridge = _first(tester);
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+    expect(find.textContaining('Another example:'), findsNothing);
+
+    await _write(tester, 'bad');
+
+    expect(
+      find.textContaining('Another example: ${bridge.examples.first}'),
+      findsOneWidget,
+    );
+    await tester.enterText(find.byType(TextField), 'bad, more');
+    await tester.pump();
+    expect(find.textContaining('Another example:'), findsOneWidget);
+  });
+
   testWidgets('three wrong tries collapse the bridge, and it restarts', (
     tester,
   ) async {
@@ -452,9 +495,18 @@ void main() {
     await _tryPiece(tester, 'for');
     expect(tester.takeException(), isNull);
     await _tap(tester, 'Strengthen the Bridge');
+    await tester.scrollUntilVisible(
+      find.text('Submit'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await _write(tester, _sentence(0, 'for'));
     // The list builds lazily, so scroll the way a student would.
-    await tester.scrollUntilVisible(find.text('Submit'), 200);
+    await tester.scrollUntilVisible(
+      find.text('Submit'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.ensureVisible(find.text('Submit'));
     await tester.pumpAndSettle();
     expect(find.text('Submit').hitTestable(), findsOneWidget);
