@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -34,7 +36,11 @@ List<Place> mapOrder(List<Place> places) {
 const _driveTime = Duration(milliseconds: 1600);
 const _startY = 24.0;
 const _firstStop = 70.0;
-const _stopGap = 100.0;
+// Stops spread to fill the map's height, so every place shows at once; on a
+// short screen they keep this much room for a four-line card and scroll.
+const _maxStopGap = 100.0;
+const _minStopGap = 56.0;
+const _belowLast = 86.0; // room under the last stop for its card
 const _pinRadius = 14.0;
 const _cardWidth = 118.0;
 const _cardGap = 6.0;
@@ -77,17 +83,17 @@ class _PlaceMapState extends State<PlaceMap>
   }
 
   /// Stop [i]: left of centre for even stops, right for odd ones.
-  static Offset _stop(int i, double width) =>
-      Offset(width * (i.isEven ? 0.38 : 0.64), _firstStop + i * _stopGap);
+  static Offset _stop(int i, double width, double gap) =>
+      Offset(width * (i.isEven ? 0.38 : 0.64), _firstStop + i * gap);
 
   /// The road from START through every stop, and how far along it each is.
-  static (Path, List<double>) _road(int count, double width) {
-    final start = Offset(_stop(0, width).dx, _startY);
+  static (Path, List<double>) _road(int count, double width, double gap) {
+    final start = Offset(_stop(0, width, gap).dx, _startY);
     final path = Path()..moveTo(start.dx, start.dy);
     final distances = <double>[];
     var from = start;
     for (var i = 0; i < count; i++) {
-      final to = _stop(i, width);
+      final to = _stop(i, width, gap);
       final bend = (to.dy - from.dy) / 2;
       path.cubicTo(from.dx, from.dy + bend, to.dx, to.dy - bend, to.dx, to.dy);
       distances.add(
@@ -116,11 +122,12 @@ class _PlaceMapState extends State<PlaceMap>
             child: LayoutBuilder(
               builder: (context, box) {
                 final w = box.maxWidth;
-                final (road, distances) = _road(_places.length, w);
+                final steps = max(_places.length - 1, 1);
+                final gap = ((box.maxHeight - _firstStop - _belowLast) / steps)
+                    .clamp(_minStopGap, _maxStopGap);
+                final (road, distances) = _road(_places.length, w, gap);
                 final metric = road.computeMetrics().first;
-                // Room below the last stop for a four-line card.
-                final height =
-                    _firstStop + (_places.length - 1) * _stopGap + 100;
+                final height = _firstStop + steps * gap + _belowLast;
                 return SingleChildScrollView(
                   child: SizedBox(
                     height: height,
@@ -130,7 +137,7 @@ class _PlaceMapState extends State<PlaceMap>
                           child: CustomPaint(painter: _MapPainter(road)),
                         ),
                         for (final (i, place) in _places.indexed)
-                          ..._stopWidgets(i, place, w, selected, driving),
+                          ..._stopWidgets(i, place, w, gap, selected, driving),
                         AnimatedBuilder(
                           animation: _drive,
                           builder: (context, car) {
@@ -187,10 +194,11 @@ class _PlaceMapState extends State<PlaceMap>
     int i,
     Place place,
     double w,
+    double gap,
     Place? selected,
     bool driving,
   ) {
-    final at = _stop(i, w);
+    final at = _stop(i, w, gap);
     final onLeft = i.isEven;
     // The card sits on the outer side of its pin, as wide as there is room.
     final room = onLeft

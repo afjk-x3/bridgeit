@@ -3,6 +3,10 @@
     <path d="M2 22 Q0 14 8 13 L18 4 Q20 2 24 2 H42 Q46 2 49 5 L56 13 Q63 14 63 22 V25 H2Z" fill="#3A8FDB"/>
     <path d="M20 6 H31 V13 H13Z M34 6 H44 L51 13 H34Z" fill="#E6F5FF"/>
     <circle cx="15" cy="26" r="5.5" fill="#183870"/>
+    <circle cx="15" cy="26" r="5.5" fill="none" stroke="#E6F5FF" stroke-width="1.5"/>
+    <circle cx="15" cy="26" r="2" fill="#E6F5FF" stroke="none"/>
     <circle cx="50" cy="26" r="5.5" fill="#183870"/>
+    <circle cx="50" cy="26" r="5.5" fill="none" stroke="#E6F5FF" stroke-width="1.5"/>
+    <circle cx="50" cy="26" r="2" fill="#E6F5FF" stroke="none"/>
   </g>
 </svg>

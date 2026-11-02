@@ -81,6 +81,41 @@ void main() {
     expect(find.byType(FilledButton).hitTestable(), findsOneWidget);
   });
 
+  testWidgets('every place shows without scrolling on a standard phone', (
+    tester,
+  ) async {
+    // Real glyph widths, so cards are their phone height.
+    final nunito = rootBundle.load('assets/fonts/Nunito-Variable.ttf');
+    await (FontLoader('Nunito')..addFont(nunito)).load();
+    tester.view.physicalSize = const Size(411, 891);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    // The map step: header 72, 16 px padding, title banner about 70.
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(),
+        home: Scaffold(
+          appBar: AppBar(toolbarHeight: 72),
+          body: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 86, 16, 16),
+            child: PlaceMap(places: _places, onChosen: (_) {}),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final scroll = tester.state<ScrollableState>(find.byType(Scrollable));
+    expect(scroll.position.maxScrollExtent, 0);
+    for (final place in _places) {
+      expect(
+        find.byKey(ValueKey('pin-${place.id}')).hitTestable(),
+        findsOneWidget,
+        reason: place.id,
+      );
+    }
+  });
+
   testWidgets('long place names wrap in full on a 360 phone', (tester) async {
     // Real glyph widths: the test font's squares wrap far sooner.
     final nunito = rootBundle.load('assets/fonts/Nunito-Variable.ttf');
