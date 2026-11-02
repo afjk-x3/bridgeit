@@ -13,26 +13,40 @@ const _labels = {
   BridgeState.broken: 'Bridge broken',
 };
 
-// Scene geometry as fractions of the panel, shared by painter and widgets.
-const _deck = 0.58; // top of the cliffs and of the bridge deck (of height)
-const _deckThickness = 0.2; // deck slab height, clauses written on it
-const _waterTop = 0.8; // top of the river (of height)
-const _towerX = 0.17; // left tower center (of width); the right one mirrors it
-const _towerTop = 0.32; // top of the towers (of height)
-const _deckEnd = 0.38; // where the left deck stops (of width)
-const _gapSize = Size(64, 48);
+// The scene is drawn in a 390 x 232 box (the Wireframes v3 Bridge sheet) and
+// scaled to fit. Widgets on top use the same units.
+const _size = Size(390, 232);
+const _deckTop = 108.0; // the road surface, where the car's wheels sit
+const _slabTop = 118.0; // the clause slab, 58 high
+const _slabBottom = 176.0;
+const _trussBottom = 194.0;
+const _halfEnd = 150.0; // where the left half of a split deck stops
+const _pierX = {1: 122.0, 2: 268.0};
+const _pierWidth = 48.0;
+const _norPierWidth = 64.0;
+const _gapSize = Size(72, 48);
 const _carSize = Size(46, 22);
 const _fallTime = Duration(milliseconds: 500);
 const _fallAngle = 0.35; // how far a broken deck tilts (radians)
+const _shakeTime = Duration(milliseconds: 1200);
 final _outline = Paint()
   ..color = AppColors.ink
   ..style = PaintingStyle.stroke
   ..strokeWidth = 2;
 
-/// A suspension bridge over water, with a gap in it. The clauses on the deck,
-/// the [gap] drop target and the vehicle are widgets over a painted backdrop. The
-/// student's [foundations] sit under the scene, so long sentences can wrap,
-/// and the vehicle drives to the far cliff when [crossed].
+/// One accepted sentence, standing under the deck as a pier tagged with the
+/// [word] it used.
+class BridgePier {
+  const BridgePier(this.word, this.sentence);
+
+  final String word;
+  final String sentence;
+}
+
+/// The suspension bridge over water. The clauses sit on the deck either side
+/// of the [gap]; each of the student's [piers] stands under the deck, and the
+/// deck shakes until [piersNeeded] are in. The car drives to the far bank
+/// when [crossed].
 class BridgeScene extends StatelessWidget {
   const BridgeScene({
     super.key,
@@ -41,7 +55,8 @@ class BridgeScene extends StatelessWidget {
     required this.right,
     required this.gap,
     this.placedWord,
-    this.foundations = const [],
+    this.piers = const [],
+    this.piersNeeded = 2,
     this.crossed = false,
     this.onCrossed,
   });
@@ -53,16 +68,20 @@ class BridgeScene extends StatelessWidget {
   /// Shown in the bridge once it is built.
   final String? placedWord;
 
-  /// Fills a 64x48 slot centered over the missing bridge section. Hidden
-  /// when the bridge is broken.
+  /// Fills the slot over the missing bridge section while the bridge is open.
   final Widget gap;
 
-  /// Sentences that strengthen the bridge.
-  final List<String> foundations;
+  final List<BridgePier> piers;
+  final int piersNeeded;
   final bool crossed;
 
   /// Called when the vehicle reaches the far cliff.
   final VoidCallback? onCrossed;
+
+  double get _amplitude {
+    if (state != BridgeState.built || piers.length >= piersNeeded) return 0;
+    return piers.isEmpty ? 1 : 0.5;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,100 +96,97 @@ class BridgeScene extends StatelessWidget {
         : '$clause, _____ $right';
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 350),
+        constraints: BoxConstraints(maxWidth: _size.width),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AspectRatio(
-              aspectRatio: 350 / 260,
+              aspectRatio: _size.width / _size.height,
               child: Semantics(
                 container: true,
                 explicitChildNodes: true,
                 label: _labels[state],
-                child: Container(
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    color: AppColors.sky,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      width: 2,
-                    ),
-                  ),
+                child: ClipRect(
                   child: LayoutBuilder(
                     builder: (context, box) {
-                      final (w, h) = (box.maxWidth, box.maxHeight);
-                      // Puts the car's wheels on the deck line.
-                      final carY =
-                          2 *
-                              (h * _deck - _carSize.height) /
-                              (h - _carSize.height) -
-                          1;
+                      final s = box.maxWidth / _size.width;
+                      Rect at(double l, double t, double w, double h) =>
+                          Rect.fromLTWH(l * s, t * s, w * s, h * s);
                       return Stack(
                         children: [
                           Positioned.fill(
-                            child: TweenAnimationBuilder<double>(
-                              tween: Tween(
-                                begin: 0,
-                                end: state == BridgeState.broken ? 1 : 0,
-                              ),
-                              duration: _fallTime,
-                              curve: Curves.easeIn,
-                              builder: (context, fall, _) => CustomPaint(
-                                painter: _ScenePainter(state, fall),
-                              ),
-                            ),
+                            child: CustomPaint(painter: _BackPainter(complete)),
                           ),
-                          if (state != BridgeState.broken)
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              top: h * _deck,
-                              height: h * _deckThickness,
-                              child: Semantics(
-                                label: sentence,
-                                excludeSemantics: true,
-                                child: Row(
-                                  children: [
-                                    _DeckClause(clause, width: w * _deckEnd),
-                                    const Spacer(),
-                                    _DeckClause(right, width: w * _deckEnd),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          if (state != BridgeState.broken)
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              top:
-                                  h * (_deck + _deckThickness / 2) -
-                                  _gapSize.height / 2,
-                              child: Center(
-                                child: SizedBox.fromSize(
-                                  size: _gapSize,
-                                  child: complete && word != null
-                                      ? _PlacedWord(word)
-                                      : gap,
-                                ),
-                              ),
-                            ),
+                          for (final (i, pier) in piers.indexed)
+                            _pier(i + 1, pier, s),
                           Positioned.fill(
-                            child: IgnorePointer(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                child: AnimatedAlign(
-                                  duration: const Duration(milliseconds: 600),
-                                  curve: Curves.easeInOut,
-                                  onEnd: onCrossed,
-                                  alignment: Alignment(crossed ? 1 : -1, carY),
-                                  child: CustomPaint(
-                                    size: _carSize,
-                                    painter: _CarPainter(),
+                            child: BridgeWobble(
+                              key: const ValueKey('wobble'),
+                              amplitude: _amplitude,
+                              child: Stack(
+                                key: const ValueKey('deck-layer'),
+                                children: [
+                                  Positioned.fill(
+                                    child: TweenAnimationBuilder<double>(
+                                      tween: Tween(
+                                        begin: 0,
+                                        end: state == BridgeState.broken
+                                            ? 1
+                                            : 0,
+                                      ),
+                                      duration: _fallTime,
+                                      curve: Curves.easeIn,
+                                      builder: (context, fall, _) =>
+                                          CustomPaint(
+                                            painter: _DeckPainter(state, fall),
+                                          ),
+                                    ),
                                   ),
-                                ),
+                                  if (state != BridgeState.broken)
+                                    Positioned.fromRect(
+                                      rect: at(
+                                        0,
+                                        _slabTop,
+                                        _size.width,
+                                        _slabBottom - _slabTop,
+                                      ),
+                                      child: Semantics(
+                                        label: sentence,
+                                        excludeSemantics: true,
+                                        child: Row(
+                                          children: [
+                                            _DeckClause(
+                                              clause,
+                                              width: _halfEnd * s,
+                                            ),
+                                            const Spacer(),
+                                            _DeckClause(
+                                              right,
+                                              width: _halfEnd * s,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  if (state != BridgeState.broken)
+                                    Positioned(
+                                      left: 0,
+                                      right: 0,
+                                      top:
+                                          (_slabTop + _slabBottom) / 2 * s -
+                                          _gapSize.height / 2,
+                                      child: Center(
+                                        child: SizedBox.fromSize(
+                                          size: _gapSize,
+                                          child: complete && word != null
+                                              ? _PlacedWord(word)
+                                              : gap,
+                                        ),
+                                      ),
+                                    ),
+                                  _car(s, box.maxWidth),
+                                ],
                               ),
                             ),
                           ),
@@ -181,12 +197,126 @@ class BridgeScene extends StatelessWidget {
                 ),
               ),
             ),
-            for (final sentence in foundations) _Foundation(sentence),
+            if (piers.isNotEmpty) _Caption(piers),
           ],
         ),
       ),
     );
   }
+
+  Widget _pier(int n, BridgePier pier, double s) {
+    final single = piersNeeded == 1;
+    final cx = single ? _size.width / 2 : _pierX[n] ?? _pierX[2]!;
+    final width = (single ? _norPierWidth : _pierWidth) * s;
+    return Positioned(
+      left: cx * s - width / 2,
+      top: _trussBottom * s,
+      width: width,
+      height: (_size.height - _trussBottom) * s,
+      child: Container(
+        key: ValueKey('pier-$n'),
+        decoration: BoxDecoration(
+          color: AppColors.stone,
+          border: Border.all(color: AppColors.ink, width: 3),
+        ),
+        // The tag may be wider than its pier.
+        child: OverflowBox(
+          maxWidth: 160,
+          alignment: Alignment.topCenter,
+          child: Container(
+            margin: const EdgeInsets.only(top: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+            decoration: BoxDecoration(
+              color: AppColors.ink,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              '$n · ${pier.word}',
+              style: const TextStyle(
+                color: AppColors.card,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _car(double s, double width) => Positioned(
+    left: 0,
+    right: 0,
+    top: _deckTop * s - _carSize.height,
+    height: _carSize.height,
+    child: IgnorePointer(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+          onEnd: onCrossed,
+          alignment: Alignment(crossed ? 1 : -1, 0),
+          child: CustomPaint(size: _carSize, painter: _CarPainter()),
+        ),
+      ),
+    ),
+  );
+}
+
+/// Shakes [child] by up to 2 px times [amplitude]; still when animations are
+/// off or [amplitude] is 0.
+class BridgeWobble extends StatefulWidget {
+  const BridgeWobble({super.key, required this.amplitude, required this.child});
+
+  final double amplitude;
+  final Widget child;
+
+  @override
+  State<BridgeWobble> createState() => _BridgeWobbleState();
+}
+
+class _BridgeWobbleState extends State<BridgeWobble>
+    with SingleTickerProviderStateMixin {
+  late final _clock = AnimationController(vsync: this, duration: _shakeTime);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(BridgeWobble old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  void _sync() {
+    final moving =
+        widget.amplitude > 0 && !MediaQuery.disableAnimationsOf(context);
+    if (moving && !_clock.isAnimating) _clock.repeat();
+    if (!moving && _clock.isAnimating) _clock.reset();
+  }
+
+  @override
+  void dispose() {
+    _clock.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _clock,
+    builder: (context, child) {
+      final shake = sin(_clock.value * 2 * pi) * 2 * widget.amplitude;
+      return Transform.translate(
+        offset: Offset(shake, shake / 2),
+        child: child,
+      );
+    },
+    child: widget.child,
+  );
 }
 
 /// One clause written on its half of the deck slab.
@@ -248,198 +378,292 @@ class _PlacedWord extends StatelessWidget {
   }
 }
 
-/// One student sentence, as a beam under the deck.
-class _Foundation extends StatelessWidget {
-  const _Foundation(this.sentence);
+/// The student's sentences in full, numbered to match their piers.
+class _Caption extends StatelessWidget {
+  const _Caption(this.piers);
 
-  final String sentence;
+  final List<BridgePier> piers;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.deck,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        sentence,
-        textAlign: TextAlign.center,
-        style: const TextStyle(color: AppColors.card, fontSize: 13),
+      key: const ValueKey('pier-caption'),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      color: AppColors.ink,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, pier) in piers.indexed)
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '${i + 1}  ',
+                    style: const TextStyle(color: AppColors.lightTeal),
+                  ),
+                  TextSpan(text: pier.sentence),
+                ],
+              ),
+              style: const TextStyle(
+                color: AppColors.card,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                height: 1.3,
+              ),
+            ),
+        ],
       ),
     );
   }
 }
 
-class _ScenePainter extends CustomPainter {
-  _ScenePainter(this.state, this.fall);
+/// Everything that stays still: river, banks, cables, towers and footings.
+class _BackPainter extends CustomPainter {
+  _BackPainter(this.whole);
+
+  /// The deck is joined, so one cable spans the river.
+  final bool whole;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / _size.width);
+    final (w, h) = (_size.width, _size.height);
+    final fill = Paint();
+    final line = Paint()
+      ..color = AppColors.ink
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawRect(Rect.fromLTWH(0, 0, w, h), fill..color = AppColors.sky);
+    fill.color = AppColors.card;
+    canvas.drawOval(
+      Rect.fromCenter(center: const Offset(190, 30), width: 56, height: 18),
+      fill,
+    );
+    canvas.drawOval(
+      Rect.fromCenter(center: const Offset(206, 24), width: 32, height: 16),
+      fill,
+    );
+
+    final hill = Path()
+      ..moveTo(0, 170)
+      ..quadraticBezierTo(80, 140, 160, 160)
+      ..quadraticBezierTo(240, 136, 320, 158)
+      ..quadraticBezierTo(360, 146, w, 160)
+      ..lineTo(w, 200)
+      ..lineTo(0, 200)
+      ..close();
+    canvas.drawPath(hill, fill..color = AppColors.lightTeal);
+    canvas.drawPath(hill, line..strokeWidth = 2);
+    canvas.drawRect(
+      Rect.fromLTWH(0, 196, w, h - 196),
+      fill..color = AppColors.water,
+    );
+
+    // Stone bank walls with grassy tops.
+    for (final wall in [
+      Path()..addPolygon([
+        const Offset(0, 96),
+        const Offset(30, 96),
+        Offset(38, h),
+        Offset(0, h),
+      ], true),
+      Path()..addPolygon([
+        Offset(w, 96),
+        Offset(w - 30, 96),
+        Offset(w - 38, h),
+        Offset(w, h),
+      ], true),
+    ]) {
+      canvas.drawPath(wall, fill..color = AppColors.stone);
+      canvas.drawPath(wall, line..strokeWidth = 3);
+    }
+    for (final cap in [
+      const Rect.fromLTWH(0, 92, 32, 8),
+      Rect.fromLTWH(w - 32, 92, 32, 8),
+    ]) {
+      canvas.drawRect(cap, fill..color = AppColors.lightTeal);
+      canvas.drawRect(cap, line..strokeWidth = 2);
+    }
+
+    final cables = Path()
+      ..moveTo(72, 10)
+      ..quadraticBezierTo(40, 70, 0, 92)
+      ..moveTo(318, 10)
+      ..quadraticBezierTo(350, 70, w, 92);
+    if (whole) {
+      cables
+        ..moveTo(72, 10)
+        ..quadraticBezierTo(195, 112, 318, 10);
+    } else {
+      cables
+        ..moveTo(72, 10)
+        ..quadraticBezierTo(120, 100, _halfEnd, _deckTop)
+        ..moveTo(318, 10)
+        ..quadraticBezierTo(270, 100, w - _halfEnd, _deckTop);
+    }
+    canvas.drawPath(cables, line..strokeWidth = 3);
+    line.strokeWidth = 1.5;
+    for (final (x, top) in const [
+      (96.0, 28.0),
+      (116.0, 40.0),
+      (136.0, 49.0),
+      (254.0, 49.0),
+      (274.0, 40.0),
+      (294.0, 28.0),
+      (40.0, 64.0),
+      (350.0, 64.0),
+    ]) {
+      canvas.drawLine(
+        Offset(x, top),
+        const Offset(0, _slabTop).translate(x, 0),
+        line,
+      );
+    }
+
+    // Towers, then their footings in the river.
+    for (final x in const [58.0, 304.0]) {
+      final tower = Rect.fromLTWH(x, 6, 28, 190);
+      canvas.drawRect(tower, fill..color = AppColors.tower);
+      canvas.drawRect(tower, line..strokeWidth = 3);
+      line.strokeWidth = 2;
+      canvas.drawLine(Offset(x, 40), Offset(x + 28, 70), line);
+      canvas.drawLine(Offset(x + 28, 40), Offset(x, 70), line);
+      canvas.drawRect(
+        Rect.fromLTWH(x - 4, 2, 36, 8),
+        fill..color = AppColors.ink,
+      );
+      final footing = Rect.fromLTWH(x - 8, _trussBottom, 44, h - _trussBottom);
+      canvas.drawRect(footing, fill..color = AppColors.stone);
+      canvas.drawRect(footing, line..strokeWidth = 3);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BackPainter old) => old.whole != whole;
+}
+
+/// The deck: whole once built, split with jagged ends while open, and tilting
+/// into the river by [fall] when broken.
+class _DeckPainter extends CustomPainter {
+  _DeckPainter(this.state, this.fall);
 
   final BridgeState state;
   final double fall;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final (w, h) = (size.width, size.height);
-    final deck = h * _deck;
-    final thick = h * _deckThickness;
-    final waterTop = h * _waterTop;
-    final paint = Paint()..color = AppColors.water;
-    canvas.drawRect(Rect.fromLTRB(0, waterTop, w, h), paint);
-    paint.color = AppColors.sky.withValues(alpha: 0.5);
-    for (final (x, y) in const [(0.3, 0.86), (0.62, 0.93), (0.8, 0.85)]) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCenter(center: Offset(w * x, h * y), width: 30, height: 3),
-          const Radius.circular(2),
-        ),
-        paint,
-      );
-    }
-    paint.color = AppColors.rock;
-    canvas.drawOval(Rect.fromLTRB(-16, h * 0.86, w * 0.09, h * 1.08), paint);
-    canvas.drawOval(Rect.fromLTRB(w * 0.92, h * 0.84, w + 16, h * 1.08), paint);
-
-    final angle = state == BridgeState.broken ? _fallAngle * fall : 0.0;
-    _cables(canvas, w, deck, angle);
-    _tower(canvas, w * _towerX, h, deck, waterTop);
-    _tower(canvas, w * (1 - _towerX), h, deck, waterTop);
-
-    paint.color = AppColors.deck;
-    final left = Rect.fromLTWH(0, deck, w * _deckEnd, thick);
-    final right = Rect.fromLTWH(w * (1 - _deckEnd), deck, w * _deckEnd, thick);
-    final leftPivot = Offset(w * _towerX, deck);
-    final rightPivot = Offset(w * (1 - _towerX), deck);
-    switch (state) {
-      case BridgeState.built:
-        _plank(canvas, Rect.fromLTRB(0, deck, w, deck + thick), paint);
-      case BridgeState.broken:
-        _plank(canvas, left, paint, pivot: leftPivot, angle: angle);
-        _plank(canvas, right, paint, pivot: rightPivot, angle: -angle);
-      case BridgeState.open || BridgeState.cracked:
-        _plank(canvas, left, paint);
-        _plank(canvas, right, paint);
-        if (state == BridgeState.cracked) {
-          _crack(canvas, left.right, 1, deck, thick);
-          _crack(canvas, right.left, -1, deck, thick);
-        }
-    }
-  }
-
-  /// Two legs with a cross-brace and a cap, on a stone pier in the water.
-  void _tower(Canvas canvas, double x, double h, double deck, double waterTop) {
-    final top = h * _towerTop;
-    final foot = waterTop + 8;
-    final paint = Paint()..color = AppColors.rock;
-    void outlined(Rect rect) {
-      canvas.drawRect(rect, paint);
-      canvas.drawRect(rect, _outline);
-    }
-
-    outlined(Rect.fromLTRB(x - 15, waterTop - 8, x + 15, foot));
-    canvas.drawLine(
-      Offset(x - 11, deck),
-      Offset(x + 11, waterTop - 8),
-      _outline,
-    );
-    canvas.drawLine(
-      Offset(x + 11, deck),
-      Offset(x - 11, waterTop - 8),
-      _outline,
-    );
-    paint.color = AppColors.tower;
-    for (final dx in const [-11.0, 11.0]) {
-      outlined(Rect.fromLTRB(x + dx - 3.5, top, x + dx + 3.5, waterTop - 8));
-    }
-    outlined(Rect.fromLTRB(x - 14, top, x + 14, top + 5));
-    outlined(
-      Rect.fromLTRB(x - 11, (top + deck) / 2, x + 11, (top + deck) / 2 + 4),
-    );
-  }
-
-  /// The main cables with their hangers, on both halves. They stay tied to
-  /// the tower top, and their far ends follow the deck down by [angle].
-  void _cables(Canvas canvas, double w, double deck, double angle) {
-    final stroke = Paint()
-      ..color = AppColors.cable
+    canvas.scale(size.width / _size.width);
+    final w = _size.width;
+    final fill = Paint()..color = AppColors.deck;
+    final line = Paint()
+      ..color = AppColors.ink
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
-    final hanger = Paint()
-      ..color = AppColors.cable
-      ..strokeWidth = 1;
-    final top = _towerTopY(deck);
-    for (final (from, to, tilt) in [
-      (w * _towerX, w * _deckEnd, angle),
-      (w * (1 - _towerX), w * (1 - _deckEnd), -angle),
-    ]) {
-      final pivot = Offset(from, deck);
-      Offset down(Offset point) {
-        final d = point - pivot;
-        return pivot +
-            Offset(
-              d.dx * cos(tilt) - d.dy * sin(tilt),
-              d.dx * sin(tilt) + d.dy * cos(tilt),
-            );
-      }
+    void draw(Path path) {
+      canvas.drawPath(path, fill);
+      canvas.drawPath(path, line);
+    }
 
-      final mid = deck - 8.0;
-      final start = Offset(from, top);
-      final bend = down(Offset((from + to) / 2, mid + 4));
-      final end = down(Offset(to, mid));
+    // The road line and its railings.
+    final road = Paint()
+      ..color = AppColors.ink
+      ..strokeWidth = 3;
+    if (state == BridgeState.built) {
+      canvas.drawLine(const Offset(0, _deckTop), Offset(w, _deckTop), road);
+      draw(Path()..addRect(Rect.fromLTRB(0, _slabTop, w, _slabBottom)));
+      draw(Path()..addRect(Rect.fromLTRB(0, _slabBottom, w, _trussBottom)));
+      _truss(canvas, 0, w);
+      return;
+    }
+
+    final angle = state == BridgeState.broken ? _fallAngle * fall : 0.0;
+    for (final (side, pivot) in [(1.0, 72.0), (-1.0, 318.0)]) {
+      canvas.save();
+      canvas.translate(pivot, _deckTop);
+      canvas.rotate(angle * side);
+      canvas.translate(-pivot, -_deckTop);
+      // Mirror the right half onto the left half's shape.
+      if (side < 0) {
+        canvas.translate(w, 0);
+        canvas.scale(-1, 1);
+      }
+      canvas.drawLine(
+        const Offset(0, _deckTop),
+        const Offset(_halfEnd, _deckTop),
+        road,
+      );
+      draw(
+        Path()
+          ..moveTo(0, _slabTop)
+          ..lineTo(_halfEnd, _slabTop)
+          ..lineTo(_halfEnd - 6, 134)
+          ..lineTo(_halfEnd + 2, 150)
+          ..lineTo(_halfEnd - 6, 166)
+          ..lineTo(_halfEnd, _slabBottom)
+          ..lineTo(0, _slabBottom)
+          ..close(),
+      );
+      draw(
+        Path()
+          ..moveTo(0, _slabBottom)
+          ..lineTo(_halfEnd, _slabBottom)
+          ..lineTo(_halfEnd - 4, _trussBottom)
+          ..lineTo(0, _trussBottom)
+          ..close(),
+      );
+      _truss(canvas, 0, _halfEnd - 6);
+      canvas.restore();
+    }
+
+    // Rubble in the gap, and splashes where it fell.
+    for (final stone in [
+      [
+        const Offset(168, 204),
+        const Offset(182, 200),
+        const Offset(186, 210),
+        const Offset(172, 214),
+      ],
+      [
+        const Offset(206, 214),
+        const Offset(218, 216),
+        const Offset(216, 226),
+        const Offset(204, 224),
+      ],
+    ]) {
+      draw(Path()..addPolygon(stone, true));
+    }
+    final splash = Paint()
+      ..color = AppColors.card
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    for (final x in const [160.0, 200.0]) {
       canvas.drawPath(
         Path()
-          ..moveTo(start.dx, start.dy)
-          ..quadraticBezierTo(bend.dx, bend.dy, end.dx, end.dy),
-        stroke,
+          ..moveTo(x, 228)
+          ..quadraticBezierTo(x + 10, 218, x + 20, 228),
+        splash,
       );
-      for (var t = 0.2; t < 1; t += 0.2) {
-        final u = 1 - t;
-        final point = start * (u * u) + bend * (2 * u * t) + end * (t * t);
-        final foot = down(Offset(from + (to - from) * t, deck));
-        canvas.drawLine(point, foot, hanger);
-      }
     }
   }
 
-  double _towerTopY(double deck) => deck * _towerTop / _deck;
-
-  void _plank(
-    Canvas canvas,
-    Rect rect,
-    Paint paint, {
-    Offset pivot = Offset.zero,
-    double angle = 0,
-  }) {
-    canvas.save();
-    canvas.translate(pivot.dx, pivot.dy);
-    canvas.rotate(angle);
-    canvas.translate(-pivot.dx, -pivot.dy);
-    final slab = RRect.fromRectAndRadius(rect, const Radius.circular(3));
-    canvas.drawRRect(slab, paint);
-    canvas.drawRRect(slab, _outline);
-    canvas.restore();
-  }
-
-  /// A zigzag across the plank end; [dir] points from the end toward the cliff.
-  void _crack(Canvas canvas, double x, double dir, double deck, double thick) {
-    final path = Path()
-      ..moveTo(x - dir * 6, deck)
-      ..lineTo(x - dir * 11, deck + thick * 0.45)
-      ..lineTo(x - dir * 7, deck + thick * 0.6)
-      ..lineTo(x - dir * 12, deck + thick);
+  void _truss(Canvas canvas, double from, double to) {
+    final zig = Path()..moveTo(from, _trussBottom);
+    var up = true;
+    for (var x = from + 12; x <= to; x += 12, up = !up) {
+      zig.lineTo(x, up ? _slabBottom : _trussBottom);
+    }
     canvas.drawPath(
-      path,
+      zig,
       Paint()
-        ..color = AppColors.wrong
+        ..color = AppColors.ink
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.5
-        ..strokeCap = StrokeCap.round,
+        ..strokeWidth = 1.5,
     );
   }
 
   @override
-  bool shouldRepaint(_ScenePainter old) =>
+  bool shouldRepaint(_DeckPainter old) =>
       old.state != state || old.fall != fall;
 }
 

@@ -18,6 +18,8 @@ abstract final class AppColors {
   static const deck = Color(0xFF5B6472);
   static const water = Color(0xFF56B9D6);
   static const rock = Color(0xFF6F7B6A);
+  // Bank walls, tower footings and the student's sentence piers.
+  static const stone = Color(0xFF6F7F9E);
   static const correct = Color(0xFF22C55E);
   static const wrong = Color(0xFFDC2626);
   // White surfaces (cards) and text on dark fills.

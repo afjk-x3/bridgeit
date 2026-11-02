@@ -26,6 +26,11 @@ Future<void> _open(
   WidgetTester tester, {
   Map<String, Object> prefs = const {},
 }) async {
+  // The shaking bridge loops forever, so pumpAndSettle would never settle.
+  // Its movement is tested on its own in bridge_scene_test.dart.
+  tester.platformDispatcher.accessibilityFeaturesTestValue =
+      const FakeAccessibilityFeatures(disableAnimations: true);
+  addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
   await pumpApp(
     tester,
     prefs: {
@@ -100,6 +105,11 @@ Future<void> _playBridge(WidgetTester tester, int i) async {
 
 bool _enabled(WidgetTester tester, String word) =>
     tester.widget<ConjunctionPiece>(_piece(word)).enabled;
+
+Finder _inCaption(String sentence) => find.descendant(
+  of: find.byKey(const ValueKey('pier-caption')),
+  matching: find.textContaining(sentence, findRichText: true),
+);
 
 Finder _inBar(String text) =>
     find.descendant(of: find.byType(AppBar), matching: find.text(text));
@@ -317,7 +327,7 @@ void main() {
 
     await _write(tester, first);
 
-    expect(find.text(first), findsOneWidget);
+    expect(_inCaption(first), findsOneWidget);
     for (final fact in facts) {
       expect(find.textContaining(fact.word, findRichText: true), findsWidgets);
     }
@@ -327,7 +337,7 @@ void main() {
 
     await _write(tester, 'The dog ran far because the cat sat down.');
     expect(
-      find.text('The dog ran far because the cat sat down.'),
+      _inCaption('The dog ran far because the cat sat down.'),
       findsOneWidget,
     );
     expect(find.text(_sturdy), findsOneWidget);
@@ -484,7 +494,7 @@ void main() {
       },
     );
 
-    expect(find.text('The dog ran, for I came.'), findsOneWidget);
+    expect(_inCaption('The dog ran, for I came.'), findsOneWidget);
     expect(find.text('Quick Facts'), findsOneWidget);
   });
 
@@ -605,49 +615,5 @@ void main() {
     expect(findQuickFact('We won; as a result, we sang.', facts), facts[1]);
     expect(findQuickFact('We won as we sang.', facts), facts[0]);
     expect(findQuickFact('We won.', facts), isNull);
-  });
-
-  testWidgets('BridgeScene paints and labels every state', (tester) async {
-    const labels = {
-      BridgeState.open: 'Bridge open',
-      BridgeState.cracked: 'Bridge cracked',
-      BridgeState.built: 'Bridge built',
-      BridgeState.broken: 'Bridge broken',
-    };
-    for (final MapEntry(key: state, value: label) in labels.entries) {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: BridgeScene(
-              state: state,
-              left: 'It was raining,',
-              right: 'we went out.',
-              placedWord: 'but',
-              foundations: const ['One beam.'],
-              gap: const SizedBox(key: ValueKey('scene-gap')),
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.bySemanticsLabel(label), findsOneWidget);
-      expect(find.text('One beam.'), findsOneWidget);
-      expect(
-        find.bySemanticsLabel(
-          'It was raining, '
-          '${state == BridgeState.built ? 'but' : '_____'} we went out.',
-        ),
-        state == BridgeState.broken ? findsNothing : findsOneWidget,
-        reason: '$state',
-      );
-      expect(
-        find.byKey(const ValueKey('scene-gap')),
-        state == BridgeState.open || state == BridgeState.cracked
-            ? findsOneWidget
-            : findsNothing,
-        reason: '$state',
-      );
-    }
   });
 }

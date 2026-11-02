@@ -381,7 +381,7 @@ class _Level2ScreenState extends State<Level2Screen> {
     right: _bridge.right,
     placedWord: _placed,
     gap: gap,
-    foundations: _foundations,
+    piers: [for (final s in _foundations) BridgePier(_bridge.conjunction, s)],
     crossed: _step == _Step.crossing,
     onCrossed: _crossed,
   );
