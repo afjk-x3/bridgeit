@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:bridgeit/content/models.dart';
@@ -77,5 +79,34 @@ void main() {
       expect(pin.hitTestable(), findsOneWidget, reason: place.id);
     }
     expect(find.byType(FilledButton).hitTestable(), findsOneWidget);
+  });
+
+  testWidgets('long place names wrap in full on a 360 phone', (tester) async {
+    // Real glyph widths: the test font's squares wrap far sooner.
+    final nunito = rootBundle.load('assets/fonts/Nunito-Variable.ttf');
+    await (FontLoader('Nunito')..addFont(nunito)).load();
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(),
+        home: Scaffold(
+          // The map step's own padding.
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: PlaceMap(places: _places, onChosen: (_) {}),
+          ),
+        ),
+      ),
+    );
+    for (final place in _places) {
+      final name = find.text(place.name);
+      await tester.ensureVisible(name);
+      await tester.pumpAndSettle();
+      final paragraph = tester.renderObject<RenderParagraph>(name);
+      expect(paragraph.didExceedMaxLines, isFalse, reason: place.name);
+    }
+    expect(tester.takeException(), isNull);
   });
 }

@@ -118,8 +118,9 @@ class _PlaceMapState extends State<PlaceMap>
                 final w = box.maxWidth;
                 final (road, distances) = _road(_places.length, w);
                 final metric = road.computeMetrics().first;
+                // Room below the last stop for a four-line card.
                 final height =
-                    _firstStop + (_places.length - 1) * _stopGap + 70;
+                    _firstStop + (_places.length - 1) * _stopGap + 100;
                 return SingleChildScrollView(
                   child: SizedBox(
                     height: height,
@@ -296,8 +297,6 @@ class _PlaceCard extends StatelessWidget {
             Text(
               place.name,
               textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
