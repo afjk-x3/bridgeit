@@ -45,6 +45,23 @@ class TravelogueResult {
   final bool canSubmit;
 }
 
+/// The Submit button's label: what is still missing, or "Submit".
+String submitLabel(TravelogueResult result, TravelogueRules rules) {
+  String count(int n, String noun) => n == 1 ? '1 $noun' : '$n ${noun}s';
+  if (result.canSubmit) return 'Submit';
+  final sentences = result.sentenceCount;
+  if (sentences < rules.minSentences) {
+    return 'Write ${count(rules.minSentences - sentences, 'more sentence')} '
+        'to submit';
+  }
+  if (sentences > rules.maxSentences) {
+    return 'Remove ${count(sentences - rules.maxSentences, 'sentence')} '
+        'to submit';
+  }
+  final missing = rules.minConjunctions - result.counted.length;
+  return 'Use ${count(missing, 'more conjunction')} to submit';
+}
+
 /// Counts sentences and the coordinating conjunctions that join clauses.
 class TravelogueAnalyzer {
   const TravelogueAnalyzer(this._clauses, this._rules);

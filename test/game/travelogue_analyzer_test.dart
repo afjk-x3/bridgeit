@@ -106,6 +106,52 @@ void main() {
     expect(result.sentenceCount, 1);
   });
 
+  group('submitLabel', () {
+    const rules = TravelogueRules(
+      minSentences: 5,
+      maxSentences: 7,
+      minConjunctions: 4,
+    );
+    TravelogueResult result(int sentences, int conjunctions) =>
+        TravelogueResult(
+          sentenceCount: sentences,
+          counted: [for (var i = 0; i < conjunctions; i++) EntrySpan(i, i)],
+          uncounted: const [],
+          canSubmit: sentences >= 5 && sentences <= 7 && conjunctions >= 4,
+        );
+
+    test('too few sentences', () {
+      expect(
+        submitLabel(result(1, 1), rules),
+        'Write 4 more sentences to submit',
+      );
+      expect(
+        submitLabel(result(4, 4), rules),
+        'Write 1 more sentence to submit',
+      );
+    });
+
+    test('too few conjunctions', () {
+      expect(
+        submitLabel(result(5, 3), rules),
+        'Use 1 more conjunction to submit',
+      );
+      expect(
+        submitLabel(result(5, 1), rules),
+        'Use 3 more conjunctions to submit',
+      );
+    });
+
+    test('too many sentences', () {
+      expect(submitLabel(result(8, 4), rules), 'Remove 1 sentence to submit');
+      expect(submitLabel(result(9, 4), rules), 'Remove 2 sentences to submit');
+    });
+
+    test('a passing entry', () {
+      expect(submitLabel(result(5, 4), rules), 'Submit');
+    });
+  });
+
   test('empty text', () {
     final result = analyzer.analyze('   ');
     expect(result.sentenceCount, 0);

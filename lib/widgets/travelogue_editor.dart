@@ -153,7 +153,7 @@ class _TravelogueEditorState extends State<TravelogueEditor> {
           onPressed: result.canSubmit
               ? () => widget.onSubmit(_controller.text)
               : null,
-          child: const Text('Submit'),
+          child: Text(submitLabel(result, rules)),
         ),
       ],
     );

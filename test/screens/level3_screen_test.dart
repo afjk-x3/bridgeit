@@ -6,6 +6,7 @@ import 'package:bridgeit/content/models.dart';
 import 'package:bridgeit/progress/progress_store.dart';
 import 'package:bridgeit/progress/results_store.dart';
 import 'package:bridgeit/screens/level3_screen.dart';
+import 'package:bridgeit/widgets/travelogue_editor.dart';
 
 import '../support/pump_app.dart';
 
@@ -69,8 +70,14 @@ Future<void> _reachEditor(WidgetTester tester) async {
   await _tap(tester, 'Next');
 }
 
+// The button's label says what is missing, so find it by its place.
 bool _submitEnabled(WidgetTester tester) => tester
-    .widget<FilledButton>(find.widgetWithText(FilledButton, 'Submit'))
+    .widget<FilledButton>(
+      find.descendant(
+        of: find.byType(TravelogueEditor),
+        matching: find.byType(FilledButton),
+      ),
+    )
     .enabled;
 
 void main() {
@@ -215,5 +222,17 @@ void main() {
     await tester.pump();
     await _pumpPass(tester);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the journal keeps its room while typing', (tester) async {
+    await _reachEditor(tester);
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+    addTearDown(tester.view.resetViewInsets);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Write about:'), findsNothing);
+    expect(find.byType(TextField).hitTestable(), findsOneWidget);
   });
 }

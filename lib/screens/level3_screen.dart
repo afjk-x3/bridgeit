@@ -147,8 +147,11 @@ class _Level3ScreenState extends State<Level3Screen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _JournalPrompt(place: _place?.name),
-          const SizedBox(height: 10),
+          // With the keyboard open, the journal box gets the room.
+          if (MediaQuery.viewInsetsOf(context).bottom == 0) ...[
+            _JournalPrompt(place: _place?.name),
+            const SizedBox(height: 10),
+          ],
           Expanded(
             child: TravelogueEditor(
               analyzer: _analyzer,
