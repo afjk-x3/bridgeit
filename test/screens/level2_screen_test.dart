@@ -151,18 +151,39 @@ void main() {
     expect(find.text('Strengthen the Bridge'), findsNothing);
   });
 
-  testWidgets('a wrong piece shows its hint and fades', (tester) async {
+  testWidgets('a wrong piece stays in the gap with its hint', (tester) async {
     await _openBridge(tester);
     final bridge = _first(tester);
     final wrong = bridge.hints.keys.first;
 
     await _tryPiece(tester, wrong);
 
+    expect(
+      find.descendant(of: _gap, matching: find.text(', $wrong')),
+      findsOneWidget,
+    );
     expect(find.text(bridge.hints[wrong]!), findsOneWidget);
     expect(_enabled(tester, wrong), isFalse);
     expect(_enabled(tester, bridge.conjunction), isTrue);
     expect(find.bySemanticsLabel('Bridge cracked'), findsOneWidget);
     expect(_crossEnabled(tester), isFalse);
+  });
+
+  testWidgets('another piece replaces the wrong one', (tester) async {
+    await _openBridge(tester);
+    final bridge = _first(tester);
+    await _tryPiece(tester, bridge.hints.keys.first);
+
+    await tester.tap(_piece(bridge.conjunction));
+    await tester.pump();
+    await tester.tap(_gap);
+    await tester.pump();
+
+    expect(
+      find.descendant(of: _gap, matching: find.text(', ${bridge.conjunction}')),
+      findsOneWidget,
+    );
+    expect(_crossEnabled(tester), isTrue);
   });
 
   testWidgets('three wrong tries collapse the bridge, and it restarts', (

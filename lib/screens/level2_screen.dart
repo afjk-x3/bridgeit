@@ -100,6 +100,8 @@ class _Level2ScreenState extends State<Level2Screen> {
   int _earlierMs = 0;
   int _attempts = 0;
   late BridgeRound _round;
+  // What each conjunction does, from Level 1's MatchIt.
+  late final Map<String, String> _functions;
   int _index = 0;
   _Step _step = _Step.story;
   // Tap-to-select fallback: the piece waiting for a tap on the gap.
@@ -111,6 +113,8 @@ class _Level2ScreenState extends State<Level2Screen> {
   bool _unsure = false;
 
   Bridge get _bridge => _content.bridges[_index];
+  bool get _placedWrong =>
+      _placed != null && _round.triedWrong.contains(_placed!.toLowerCase());
   List<QuickFact> get _facts => _quickFacts[_bridge.conjunction] ?? const [];
   List<String> get _foundations => _written[_index];
 
@@ -120,6 +124,9 @@ class _Level2ScreenState extends State<Level2Screen> {
     final game = context.read<GameContent>();
     _content = game.level2;
     _quickFacts = game.quickFacts;
+    _functions = {
+      for (final pair in game.level1.matchIt) pair.conjunction: pair.function,
+    };
     _writing = context.read<WritingTools>();
     _written = [for (final _ in _content.bridges) <String>[]];
     _stats = [
@@ -158,8 +165,11 @@ class _Level2ScreenState extends State<Level2Screen> {
     super.dispose();
   }
 
-  BridgeRound _newRound() =>
-      BridgeRound(_bridge, maxWrongAnswers: _content.maxWrongAnswers);
+  BridgeRound _newRound() => BridgeRound(
+    _bridge,
+    maxWrongAnswers: _content.maxWrongAnswers,
+    functions: _functions,
+  );
 
   _Step _afterSentence() => _foundations.length == 1 && _facts.isNotEmpty
       ? _Step.writeSimilar
@@ -194,7 +204,6 @@ class _Level2ScreenState extends State<Level2Screen> {
         case DropResult.wrong:
           _count('wrongTries');
           _lastWrong = word;
-          _placed = null;
         case DropResult.broken:
           _count('wrongTries');
           _count('collapses');
@@ -404,6 +413,7 @@ class _Level2ScreenState extends State<Level2Screen> {
                     gap: BridgeGap(
                       selected: _selected,
                       placed: _placed,
+                      wrong: _placedWrong,
                       onDrop: _place,
                       onClear: () => setState(() => _placed = null),
                     ),
@@ -427,7 +437,7 @@ class _Level2ScreenState extends State<Level2Screen> {
             FilledButton(onPressed: _tryAgain, child: const Text('Try again'))
           else
             FilledButton(
-              onPressed: _placed == null ? null : _cross,
+              onPressed: _placed == null || _placedWrong ? null : _cross,
               child: const Text('Cross the bridge'),
             ),
         ],

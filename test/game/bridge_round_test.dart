@@ -69,6 +69,20 @@ void main() {
       expect(round.hintFor('or'), 'Try again.');
     });
 
+    test('a word with no hint of its own says what it does', () {
+      final round = BridgeRound(
+        so,
+        maxWrongAnswers: 3,
+        functions: {
+          'nor': 'Connects negative alternatives.',
+          'and': 'Adds or connects related ideas.',
+        },
+      );
+      expect(round.hintFor('nor'), "'nor' connects negative alternatives.");
+      expect(round.hintFor('and'), 'That adds. Does it add here?');
+      expect(round.hintFor('or'), 'Try again.');
+    });
+
     test('reset restores a fresh round', () {
       final round = BridgeRound(so, maxWrongAnswers: 2);
       round.drop('and');

@@ -12,12 +12,15 @@ class BridgeGap extends StatelessWidget {
     required this.onDrop,
     this.placed,
     this.onClear,
+    this.wrong = false,
   });
 
   final String? selected;
   final String? placed;
   final ValueChanged<String> onDrop;
   final VoidCallback? onClear;
+  // The placed piece was a wrong try: orange outline and fill.
+  final bool wrong;
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +43,10 @@ class BridgeGap extends StatelessWidget {
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.card,
+              color: wrong ? AppColors.note : AppColors.card,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: hovering.isNotEmpty || word != null
+                color: wrong || hovering.isNotEmpty || word != null
                     ? AppColors.accent
                     : AppColors.ink.withValues(alpha: 0.5),
                 width: 3,

@@ -4,6 +4,10 @@ import 'package:bridgeit/content/models.dart';
 
 enum DropResult { correct, wrong, broken, ignored }
 
+/// "'nor' connects negative alternatives." from a MatchIt function.
+String describeWord(String word, String function) =>
+    "'$word' ${function.isEmpty ? '' : function[0].toLowerCase() + function.substring(1)}";
+
 /// Rules for one bridge. Words match case-insensitively; tried words are
 /// stored lowercased.
 class _Rules {
@@ -44,14 +48,19 @@ class _Rules {
 
 /// Level 2: drop a conjunction onto the gap between two clauses.
 class BridgeRound {
-  BridgeRound(Bridge bridge, {required int maxWrongAnswers})
-    : _bridge = bridge,
-      _rules = _Rules(
-        (lower) => bridge.conjunction.toLowerCase() == lower,
-        maxWrongAnswers,
-      );
+  BridgeRound(
+    Bridge bridge, {
+    required int maxWrongAnswers,
+    this._functions = const {},
+  }) : _bridge = bridge,
+       _rules = _Rules(
+         (lower) => bridge.conjunction.toLowerCase() == lower,
+         maxWrongAnswers,
+       );
 
   final Bridge _bridge;
+  // What each word does, from Level 1's MatchIt, for words with no hint.
+  final Map<String, String> _functions;
   final _Rules _rules;
 
   DropResult drop(String word) => _rules.play(word);
@@ -66,6 +75,8 @@ class BridgeRound {
     for (final entry in _bridge.hints.entries) {
       if (entry.key.toLowerCase() == lower) return entry.value;
     }
+    final function = _functions[lower];
+    if (function != null) return describeWord(lower, function);
     return _bridge.defaultHint;
   }
 
