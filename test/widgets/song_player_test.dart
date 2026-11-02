@@ -22,6 +22,16 @@ Widget _player({
 );
 
 void main() {
+  testWidgets('the player is a bare strip for the lyrics card to hold', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_player());
+    expect(
+      find.descendant(of: find.byType(SongPlayer), matching: find.byType(Card)),
+      findsNothing,
+    );
+  });
+
   testWidgets('without audio it plays silently and reports each full play', (
     tester,
   ) async {

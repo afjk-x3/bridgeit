@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:bridgeit/content/models.dart';
 import 'package:bridgeit/screens/level1_screen.dart';
+import 'package:bridgeit/widgets/song_player.dart';
 
 import '../support/pump_app.dart';
 
@@ -148,7 +149,12 @@ void main() {
     await _tapText(tester, 'Next');
 
     await _tapText(tester, _listen);
-    expect(find.text('SING ALONG!'), findsOneWidget);
+    expect(find.byKey(const ValueKey('lyric-now')), findsOneWidget);
+    expect(find.text('SING ALONG!'), findsNothing);
+    expect(
+      find.descendant(of: find.byType(Card), matching: find.byType(SongPlayer)),
+      findsOneWidget,
+    );
 
     await _tapText(tester, 'Next');
     expect(find.text('Yes!'), findsOneWidget);

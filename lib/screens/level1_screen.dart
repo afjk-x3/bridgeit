@@ -130,111 +130,115 @@ class _Level1ScreenState extends State<Level1Screen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(
-          'SING ALONG!',
-          textAlign: TextAlign.center,
-          style: text.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        SongPlayer(
-          assetPath: _content.audioAsset,
-          silentLength: Duration(
-            milliseconds: lyrics.last.startMs + _lastLineMs,
-          ),
-          onPosition: _positionChanged,
-          autoPlay: true,
-          onCompleted: () {
-            setState(() {
-              _plays++;
-              _songEnded = true;
-            });
-            context.read<ResultsStore>().saveLevel1Plays(_plays);
-          },
-        ),
-        const SizedBox(height: 12),
         Card(
           color: AppColors.card,
           margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (lyrics[_line].image case final image?) ...[
-                  SvgPicture.asset(
-                    image,
-                    height: 96,
-                    excludeFromSemantics: true,
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                Text(
-                  lyrics[_line].text,
-                  key: const ValueKey('lyric-now'),
-                  style: text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SongPlayer(
+                assetPath: _content.audioAsset,
+                silentLength: Duration(
+                  milliseconds: lyrics.last.startMs + _lastLineMs,
                 ),
-                const SizedBox(height: 8),
-                for (final line in lyrics.skip(_line + 1).take(2))
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      line.text,
-                      style: text.titleSmall?.copyWith(
-                        color: AppColors.ink.withValues(alpha: 0.6),
+                onPosition: _positionChanged,
+                autoPlay: true,
+                onCompleted: () {
+                  setState(() {
+                    _plays++;
+                    _songEnded = true;
+                  });
+                  context.read<ResultsStore>().saveLevel1Plays(_plays);
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (lyrics[_line].image case final image?) ...[
+                      SvgPicture.asset(
+                        image,
+                        height: 96,
+                        excludeFromSemantics: true,
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    Text(
+                      lyrics[_line].text,
+                      key: const ValueKey('lyric-now'),
+                      style: text.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                const SizedBox(height: 8),
-                if (_required > 0)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _PlaysRoad(plays: _plays, required: _required),
+                    const SizedBox(height: 8),
+                    for (final line in lyrics.skip(_line + 1).take(2))
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          line.text,
+                          style: text.titleSmall?.copyWith(
+                            color: AppColors.ink.withValues(alpha: 0.75),
+                          ),
+                        ),
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        '${_plays.clamp(0, _required)}/$_required',
-                        key: const ValueKey('play-counter'),
-                        style: text.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
+                    const SizedBox(height: 8),
+                    if (_required > 0)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _PlaysRoad(
+                              plays: _plays,
+                              required: _required,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            '${_plays.clamp(0, _required)}/$_required',
+                            key: const ValueKey('play-counter'),
+                            style: text.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (_songEnded && _plays < _required) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                        decoration: const BoxDecoration(
+                          color: AppColors.note,
+                          border: Border(
+                            left: BorderSide(color: AppColors.accent, width: 4),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.replay, color: AppColors.ink),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'The song has ended. Tap play to hear it again: '
+                                '${_required - _plays} more to go.',
+                                key: const ValueKey('song-ended'),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-                if (_songEnded && _plays < _required) ...[
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                    decoration: const BoxDecoration(
-                      color: AppColors.note,
-                      border: Border(
-                        left: BorderSide(color: AppColors.accent, width: 4),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.replay, color: AppColors.ink),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'The song has ended. Tap play to hear it again: '
-                            '${_required - _plays} more to go.',
-                            key: const ValueKey('song-ended'),
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 16),

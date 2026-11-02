@@ -158,10 +158,9 @@ class _SongPlayerState extends State<SongPlayer> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final total = _length.inMilliseconds;
-    return Card(
+    // The top strip of the lyrics card, which clips its corners.
+    return ColoredBox(
       color: AppColors.lightTeal,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
