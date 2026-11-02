@@ -4,38 +4,57 @@ Context for picking up this work in a new session. Read the latest session below
 
 ## Latest session: 3 November 2026
 
-**Done:** all 13 tasks of [superpowers/plans/2026-11-03-review-fixes.md](superpowers/plans/2026-11-03-review-fixes.md) (spec [design-review/DECISIONS.md](design-review/DECISIONS.md)), one commit per task, `a0f3310`–`a368443` on `v2`. The release APK was walked Level 1 → Ending on the emulator and `docs/design-review/pairs/` and `sheet-1..4.png` were refreshed (steps 16 and 17 no longer exist). Every deviation from the plan is a `Ruling:` line in the git-ignored ledger `.superpowers/sdd/2026-11-03-review-fixes/progress.md`.
+**State of `v2`:** pushed to `origin/v2` with nothing uncommitted. `flutter analyze` is clean and 326 tests pass. The release APK was walked on the emulator after each change.
 
-**Shared bridge (wireframe only):** the owner chose one bridge design for every bridge screen, with each accepted sentence becoming a numbered pier under the deck ([spec](superpowers/specs/2026-11-03-shared-bridge-design.md), [plan](superpowers/plans/2026-11-03-shared-bridge-wireframe.md)). Wireframes v3 version 44 has a new "Bridge sheet" board with all six states, plus Start, Welcome, Story, Bridge, Wrong, Write your own, Write with Quick Facts and Ending redrawn. The generator is the session scratchpad's `canvas/bridge.js` (not in the repo). The owner approved it, and the app now has it ([app plan](superpowers/plans/2026-11-03-shared-bridge-app.md)):
-- `BridgeScene` draws the new bridge, with `piers`, `piersNeeded` and a `BridgeWobble` shake that stops under reduce-motion.
-- Level 2's story shows the broken bridge.
-- Start and Welcome use the regenerated `bridge_strip.svg`.
-- Level 3 "crossed" adds `bridge_strip_crossed.svg`.
-- The Ending keeps its road and car; the owner preferred it to the bridge.
-- Wrong tries: the first cracks the left tower support, the second the right, and the third collapses the deck with the car falling into the river.
-- The Level 3 "crossed" step dropped "Tap the map to choose which place we shall go."
-- The Wireframes v3 canvas doesn't show any of these three changes yet.
+**Next step:** client task 10 when their files arrive on 7 November (the 7 Level 2 sentence pairs, the song MP3 and the lyric timings). Then send the client [client/BridgeIt-Progress-Report-2026-11-03.md](client/BridgeIt-Progress-Report-2026-11-03.md). It lists what changed and what we still need from them.
 
-Regenerate the art with `node tool/bridge_art/make_assets.js`. Level 2 widget tests turn on reduce-motion in their `_open` helper, because the looping shake never lets `pumpAndSettle` settle. On the emulator, `uiautomator dump` fails while the deck shakes, so tap Level 2's Strengthen, text box and Submit by position.
+**Done this session**, each with its plan and a git-ignored ledger of rulings under `.superpowers/sdd/<plan>/progress.md`:
+1. **Design review fixes** ([plan](superpowers/plans/2026-11-03-review-fixes.md), spec [design-review/DECISIONS.md](design-review/DECISIONS.md)): 13 tasks, `a0f3310`–`a368443`.
+   - readable disabled buttons; 14 px minimum text
+   - clearer headers; all seven MatchIt rows fit
+   - Quick Facts writing comes straight after the first sentence
+   - a wrong piece stays in the gap with a hint about what it does
+   - live sentence checklist; travelogue keyboard room and a Submit label that says what's missing
+   - song player inside the lyrics card; montage header, dots and Map button
+   - clauses on the bridge deck; the map rebuilt north to south
+2. **One bridge everywhere** ([spec](superpowers/specs/2026-11-03-shared-bridge-design.md), [wireframe plan](superpowers/plans/2026-11-03-shared-bridge-wireframe.md), [app plan](superpowers/plans/2026-11-03-shared-bridge-app.md)):
+   - Wireframes v3 version 44 has a "Bridge sheet" board showing every state.
+   - In the app, `BridgeScene` draws it. Each accepted sentence becomes a numbered pier ("1 · for", "2 · because"), with the sentences in a caption.
+   - `BridgeWobble` shakes the deck until the piers are in. It stops under reduce-motion or a screen reader.
+   - Start, Welcome and Level 3 "crossed" use `bridge_strip*.svg`. Regenerate them with `node tool/bridge_art/make_assets.js`.
+3. **Owner feedback after that:**
+   - The Ending keeps its road and car.
+   - The map hint line on Level 3 "crossed" is gone.
+   - Wrong tries crack the left, then the right tower support; the third collapses the deck and the car falls in.
+   - The car sits on the deck between the towers, and posts hold the railing.
+   - "1 try left" wording.
+   - The small car has light wheel rims, so it shows on navy.
+   - The map spreads its stops to fit the screen (no scrolling on a standard phone).
+   - The MatchIt board keeps one height.
+   - The MatchIt instructions match Wireframes v3.
 
-**Next step:** client task 10 when their files arrive on 7 November; the four deferred minors below if time allows.
+**Not done / open:**
+- **The Wireframes v3 canvas is behind the app** on the Ending (road), the cracked supports and falling car, and the map hint removal.
+- **Deferred minors** (each in a ledger):
+  - The hint reads "'for'  Another example" when a conjunction has no MatchIt function.
+  - Checklist ticks fail around quote marks.
+  - The map doesn't follow the driving car.
+  - `saveLevel1Plays` isn't awaited.
+  - Pier tags are 13 px, and a long tag is clipped at large text sizes.
+  - The deck repaints every frame while shaking.
+  - Hangers dangle in the collapsed state.
+- **Watch when the client's sentences arrive:**
+  - Bridge clauses longer than two lines end in "…" on the deck.
+  - The second pier's tag shows the Quick Facts word found in that sentence.
+- **Docs still mention the deleted `assets/images/map.svg`:** `docs/DEV-PRD.md` and `docs/art-review/BRIEF.md`.
+- **Graphify MCP:** added to `~/.claude.json` (backup at `~/.claude.json.bak-graphify`). It isn't verified, since it needs a Claude Code restart. The `claude` CLI isn't installed on this machine.
 
-**State of `v2`:**
-- `flutter analyze` is clean and 298 tests pass. Not pushed since `077a8ac`; the owner pushes only when asked.
-- **Still uncommitted:** this file, `docs/art-review/`, and the old reverted grip-hand spec and plan in `docs/superpowers/`. Left for the owner to decide.
-- The map is rebuilt (`lib/widgets/place_map.dart`, icons in `assets/images/places/icons/`); `assets/images/map.svg` is gone, but `docs/DEV-PRD.md` and `docs/art-review/BRIEF.md` still mention it. `Place.pinX`/`pinY` are no longer read.
-- Bridge clauses now sit on the deck in two lines at most. The current clauses (23 characters at most) fit; check the client's longer sentences when they arrive, since longer ones end in "…".
-- The MatchIt fit test loads real Nunito: the test font draws square glyphs, which makes the function chips about twice as tall as on a phone.
+**Testing notes:**
+- **Level 2 widget tests** turn on reduce-motion in their `_open` helper, because the looping shake never lets `pumpAndSettle` settle.
+- **Real Nunito in some tests:** a few tests load real Nunito, because the test font's square glyphs make chips and cards about twice as tall as on a phone.
+- **Emulator walks:** `uiautomator dump` fails while the deck shakes or the montage plays, so tap those screens by position. The walk scripts are in the session scratchpad and aren't kept.
 
-**Review:** a fresh reviewer checked the whole branch: no Critical findings, and one Important finding (long place names were cut at 3 lines on the map), fixed in `a368443`. Deferred minors:
-- When a conjunction has no MatchIt function, the hint reads "'for'  Another example: …".
-- The checklist's capital and end-mark ticks fail when the sentence starts or ends with a quote mark.
-- The map doesn't scroll to follow the car while it drives.
-- `saveLevel1Plays` is not awaited in the song's `onCompleted`.
-
-These calls are left to the owner: the map road has no centre dashes and the car doesn't turn with the road; the Level 2 header copy; clauses longer than two lines end in "…" on the deck.
-
-**Wireframes v3** (Design canvas): https://claude.ai/artifact/Q2sTzJQrY9WSmuxZHLCU5w, version 40, 20 boards. Local source is the session scratchpad `v3/project/*.dc.html`; a new session should read the boards from the artifact (`Artifact` action `read` with `path`). The owner edits the canvas too: always read the latest version before publishing. The owner asked to remove the 10 extra boards drawn for app-only steps; don't redraw them unasked.
+**Wireframes v3** (Design canvas): https://claude.ai/artifact/Q2sTzJQrY9WSmuxZHLCU5w, version 44, 21 boards (20 screens and the Bridge sheet). Local source is the session scratchpad `v3/project/*.dc.html`; a new session should read the boards from the artifact (`Artifact` action `read` with `path`). The owner edits the canvas too: always read the latest version before publishing. The owner asked to remove the 10 extra boards drawn for app-only steps; don't redraw them unasked.
 
 **Design review:** DeepSeek, Opencode and Gemini reviewed `docs/design-review/pairs/` (app left, wireframe right). Summary and accepted fixes are in DECISIONS.md. Wireframe changes listed there are **not approved yet**.
 
