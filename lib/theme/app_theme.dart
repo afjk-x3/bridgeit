@@ -24,6 +24,8 @@ abstract final class AppColors {
   static const card = Color(0xFFFFFFFF);
   // Behind a hint or notice with an orange bar.
   static const note = Color(0xFFFFF6EC);
+  // Disabled button fill; the label stays navy.
+  static const disabled = Color(0xFFC9D6E3);
 }
 
 ThemeData buildAppTheme() {
@@ -62,6 +64,8 @@ ThemeData buildAppTheme() {
       style: FilledButton.styleFrom(
         backgroundColor: AppColors.ink,
         foregroundColor: AppColors.card,
+        disabledBackgroundColor: AppColors.disabled,
+        disabledForegroundColor: AppColors.ink,
         minimumSize: const Size.fromHeight(56),
         textStyle: buttonText,
         shape: rounded14,
@@ -71,6 +75,8 @@ ThemeData buildAppTheme() {
       style: OutlinedButton.styleFrom(
         backgroundColor: AppColors.card,
         foregroundColor: AppColors.ink,
+        disabledBackgroundColor: AppColors.disabled,
+        disabledForegroundColor: AppColors.ink,
         minimumSize: const Size.fromHeight(52),
         textStyle: buttonText,
         side: const BorderSide(color: AppColors.ink, width: 2),
@@ -108,6 +114,12 @@ ThemeData buildAppTheme() {
       focusedBorder: field(AppColors.teal, 3),
       errorBorder: field(AppColors.wrong, 2),
       focusedErrorBorder: field(AppColors.wrong, 3),
+      counterStyle: const TextStyle(
+        fontFamily: 'Nunito',
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: AppColors.ink,
+      ),
     ),
   );
 }

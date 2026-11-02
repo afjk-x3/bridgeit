@@ -42,6 +42,22 @@ void main() {
     expect(contrast(AppColors.ink, AppColors.accent), greaterThanOrEqualTo(3));
   });
 
+  test('disabled buttons keep a readable navy label', () {
+    final theme = buildAppTheme();
+    const off = {WidgetState.disabled};
+    for (final style in [
+      theme.filledButtonTheme.style!,
+      theme.outlinedButtonTheme.style!,
+    ]) {
+      expect(style.backgroundColor!.resolve(off), AppColors.disabled);
+      expect(style.foregroundColor!.resolve(off), AppColors.ink);
+    }
+  });
+
+  test('character counters are at least 14 px', () {
+    expect(buildAppTheme().inputDecorationTheme.counterStyle!.fontSize, 14);
+  });
+
   testWidgets('bundled Nunito is variable: fontWeight moves the wght axis', (
     tester,
   ) async {

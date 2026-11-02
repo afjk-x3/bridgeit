@@ -149,6 +149,8 @@ class _SongPlayerState extends State<SongPlayer> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  static const _time = TextStyle(fontSize: 14, fontWeight: FontWeight.w700);
+
   static String _clock(Duration d) =>
       '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
 
@@ -210,8 +212,8 @@ class _SongPlayerState extends State<SongPlayer> with WidgetsBindingObserver {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(_clock(_position), style: text.labelSmall),
-                      Text(_clock(_length), style: text.labelSmall),
+                      Text(_clock(_position), style: _time),
+                      Text(_clock(_length), style: _time),
                     ],
                   ),
                 ],
