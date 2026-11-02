@@ -6,6 +6,15 @@ Context for picking up this work in a new session. Read the latest session below
 
 **Done:** all 13 tasks of [superpowers/plans/2026-11-03-review-fixes.md](superpowers/plans/2026-11-03-review-fixes.md) (spec [design-review/DECISIONS.md](design-review/DECISIONS.md)), one commit per task, `a0f3310`–`a368443` on `v2`. The release APK was walked Level 1 → Ending on the emulator and `docs/design-review/pairs/` and `sheet-1..4.png` were refreshed (steps 16 and 17 no longer exist). Every deviation from the plan is a `Ruling:` line in the git-ignored ledger `.superpowers/sdd/2026-11-03-review-fixes/progress.md`.
 
+**Shared bridge (wireframe only):** the owner chose one bridge design for every bridge screen, with each accepted sentence becoming a numbered pier under the deck ([spec](superpowers/specs/2026-11-03-shared-bridge-design.md), [plan](superpowers/plans/2026-11-03-shared-bridge-wireframe.md)). Wireframes v3 version 44 has a new "Bridge sheet" board with all six states, plus Start, Welcome, Story, Bridge, Wrong, Write your own, Write with Quick Facts and Ending redrawn. The generator is the session scratchpad's `canvas/bridge.js` (not in the repo). The owner approved it, and the app now has it ([app plan](superpowers/plans/2026-11-03-shared-bridge-app.md)):
+- `BridgeScene` draws the new bridge, with `piers`, `piersNeeded` and a `BridgeWobble` shake that stops under reduce-motion.
+- Level 2's story shows the broken bridge.
+- Start and Welcome use the regenerated `bridge_strip.svg`.
+- Level 3 "crossed" adds `bridge_strip_crossed.svg`.
+- `ending.svg` has the bridge in place of the road.
+
+Regenerate the art with `node tool/bridge_art/make_assets.js`. Level 2 widget tests turn on reduce-motion in their `_open` helper, because the looping shake never lets `pumpAndSettle` settle. On the emulator, `uiautomator dump` fails while the deck shakes, so tap Level 2's Strengthen, text box and Submit by position.
+
 **Next step:** client task 10 when their files arrive on 7 November; the four deferred minors below if time allows.
 
 **State of `v2`:**
