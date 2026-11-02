@@ -389,10 +389,27 @@ class _Level2ScreenState extends State<Level2Screen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'BRIDGE ${_index + 1} OF ${_content.bridges.length}',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelLarge,
+                  Row(
+                    children: [
+                      Text(
+                        'BRIDGE ${_index + 1} OF ${_content.bridges.length}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (_round.wrongCount > 0 && !_round.isBroken)
+                        Text(
+                          '${_content.maxWrongAnswers - _round.wrongCount} '
+                          'tries left',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   _scene(
@@ -504,12 +521,7 @@ class _Level2ScreenState extends State<Level2Screen> {
             ),
             _scene(),
             const SizedBox(height: 12),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
-              children: [for (final fact in _facts) _FactWord(fact.word)],
-            ),
+            _QuickFactsCard(conjunction: conjunction, facts: _facts),
             const SizedBox(height: 12),
             WritingPanel(
               key: const ValueKey('write-similar'),
@@ -638,6 +650,59 @@ class _QuickFactsDialog extends StatelessWidget {
           child: const Text('Write now'),
         ),
       ],
+    );
+  }
+}
+
+/// Quick Facts kept on screen while the student writes the second sentence.
+class _QuickFactsCard extends StatelessWidget {
+  const _QuickFactsCard({required this.conjunction, required this.facts});
+
+  final String conjunction;
+  final List<QuickFact> facts;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.ink, width: 3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Quick Facts',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Aside from '$conjunction', you may also use these words, but "
+            'they are not coordinating conjunctions.',
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [for (final fact in facts) _FactWord(fact.word)],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.lightTeal,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Text(
+              'Task: Use one of these words to write another sentence.',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

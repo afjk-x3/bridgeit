@@ -51,7 +51,6 @@ Future<void> _reachMatchIt(WidgetTester tester) async {
     await _playOnce(tester);
   }
   await _tapText(tester, 'Next');
-  await _tapText(tester, 'NEXT');
   await _tapText(tester, 'Yes!');
 }
 
@@ -113,6 +112,31 @@ void main() {
     expect(find.text(lyrics[3].text), findsOneWidget);
   });
 
+  testWidgets('plays are kept after leaving the level', (tester) async {
+    await _openLevel(tester);
+    await _playOnce(tester);
+    expect(find.text('1/3'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Conjunction Theme Song'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('PLAY THE SONG'));
+    await tester.pumpAndSettle();
+    expect(find.text('1/3'), findsOneWidget);
+
+    await _playOnce(tester);
+    await _playOnce(tester);
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Conjunction Theme Song'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('PLAY THE SONG'));
+    await tester.pumpAndSettle();
+    await _tapText(tester, 'Next');
+    expect(find.text('Yes!'), findsOneWidget);
+  });
+
   testWidgets('MatchIt can go back to the song without replaying 3 times', (
     tester,
   ) async {
@@ -121,13 +145,11 @@ void main() {
       await _playOnce(tester);
     }
     await _tapText(tester, 'Next');
-    await _tapText(tester, 'NEXT');
 
     await _tapText(tester, _listen);
     expect(find.text('SING ALONG!'), findsOneWidget);
 
     await _tapText(tester, 'Next');
-    await _tapText(tester, 'NEXT');
     expect(find.text('Yes!'), findsOneWidget);
   });
 
@@ -141,7 +163,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('play-counter')), findsNothing);
     await _tapText(tester, 'Next');
-    expect(find.text('NEXT'), findsOneWidget);
+    expect(find.text('Yes!'), findsOneWidget);
   });
 
   testWidgets('tray lists every function and Submit needs all seven', (

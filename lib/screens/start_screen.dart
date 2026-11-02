@@ -24,6 +24,16 @@ class StartScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: SvgPicture.asset(
+              'assets/images/scenes/clouds.svg',
+              fit: BoxFit.fitWidth,
+              excludeFromSemantics: true,
+            ),
+          ),
           const Positioned(left: 0, right: 0, bottom: 0, child: BridgeStrip()),
           SafeArea(
             child: Center(
@@ -109,6 +119,15 @@ class CreditsScreen extends StatelessWidget {
         title: const Text(
           'Credits',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: FilledButton(
+            onPressed: () => Navigator.maybePop(context),
+            child: const Text('Close'),
+          ),
         ),
       ),
       body: Builder(

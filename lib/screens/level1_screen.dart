@@ -17,7 +17,7 @@ import '../widgets/speech_bubble.dart';
 /// How long the last lyric line lasts when there is no audio to time it.
 const _lastLineMs = 6000;
 
-enum _Step { intro, song, ready, matchIntro, match, done }
+enum _Step { intro, song, matchIntro, match, done }
 
 /// Level 1: listen to the song, sing along, then match each conjunction to
 /// its function.
@@ -45,6 +45,8 @@ class _Level1ScreenState extends State<Level1Screen> {
     _required = context.read<ProgressStore>().isCompleted(1)
         ? 0
         : _content.playsRequired;
+    // Plays from an earlier visit still count.
+    _plays = context.read<ResultsStore>().level1Plays;
   }
 
   @override
@@ -76,6 +78,7 @@ class _Level1ScreenState extends State<Level1Screen> {
       'activeMs': _clock.elapsedMs,
     });
     await progress.markCompleted(1);
+    if (mounted) await context.read<ResultsStore>().clearLevel1Plays();
     if (mounted) _go(_Step.done);
   }
 
@@ -87,7 +90,7 @@ class _Level1ScreenState extends State<Level1Screen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (_step == _Step.song || _step == _Step.ready)
+            if (_step == _Step.song)
               SvgPicture.asset(
                 'assets/images/scenes/drive.svg',
                 fit: BoxFit.cover,
@@ -102,15 +105,11 @@ class _Level1ScreenState extends State<Level1Screen> {
   }
 
   Widget _buildStep() => switch (_step) {
-    _Step.intro => _SongIntro(onPlay: () => _go(_Step.song)),
-    _Step.song => _buildSong(),
-    _Step.ready => _StoryCard(
-      text:
-          "Now that you know the song, let's see if you learned something "
-          'from it.',
-      button: 'NEXT',
-      onPressed: () => _go(_Step.matchIntro),
+    _Step.intro => _SongIntro(
+      required: _content.playsRequired,
+      onPlay: () => _go(_Step.song),
     ),
+    _Step.song => _buildSong(),
     _Step.matchIntro => _MatchItIntro(
       onYes: () => _go(_Step.match),
       onListen: () => _go(_Step.song),
@@ -141,10 +140,13 @@ class _Level1ScreenState extends State<Level1Screen> {
           ),
           onPosition: _positionChanged,
           autoPlay: true,
-          onCompleted: () => setState(() {
-            _plays++;
-            _songEnded = true;
-          }),
+          onCompleted: () {
+            setState(() {
+              _plays++;
+              _songEnded = true;
+            });
+            context.read<ResultsStore>().saveLevel1Plays(_plays);
+          },
         ),
         const SizedBox(height: 12),
         Card(
@@ -233,9 +235,13 @@ class _Level1ScreenState extends State<Level1Screen> {
           ),
         ),
         const SizedBox(height: 16),
-        FilledButton(
-          onPressed: _plays >= _required ? () => _go(_Step.ready) : null,
-          child: const Text('Next'),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size(120, 52)),
+            onPressed: _plays >= _required ? () => _go(_Step.matchIntro) : null,
+            child: const Text('Next'),
+          ),
         ),
       ],
     );
@@ -310,8 +316,9 @@ class _PlaysRoad extends StatelessWidget {
 
 /// Before the song: the guide in her car and the three-plays rule.
 class _SongIntro extends StatelessWidget {
-  const _SongIntro({required this.onPlay});
+  const _SongIntro({required this.required, required this.onPlay});
 
+  final int required;
   final VoidCallback onPlay;
 
   @override
@@ -368,27 +375,44 @@ class _SongIntro extends StatelessWidget {
                     color: AppColors.ink,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(text: 'Listen to the '),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text.rich(
                         TextSpan(
-                          text: 'CONJUNCTION THEME SONG',
-                          style: TextStyle(color: AppColors.lightTeal),
+                          children: [
+                            TextSpan(text: 'Listen to the '),
+                            TextSpan(
+                              text: 'CONJUNCTION THEME SONG',
+                              style: TextStyle(color: AppColors.lightTeal),
+                            ),
+                            TextSpan(
+                              text:
+                                  ' three times before you can answer the '
+                                  'following activity.',
+                            ),
+                          ],
                         ),
-                        TextSpan(
-                          text:
-                              ' three times before you can answer the '
-                              'following activity.',
+                        style: TextStyle(
+                          color: AppColors.card,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          height: 1.35,
                         ),
-                      ],
-                    ),
-                    style: TextStyle(
-                      color: AppColors.card,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      height: 1.35,
-                    ),
+                      ),
+                      const SizedBox(height: 12),
+                      _PlaysRoad(plays: 0, required: required),
+                      const SizedBox(height: 8),
+                      Text(
+                        'The car moves one stop each time the song ends. Next '
+                        'unlocks at $required.',
+                        style: const TextStyle(
+                          color: AppColors.sky,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -404,51 +428,6 @@ class _SongIntro extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _StoryCard extends StatelessWidget {
-  const _StoryCard({
-    required this.text,
-    required this.button,
-    required this.onPressed,
-  });
-
-  final String text;
-  final String button;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              color: AppColors.primary,
-              margin: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  text,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium
-                      ?.copyWith(color: AppColors.card),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onPressed, child: Text(button)),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -482,7 +461,10 @@ class _MatchItIntro extends StatelessWidget {
                     const Expanded(
                       child: Padding(
                         padding: EdgeInsets.only(bottom: 20),
-                        child: SpeechBubble("Let's see what you learned!"),
+                        child: SpeechBubble(
+                          "Now that you know the song, let's see if you "
+                          'learned something from it.',
+                        ),
                       ),
                     ),
                   ],
@@ -527,6 +509,8 @@ class _MatchItIntro extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 12),
+                      _MatchExample(),
+                      SizedBox(height: 12),
                       Text(
                         'Are you ready?',
                         textAlign: TextAlign.center,
@@ -558,6 +542,59 @@ class _MatchItIntro extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The drag shown in the instructions: a function moves into a slot.
+class _MatchExample extends StatelessWidget {
+  const _MatchExample();
+
+  @override
+  Widget build(BuildContext context) {
+    Widget box(String text, {bool slot = false, bool conj = false}) =>
+        Container(
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: conj ? AppColors.ink : AppColors.card,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: slot
+                  ? AppColors.lightTeal
+                  : (conj ? AppColors.ink : AppColors.piece),
+              width: 2,
+            ),
+          ),
+          child: Text(
+            text,
+            style: TextStyle(
+              color: conj ? AppColors.card : AppColors.ink,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        );
+    return Semantics(
+      label: "Example: the function 'to add' moves into the slot next to 'and'",
+      excludeSemantics: true,
+      // Scales down on narrow phones instead of overflowing.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            box('to add'),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 6),
+              child: Icon(Icons.arrow_forward, color: AppColors.ink),
+            ),
+            box('and', conj: true),
+            const SizedBox(width: 6),
+            box('to add', slot: true),
+          ],
+        ),
+      ),
     );
   }
 }

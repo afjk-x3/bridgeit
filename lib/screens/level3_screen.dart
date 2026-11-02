@@ -139,11 +139,20 @@ class _Level3ScreenState extends State<Level3Screen> {
     _Step.instructions => _buildInstructions(),
     _Step.travelogue => Padding(
       padding: const EdgeInsets.all(16),
-      child: TravelogueEditor(
-        analyzer: _analyzer,
-        rules: _content.travelogue,
-        spelling: _spelling,
-        onSubmit: _submit,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _JournalPrompt(place: _place?.name),
+          const SizedBox(height: 10),
+          Expanded(
+            child: TravelogueEditor(
+              analyzer: _analyzer,
+              rules: _content.travelogue,
+              spelling: _spelling,
+              onSubmit: _submit,
+            ),
+          ),
+        ],
       ),
     ),
     _Step.ending => _buildEnding(),
@@ -516,6 +525,94 @@ class _Story extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: FilledButton(onPressed: onPressed, child: Text(button)),
+        ),
+      ],
+    );
+  }
+}
+
+/// Above the journal: the guide with her journal and what to write about.
+class _JournalPrompt extends StatelessWidget {
+  const _JournalPrompt({required this.place});
+
+  final String? place;
+
+  static const _topics = [
+    'where you went',
+    'what you did',
+    'what you saw',
+    'how you felt',
+    "what you'll remember",
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final place = this.place;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // A framed portrait: face and journal, cropped at the waist.
+            Container(
+              width: 84,
+              height: 116,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: AppColors.sky,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.ink, width: 3),
+              ),
+              child: OverflowBox(
+                alignment: Alignment.topCenter,
+                maxHeight: 200,
+                child: SvgPicture.asset(
+                  'assets/images/girl_journal.svg',
+                  height: 190,
+                  semanticsLabel: 'Your guide, holding her journal',
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SpeechBubble(
+                place == null
+                    ? "I'll write about our trip in my journal. I hope you "
+                          'will too!'
+                    : "I'll write about our trip to $place in my journal. I "
+                          'hope you will too!',
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Write about:',
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final topic in _topics)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: AppColors.lightTeal, width: 2),
+                ),
+                child: Text(
+                  topic,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );

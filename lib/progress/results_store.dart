@@ -33,6 +33,7 @@ class ResultsStore extends ChangeNotifier {
 
   static const _profileKey = 'profile_v1';
   static const _level2Key = 'level2_resume_v1';
+  static const _level1PlaysKey = 'level1_plays_v1';
   static const _resultsKey = 'results_v1';
 
   final SharedPreferences _prefs;
@@ -72,6 +73,14 @@ class ResultsStore extends ChangeNotifier {
   );
 
   Future<void> clearLevel2Resume() => _prefs.remove(_level2Key);
+
+  /// Full plays of the Level 1 song so far, kept when the student leaves.
+  int get level1Plays => _prefs.getInt(_level1PlaysKey) ?? 0;
+
+  Future<void> saveLevel1Plays(int plays) =>
+      _prefs.setInt(_level1PlaysKey, plays);
+
+  Future<void> clearLevel1Plays() => _prefs.remove(_level1PlaysKey);
 
   /// Finished levels' results for the report, keyed by level number. A
   /// corrupt value reads as no results.
