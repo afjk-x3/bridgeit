@@ -102,6 +102,9 @@ Future<void> _playBridge(WidgetTester tester, int i) async {
 bool _enabled(WidgetTester tester, String word) =>
     tester.widget<ConjunctionPiece>(_piece(word)).enabled;
 
+Finder _inBar(String text) =>
+    find.descendant(of: find.byType(AppBar), matching: find.text(text));
+
 bool _crossEnabled(WidgetTester tester) => tester
     .widget<FilledButton>(find.widgetWithText(FilledButton, 'Cross the bridge'))
     .enabled;
@@ -115,7 +118,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final first = _first(tester);
-    expect(find.text('BRIDGE 1 OF 7'), findsOneWidget);
+    expect(_inBar('LEVEL 2 · BRIDGE 1 OF 7'), findsOneWidget);
     expect(find.text('Building Bridges'), findsOneWidget);
     expect(find.byTooltip('Journey'), findsOneWidget);
     expect(
@@ -180,7 +183,7 @@ void main() {
 
     await _tap(tester, 'Try again');
 
-    expect(find.text('BRIDGE 1 OF 7'), findsOneWidget);
+    expect(_inBar('LEVEL 2 · BRIDGE 1 OF 7'), findsOneWidget);
     for (final word in fanboys) {
       expect(_enabled(tester, word), isTrue, reason: word);
     }
@@ -196,6 +199,7 @@ void main() {
 
     expect(find.text('That is correct! ${bridge.explanation}'), findsOneWidget);
     await _tap(tester, 'Strengthen the Bridge');
+    expect(_inBar('Strengthen the bridge'), findsOneWidget);
     expect(
       find.textContaining("coordinating conjunction, 'for'."),
       findsOneWidget,
@@ -335,7 +339,7 @@ void main() {
         .read<ProgressStore>();
 
     for (var i = 0; i < 7; i++) {
-      expect(find.text('BRIDGE ${i + 1} OF 7'), findsOneWidget);
+      expect(_inBar('LEVEL 2 · BRIDGE ${i + 1} OF 7'), findsOneWidget);
       await _playBridge(tester, i);
     }
 
@@ -398,14 +402,14 @@ void main() {
   ) async {
     await _openBridge(tester);
     await _playBridge(tester, 0);
-    expect(find.text('BRIDGE 2 OF 7'), findsOneWidget);
+    expect(_inBar('LEVEL 2 · BRIDGE 2 OF 7'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Building Bridges'));
     await tester.pumpAndSettle();
 
-    expect(find.text('BRIDGE 2 OF 7'), findsOneWidget);
+    expect(_inBar('LEVEL 2 · BRIDGE 2 OF 7'), findsOneWidget);
   });
 
   testWidgets('a student continues after an accepted sentence', (tester) async {

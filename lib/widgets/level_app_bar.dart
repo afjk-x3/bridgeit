@@ -4,9 +4,19 @@ import '../theme/app_theme.dart';
 import 'journey_sheet.dart';
 
 /// The bar on every level screen: back, the level's name and the map icon.
-AppBar levelAppBar(BuildContext context, int level, String title) {
+/// [kicker] replaces the "LEVEL n" line; [dark] gives a navy bar.
+AppBar levelAppBar(
+  BuildContext context,
+  int level,
+  String title, {
+  String? kicker,
+  bool journey = true,
+  bool dark = false,
+}) {
   return AppBar(
     automaticallyImplyLeading: false,
+    backgroundColor: dark ? AppColors.primary : null,
+    foregroundColor: dark ? AppColors.card : null,
     leadingWidth: 72,
     leading: const Padding(
       padding: EdgeInsets.only(left: 16),
@@ -17,7 +27,7 @@ AppBar levelAppBar(BuildContext context, int level, String title) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'LEVEL $level',
+          kicker ?? 'LEVEL $level',
           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
         ),
         Text(
@@ -26,8 +36,12 @@ AppBar levelAppBar(BuildContext context, int level, String title) {
         ),
       ],
     ),
-    actions: const [
-      Padding(padding: EdgeInsets.only(right: 16), child: JourneyButton()),
+    actions: [
+      if (journey)
+        const Padding(
+          padding: EdgeInsets.only(right: 16),
+          child: JourneyButton(),
+        ),
     ],
   );
 }

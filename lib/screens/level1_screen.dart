@@ -85,7 +85,10 @@ class _Level1ScreenState extends State<Level1Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: levelAppBar(context, 1, 'Conjunction Theme Song'),
+      appBar: levelAppBar(context, 1, switch (_step) {
+        _Step.matchIntro || _Step.match || _Step.done => 'MatchIt',
+        _ => 'Conjunction Theme Song',
+      }),
       body: SafeArea(
         child: Stack(
           fit: StackFit.expand,
@@ -423,7 +426,7 @@ class _SongIntro extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: FilledButton.icon(
             icon: const Icon(Icons.play_arrow),
-            label: const Text('PLAY THE SONG'),
+            label: const Text('Play the song'),
             onPressed: onPlay,
           ),
         ),

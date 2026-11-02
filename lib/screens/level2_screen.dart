@@ -303,7 +303,18 @@ class _Level2ScreenState extends State<Level2Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: levelAppBar(context, 2, 'Building Bridges'),
+      appBar: switch (_step) {
+        // The story and the level's end are not about one bridge.
+        _Step.story ||
+        _Step.done => levelAppBar(context, 2, 'Building Bridges'),
+        _ => levelAppBar(
+          context,
+          2,
+          _step == _Step.build ? 'Building Bridges' : 'Strengthen the bridge',
+          kicker:
+              'LEVEL 2 · BRIDGE ${_index + 1} OF ${_content.bridges.length}',
+        ),
+      },
       body: SafeArea(
         child: switch (_step) {
           _Step.story => _buildStory(),
@@ -389,28 +400,16 @@ class _Level2ScreenState extends State<Level2Screen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        'BRIDGE ${_index + 1} OF ${_content.bridges.length}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1,
-                        ),
+                  if (_round.wrongCount > 0 && !_round.isBroken)
+                    Text(
+                      '${_content.maxWrongAnswers - _round.wrongCount} '
+                      'tries left',
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
                       ),
-                      const Spacer(),
-                      if (_round.wrongCount > 0 && !_round.isBroken)
-                        Text(
-                          '${_content.maxWrongAnswers - _round.wrongCount} '
-                          'tries left',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                    ],
-                  ),
+                    ),
                   const SizedBox(height: 8),
                   _scene(
                     gap: BridgeGap(

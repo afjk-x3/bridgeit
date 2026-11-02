@@ -89,7 +89,12 @@ class _Level3ScreenState extends State<Level3Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: levelAppBar(context, 3, 'Travelogue'),
+      appBar: levelAppBar(
+        context,
+        3,
+        'Travelogue',
+        journey: _step != _Step.ending,
+      ),
       body: SafeArea(child: _buildStep()),
     );
   }
@@ -373,7 +378,9 @@ class _Level3ScreenState extends State<Level3Screen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SendAnswersButton(),
+                  const SendAnswersButton(
+                    label: 'Send my answers to my teacher',
+                  ),
                   const SizedBox(height: 10),
                   OutlinedButton(
                     onPressed: () => Navigator.maybePop(context),

@@ -162,7 +162,8 @@ void main() {
     expect(result['sentences'], 5);
     expect(result['conjunctions'], ['and', 'but', 'yet', 'so']);
     expect(result['spellingWarnings'], 0);
-    expect(find.text('Send my answers'), findsOneWidget);
+    expect(find.text('Send my answers to my teacher'), findsOneWidget);
+    expect(find.byTooltip('Journey'), findsNothing);
 
     await _tap(tester, 'Back to levels');
     expect(find.text('Choose a level'), findsOneWidget);

@@ -31,7 +31,7 @@ Future<void> _openLevel(
   await openMenu(tester);
   await tester.tap(find.text('Conjunction Theme Song'));
   await tester.pumpAndSettle();
-  await tester.tap(find.text('PLAY THE SONG'));
+  await tester.tap(find.text('Play the song'));
   await tester.pumpAndSettle();
 }
 
@@ -121,7 +121,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Conjunction Theme Song'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('PLAY THE SONG'));
+    await tester.tap(find.text('Play the song'));
     await tester.pumpAndSettle();
     expect(find.text('1/3'), findsOneWidget);
 
@@ -131,7 +131,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Conjunction Theme Song'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('PLAY THE SONG'));
+    await tester.tap(find.text('Play the song'));
     await tester.pumpAndSettle();
     await _tapText(tester, 'Next');
     expect(find.text('Yes!'), findsOneWidget);
@@ -277,7 +277,7 @@ void main() {
     await openMenu(tester);
     await tester.tap(find.text('Conjunction Theme Song'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('PLAY THE SONG'));
+    await tester.tap(find.text('Play the song'));
     await tester.pumpAndSettle();
     await _reachMatchIt(tester);
     await _placeAllRight(tester);
@@ -296,7 +296,7 @@ void main() {
     await openMenu(tester);
     await tester.tap(find.text('Conjunction Theme Song'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('PLAY THE SONG'));
+    await tester.tap(find.text('Play the song'));
     await tester.pumpAndSettle();
     await _reachMatchIt(tester);
     await _placeAllRight(tester);
@@ -305,6 +305,15 @@ void main() {
     await _tapText(tester, 'Send my answers');
 
     expect(find.text("Couldn't send your answers. Try again."), findsOneWidget);
+  });
+
+  testWidgets('the header reads MatchIt on the MatchIt steps', (tester) async {
+    await _openLevel(tester);
+    await _reachMatchIt(tester);
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('MatchIt')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('MatchIt fits a 360x640 phone', (tester) async {

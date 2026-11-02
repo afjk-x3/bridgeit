@@ -6,7 +6,9 @@ import '../report/answer_sender.dart';
 
 /// Builds the answer report and opens the share sheet.
 class SendAnswersButton extends StatefulWidget {
-  const SendAnswersButton({super.key});
+  const SendAnswersButton({super.key, this.label = 'Send my answers'});
+
+  final String label;
 
   @override
   State<SendAnswersButton> createState() => _SendAnswersButtonState();
@@ -35,7 +37,7 @@ class _SendAnswersButtonState extends State<SendAnswersButton> {
     return FilledButton.icon(
       onPressed: _sending ? null : _send,
       icon: const Icon(Icons.send),
-      label: const Text('Send my answers'),
+      label: Text(widget.label),
     );
   }
 }
