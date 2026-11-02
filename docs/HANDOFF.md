@@ -1,6 +1,45 @@
-# Handoff: v2 redesign (1 November 2026)
+# Handoff: v2 redesign
 
-Context for picking up this work in a new session. Read this first, then [PRD.md](PRD.md) (client view) and [DEV-PRD.md](DEV-PRD.md) (build plan).
+Context for picking up this work in a new session. Read the latest session below first, then the older notes, [PRD.md](PRD.md) (client view) and [DEV-PRD.md](DEV-PRD.md) (build plan).
+
+## Latest session: 3 November 2026
+
+**Done:** all 13 tasks of [superpowers/plans/2026-11-03-review-fixes.md](superpowers/plans/2026-11-03-review-fixes.md) (spec [design-review/DECISIONS.md](design-review/DECISIONS.md)), one commit per task, `a0f3310`–`a368443` on `v2`. The release APK was walked Level 1 → Ending on the emulator and `docs/design-review/pairs/` and `sheet-1..4.png` were refreshed (steps 16 and 17 no longer exist). Every deviation from the plan is a `Ruling:` line in the git-ignored ledger `.superpowers/sdd/2026-11-03-review-fixes/progress.md`.
+
+**Next step:** client task 10 when their files arrive on 7 November; the four deferred minors below if time allows.
+
+**State of `v2`:**
+- `flutter analyze` is clean and 298 tests pass. Not pushed since `077a8ac`; the owner pushes only when asked.
+- **Still uncommitted:** this file, `docs/art-review/`, and the old reverted grip-hand spec and plan in `docs/superpowers/`. Left for the owner to decide.
+- The map is rebuilt (`lib/widgets/place_map.dart`, icons in `assets/images/places/icons/`); `assets/images/map.svg` is gone, but `docs/DEV-PRD.md` and `docs/art-review/BRIEF.md` still mention it. `Place.pinX`/`pinY` are no longer read.
+- Bridge clauses now sit on the deck in two lines at most. The current clauses (23 characters at most) fit; check the client's longer sentences when they arrive, since longer ones end in "…".
+- The MatchIt fit test loads real Nunito: the test font draws square glyphs, which makes the function chips about twice as tall as on a phone.
+
+**Review:** a fresh reviewer checked the whole branch: no Critical findings, and one Important finding (long place names were cut at 3 lines on the map), fixed in `a368443`. Deferred minors:
+- When a conjunction has no MatchIt function, the hint reads "'for'  Another example: …".
+- The checklist's capital and end-mark ticks fail when the sentence starts or ends with a quote mark.
+- The map doesn't scroll to follow the car while it drives.
+- `saveLevel1Plays` is not awaited in the song's `onCompleted`.
+
+These calls are left to the owner: the map road has no centre dashes and the car doesn't turn with the road; the Level 2 header copy; clauses longer than two lines end in "…" on the deck.
+
+**Wireframes v3** (Design canvas): https://claude.ai/artifact/Q2sTzJQrY9WSmuxZHLCU5w, version 40, 20 boards. Local source is the session scratchpad `v3/project/*.dc.html`; a new session should read the boards from the artifact (`Artifact` action `read` with `path`). The owner edits the canvas too: always read the latest version before publishing. The owner asked to remove the 10 extra boards drawn for app-only steps; don't redraw them unasked.
+
+**Design review:** DeepSeek, Opencode and Gemini reviewed `docs/design-review/pairs/` (app left, wireframe right). Summary and accepted fixes are in DECISIONS.md. Wireframe changes listed there are **not approved yet**.
+
+**Things learned this session:**
+- On the emulator, use the **release** build (`flutter build apk --release`). The debug build freezes on the first launch of a freshly booted emulator, which looks like a crash.
+- `run-as` only works with the debug build, so prefs can't be injected into the release build; walk the app as a student instead (unlock codes `BRIDGE2`, `BRIDGE3`).
+- `uiautomator dump` fails while the montage animates; tap its buttons by position.
+- The emulator ran out of storage once; `adb uninstall com.bridgeit.bridgeit` then install fixed it (wipes saved progress).
+- Button `textStyle` in the theme must set `fontFamily: 'Nunito'`, or buttons fall back to the system font.
+- `node` is available; Python is not. Long Node scripts are safer written to a file than passed through a Bash heredoc.
+
+**Owner preferences:** no Claude attribution in commits; commit and push only when asked; the guide stays small at the wheel of the blue sedan (head inside the front window); pieces carry their comma (", for"); main buttons navy with white text; Ending follows the client's layout and keeps its header. Write a handoff like this one before the owner's usage limit runs out.
+
+---
+
+# Older notes (1 November 2026)
 
 ## Where things stand
 
