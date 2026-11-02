@@ -121,9 +121,18 @@ void main() {
     expect(find.text('Building Bridges'), findsOneWidget);
     expect(find.byTooltip('Journey'), findsOneWidget);
     expect(
-      find.text('${first.left}, _____ ${first.right}', findRichText: true),
+      find.bySemanticsLabel('${first.left}, _____ ${first.right}'),
       findsOneWidget,
     );
+    for (final clause in [first.left, first.right]) {
+      expect(
+        find.descendant(
+          of: find.byType(BridgeScene),
+          matching: find.text(clause),
+        ),
+        findsOneWidget,
+      );
+    }
     expect(_crossEnabled(tester), isFalse);
     for (final word in fanboys) {
       expect(_enabled(tester, word), isTrue, reason: word);
@@ -625,12 +634,12 @@ void main() {
       expect(find.bySemanticsLabel(label), findsOneWidget);
       expect(find.text('One beam.'), findsOneWidget);
       expect(
-        find.text(
+        find.bySemanticsLabel(
           'It was raining, '
           '${state == BridgeState.built ? 'but' : '_____'} we went out.',
-          findRichText: true,
         ),
-        findsOneWidget,
+        state == BridgeState.broken ? findsNothing : findsOneWidget,
+        reason: '$state',
       );
       expect(
         find.byKey(const ValueKey('scene-gap')),

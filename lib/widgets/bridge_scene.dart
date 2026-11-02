@@ -15,7 +15,7 @@ const _labels = {
 
 // Scene geometry as fractions of the panel, shared by painter and widgets.
 const _deck = 0.58; // top of the cliffs and of the bridge deck (of height)
-const _deckThickness = 0.05; // deck plank height (of height)
+const _deckThickness = 0.2; // deck slab height, clauses written on it
 const _waterTop = 0.8; // top of the river (of height)
 const _towerX = 0.17; // left tower center (of width); the right one mirrors it
 const _towerTop = 0.32; // top of the towers (of height)
@@ -29,8 +29,8 @@ final _outline = Paint()
   ..style = PaintingStyle.stroke
   ..strokeWidth = 2;
 
-/// A suspension bridge over water, with a gap in it. The sentence card, the
-/// [gap] drop target and the vehicle are widgets over a painted backdrop. The
+/// A suspension bridge over water, with a gap in it. The clauses on the deck,
+/// the [gap] drop target and the vehicle are widgets over a painted backdrop. The
 /// student's [foundations] sit under the scene, so long sentences can wrap,
 /// and the vehicle drives to the far cliff when [crossed].
 class BridgeScene extends StatelessWidget {
@@ -68,6 +68,13 @@ class BridgeScene extends StatelessWidget {
   Widget build(BuildContext context) {
     final complete = state == BridgeState.built;
     final word = placedWord;
+    // The piece carries the comma, so the deck shows the clause without it.
+    final clause = left.endsWith(',')
+        ? left.substring(0, left.length - 1)
+        : left;
+    final sentence = complete && word != null
+        ? '$clause, $word $right'
+        : '$clause, _____ $right';
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
@@ -114,21 +121,31 @@ class BridgeScene extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Positioned(
-                            left: 8,
-                            right: 8,
-                            top: 8,
-                            child: _SentenceCard(
-                              left: left,
-                              right: right,
-                              word: complete ? word : null,
-                            ),
-                          ),
                           if (state != BridgeState.broken)
                             Positioned(
                               left: 0,
                               right: 0,
-                              top: h * _deck - _gapSize.height / 2,
+                              top: h * _deck,
+                              height: h * _deckThickness,
+                              child: Semantics(
+                                label: sentence,
+                                excludeSemantics: true,
+                                child: Row(
+                                  children: [
+                                    _DeckClause(clause, width: w * _deckEnd),
+                                    const Spacer(),
+                                    _DeckClause(right, width: w * _deckEnd),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          if (state != BridgeState.broken)
+                            Positioned(
+                              left: 0,
+                              right: 0,
+                              top:
+                                  h * (_deck + _deckThickness / 2) -
+                                  _gapSize.height / 2,
                               child: Center(
                                 child: SizedBox.fromSize(
                                   size: _gapSize,
@@ -172,53 +189,35 @@ class BridgeScene extends StatelessWidget {
   }
 }
 
-/// Both clauses in one card, with the missing conjunction as an inline blank
-/// that shows the placed [word] once the bridge is complete.
-class _SentenceCard extends StatelessWidget {
-  const _SentenceCard({required this.left, required this.right, this.word});
+/// One clause written on its half of the deck slab.
+class _DeckClause extends StatelessWidget {
+  const _DeckClause(this.text, {required this.width});
 
-  final String left;
-  final String right;
-  final String? word;
+  final String text;
+  final double width;
 
   @override
-  Widget build(BuildContext context) {
-    final word = this.word;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            // The deck leaves the comma to the piece; the sentence keeps it.
-            TextSpan(text: left.endsWith(',') ? '$left ' : '$left, '),
-            word == null
-                ? const TextSpan(
-                    text: '_____',
-                    style: TextStyle(color: AppColors.primary),
-                  )
-                : TextSpan(
-                    text: word,
-                    style: const TextStyle(
-                      color: AppColors.cliff,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-            TextSpan(text: ' $right'),
-          ],
-        ),
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: AppColors.ink,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
+  Widget build(BuildContext context) => SizedBox(
+    width: width,
+    child: Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: AppColors.card,
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            height: 1.15,
+          ),
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
 class _PlacedWord extends StatelessWidget {
@@ -416,10 +415,9 @@ class _ScenePainter extends CustomPainter {
     canvas.translate(pivot.dx, pivot.dy);
     canvas.rotate(angle);
     canvas.translate(-pivot.dx, -pivot.dy);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(3)),
-      paint,
-    );
+    final slab = RRect.fromRectAndRadius(rect, const Radius.circular(3));
+    canvas.drawRRect(slab, paint);
+    canvas.drawRRect(slab, _outline);
     canvas.restore();
   }
 
