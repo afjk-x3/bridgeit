@@ -11,7 +11,10 @@ Context for picking up this work in a new session. Read the latest session below
 - Level 2's story shows the broken bridge.
 - Start and Welcome use the regenerated `bridge_strip.svg`.
 - Level 3 "crossed" adds `bridge_strip_crossed.svg`.
-- `ending.svg` has the bridge in place of the road.
+- The Ending keeps its road and car; the owner preferred it to the bridge.
+- Wrong tries: the first cracks the left tower support, the second the right, and the third collapses the deck with the car falling into the river.
+- The Level 3 "crossed" step dropped "Tap the map to choose which place we shall go."
+- The Wireframes v3 canvas doesn't show any of these three changes yet.
 
 Regenerate the art with `node tool/bridge_art/make_assets.js`. Level 2 widget tests turn on reduce-motion in their `_open` helper, because the looping shake never lets `pumpAndSettle` settle. On the emulator, `uiautomator dump` fails while the deck shakes, so tap Level 2's Strengthen, text box and Submit by position.
 
