@@ -50,7 +50,7 @@ class BridgeGap extends StatelessWidget {
               ),
             ),
             child: Text(
-              placed ?? '?',
+              placed == null ? '?' : ', $placed',
               style: const TextStyle(
                 color: AppColors.ink,
                 fontSize: 20,

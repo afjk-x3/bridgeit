@@ -17,28 +17,33 @@ class HintCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, color) = switch (correct) {
-      true => (Icons.check, AppColors.correct),
-      false => (Icons.lightbulb, AppColors.bridge),
-      null => (Icons.touch_app, AppColors.primary),
+      true => (Icons.check, AppColors.teal),
+      false => (Icons.lightbulb_outline, AppColors.accent),
+      null => (Icons.touch_app, AppColors.ink),
     };
     return Semantics(
       liveRegion: true,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
         decoration: BoxDecoration(
-          color: correct == null
-              ? AppColors.card
-              : color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color, width: 2),
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(10),
+          border: Border(left: BorderSide(color: color, width: 5)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color),
+            Icon(icon, color: correct == null ? AppColors.ink : color),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  height: 1.35,
+                ),
+              ),
             ),
           ],
         ),

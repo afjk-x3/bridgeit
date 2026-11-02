@@ -12,6 +12,7 @@ import '../widgets/level_clock.dart';
 import '../widgets/level_done_panel.dart';
 import '../widgets/match_it_board.dart';
 import '../widgets/song_player.dart';
+import '../widgets/speech_bubble.dart';
 
 /// How long the last lyric line lasts when there is no audio to time it.
 const _lastLineMs = 6000;
@@ -86,7 +87,7 @@ class _Level1ScreenState extends State<Level1Screen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (_step != _Step.match && _step != _Step.done)
+            if (_step == _Step.song || _step == _Step.ready)
               SvgPicture.asset(
                 'assets/images/scenes/drive.svg',
                 fit: BoxFit.cover,
@@ -101,14 +102,7 @@ class _Level1ScreenState extends State<Level1Screen> {
   }
 
   Widget _buildStep() => switch (_step) {
-    _Step.intro => _StoryCard(
-      text:
-          "Let's turn on some music, shall we?\n\nListen to the "
-          "'CONJUNCTION THEME SONG' three times before you can answer the "
-          'following activity.',
-      button: 'PLAY THE SONG',
-      onPressed: () => _go(_Step.song),
-    ),
+    _Step.intro => _SongIntro(onPlay: () => _go(_Step.song)),
     _Step.song => _buildSong(),
     _Step.ready => _StoryCard(
       text:
@@ -189,23 +183,51 @@ class _Level1ScreenState extends State<Level1Screen> {
                     ),
                   ),
                 const SizedBox(height: 8),
-                if (_required > 0) ...[
-                  _PlaysRoad(plays: _plays, required: _required),
-                  Text(
-                    '${_plays.clamp(0, _required)}/$_required',
-                    key: const ValueKey('play-counter'),
-                    style: text.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                if (_required > 0)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _PlaysRoad(plays: _plays, required: _required),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        '${_plays.clamp(0, _required)}/$_required',
+                        key: const ValueKey('play-counter'),
+                        style: text.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (_songEnded && _plays < _required) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                    decoration: const BoxDecoration(
+                      color: AppColors.note,
+                      border: Border(
+                        left: BorderSide(color: AppColors.accent, width: 4),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.replay, color: AppColors.ink),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'The song has ended. Tap play to hear it again: '
+                            '${_required - _plays} more to go.',
+                            key: const ValueKey('song-ended'),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-                if (_songEnded && _plays < _required)
-                  Text(
-                    'The song has ended. Tap play to hear it again: '
-                    '${_required - _plays} more to go.',
-                    key: const ValueKey('song-ended'),
-                    style: text.titleSmall,
-                  ),
               ],
             ),
           ),
@@ -220,7 +242,7 @@ class _Level1ScreenState extends State<Level1Screen> {
   }
 }
 
-/// A car that moves along a road with each full play of the song.
+/// A car that moves one numbered stop along a road with each full play.
 class _PlaysRoad extends StatelessWidget {
   const _PlaysRoad({required this.plays, required this.required});
 
@@ -230,25 +252,158 @@ class _PlaysRoad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 36,
+      height: 44,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          Container(height: 4, color: AppColors.primary),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 8,
+            child: Container(
+              height: 6,
+              decoration: BoxDecoration(
+                color: AppColors.lightTeal,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ),
+          for (var stop = 1; stop <= required; stop++)
+            Align(
+              alignment: Alignment(stop / required * 2 - 1, 1),
+              child: Container(
+                width: 22,
+                height: 22,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.card,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.ink, width: 2),
+                ),
+                child: Text(
+                  '$stop',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
           AnimatedAlign(
             duration: const Duration(milliseconds: 600),
             curve: Curves.easeInOut,
             alignment: Alignment(
               plays.clamp(0, required) / required * 2 - 1,
-              1,
+              -1,
             ),
-            child: const Padding(
-              padding: EdgeInsets.only(bottom: 2),
-              child: Icon(Icons.directions_car, color: AppColors.vehicle),
+            child: SvgPicture.asset(
+              'assets/images/car_small.svg',
+              width: 40,
+              excludeFromSemantics: true,
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Before the song: the guide in her car and the three-plays rule.
+class _SongIntro extends StatelessWidget {
+  const _SongIntro({required this.onPlay});
+
+  final VoidCallback onPlay;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 236,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: SvgPicture.asset(
+                          'assets/images/scenes/road_strip.svg',
+                          fit: BoxFit.fill,
+                          height: 70,
+                          excludeFromSemantics: true,
+                        ),
+                      ),
+                      Positioned(
+                        left: 12,
+                        bottom: 18,
+                        child: SvgPicture.asset(
+                          'assets/images/girl_drive.svg',
+                          width: 200,
+                          semanticsLabel: 'Your guide, driving her car',
+                        ),
+                      ),
+                      const Positioned(
+                        left: 196,
+                        right: 16,
+                        top: 44,
+                        child: SpeechBubble(
+                          "Let's turn on some music, shall we?",
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.ink,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: 'Listen to the '),
+                        TextSpan(
+                          text: 'CONJUNCTION THEME SONG',
+                          style: TextStyle(color: AppColors.lightTeal),
+                        ),
+                        TextSpan(
+                          text:
+                              ' three times before you can answer the '
+                              'following activity.',
+                        ),
+                      ],
+                    ),
+                    style: TextStyle(
+                      color: AppColors.card,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: FilledButton.icon(
+            icon: const Icon(Icons.play_arrow),
+            label: const Text('PLAY THE SONG'),
+            onPressed: onPlay,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -306,64 +461,103 @@ class _MatchItIntro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    final tealButton = FilledButton.styleFrom(
-      backgroundColor: AppColors.lightTeal,
-      foregroundColor: AppColors.ink,
-    );
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              color: AppColors.card,
-              margin: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      'MatchIt',
-                      textAlign: TextAlign.center,
-                      style: text.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    SvgPicture.asset(
+                      'assets/images/girl_wave.svg',
+                      height: 170,
+                      semanticsLabel: 'Your guide, waving',
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Instructions:\nDrag the right function to its '
-                      'corresponding coordinating conjunction, or tap the '
-                      'function and then its slot.\n\nAre you ready?',
-                      textAlign: TextAlign.center,
-                      style: text.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 20),
+                        child: SpeechBubble("Let's see what you learned!"),
                       ),
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.ink, width: 3),
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'MatchIt',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'INSTRUCTIONS',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Drag the right function to its corresponding '
+                        'coordinating conjunction, or tap the function and '
+                        'then its slot.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          height: 1.35,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'Are you ready?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            FilledButton(
-              style: tealButton,
-              onPressed: onYes,
-              child: const Text('Yes!'),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              style: tealButton,
-              onPressed: onListen,
-              child: const Text('No. Let me listen to the song again.'),
-            ),
-          ],
+          ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              FilledButton(onPressed: onYes, child: const Text('Yes!')),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.replay),
+                onPressed: onListen,
+                label: const Text('No. Let me listen to the song again.'),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

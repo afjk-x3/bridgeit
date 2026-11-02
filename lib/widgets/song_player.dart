@@ -169,9 +169,19 @@ class _SongPlayerState extends State<SongPlayer> with WidgetsBindingObserver {
               style: IconButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.card,
+                // An orange ring and a replay icon once the song has ended.
+                side: _ended
+                    ? const BorderSide(color: AppColors.accent, width: 3)
+                    : null,
               ),
               tooltip: _playing ? 'Pause' : 'Play',
-              icon: Icon(_playing ? Icons.pause : Icons.play_arrow),
+              icon: Icon(
+                _playing
+                    ? Icons.pause
+                    : _ended
+                    ? Icons.replay
+                    : Icons.play_arrow,
+              ),
               onPressed: _loading ? null : (_playing ? _pause : _play),
             ),
             const SizedBox(width: 8),

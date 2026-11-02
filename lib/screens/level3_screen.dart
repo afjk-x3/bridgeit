@@ -96,8 +96,11 @@ class _Level3ScreenState extends State<Level3Screen> {
 
   Widget _buildStep() => switch (_step) {
     _Step.tollGate => _Story(
-      picture: 'assets/images/girl_drive.svg',
-      pictureLabel: 'Your guide, driving',
+      scene: true,
+      picture: 'assets/images/scenes/toll_gate.svg',
+      pictureLabel:
+          'Through the windshield, a toll booth with an attendant handing '
+          'out a ticket, and a striped barrier across the lane',
       lines: const [
         "We've finally arrived at the toll gate. Are you ready to pass "
             'through?',
@@ -147,20 +150,39 @@ class _Level3ScreenState extends State<Level3Screen> {
   };
 
   Widget _buildMap() {
-    final text = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            "LET'S EXPLORE TOGETHER!",
-            textAlign: TextAlign.center,
-            style: text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const Text(
-            'Choose a place you want to go.',
-            textAlign: TextAlign.center,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.ink,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Column(
+              children: [
+                Text(
+                  "LET'S EXPLORE TOGETHER!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.card,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  'Choose a place you want to go.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.sky,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Expanded(
@@ -178,78 +200,234 @@ class _Level3ScreenState extends State<Level3Screen> {
   }
 
   Widget _buildInstructions() {
-    final text = Theme.of(context).textTheme;
     final rules = _content.travelogue;
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Travelogue Entry',
-          textAlign: TextAlign.center,
-          style: text.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          color: AppColors.card,
-          margin: EdgeInsets.zero,
-          child: Padding(
+        Expanded(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: Text(
-              'Instructions:\n\nWrite a travelogue entry describing your '
-              'travelling experience. Include where you went, the activities '
-              'you enjoyed, the sights you saw, how you felt during the trip, '
-              'and the lessons or memories you took away.',
-              textAlign: TextAlign.center,
-              style: text.titleMedium,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/girl_journal.svg',
+                      height: 170,
+                      semanticsLabel: 'Your guide, holding her journal',
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: SpeechBubble(
+                          'Your entry must have ${rules.minSentences} to '
+                          '${rules.maxSentences} sentences, with at least '
+                          '${rules.minConjunctions} coordinating conjunctions '
+                          'joining clauses.',
+                          strong: true,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Card(
+                  margin: EdgeInsets.zero,
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Travelogue Entry',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'INSTRUCTIONS',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Write a travelogue entry describing your '
+                          'travelling experience. Include where you went, the '
+                          'activities you enjoyed, the sights you saw, how you '
+                          'felt during the trip, and the lessons or memories '
+                          'you took away.',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        SpeechBubble(
-          'Your entry must have ${rules.minSentences} to '
-          '${rules.maxSentences} sentences, with at least '
-          '${rules.minConjunctions} coordinating conjunctions joining clauses.',
-        ),
-        const SizedBox(height: 8),
-        FilledButton(
-          onPressed: () => _go(_Step.travelogue),
-          child: const Text('Next'),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: FilledButton(
+            onPressed: () => _go(_Step.travelogue),
+            child: const Text('Next'),
+          ),
         ),
       ],
     );
   }
 
   Widget _buildEnding() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    return Stack(
+      fit: StackFit.expand,
       children: [
         SvgPicture.asset(
-          'assets/images/girl_wave.svg',
-          height: 240,
-          semanticsLabel: 'Your guide, waving',
+          'assets/images/scenes/ending.svg',
+          fit: BoxFit.cover,
+          alignment: Alignment.bottomCenter,
+          excludeFromSemantics: true,
         ),
-        const SizedBox(height: 12),
-        const SpeechBubble(
-          'Congratulations, Bridge Builder! We have finally reached the end '
-          'of our journey. I hope you had a fantastic trip and learned a lot '
-          'along the way!',
-        ),
-        const SpeechBubble(
-          'May this adventure inspire you to build strong, coherent sentences '
-          'using coordinating conjunctions wherever your writing takes you.',
-        ),
-        const SpeechBubble('Thank you for traveling with me!'),
-        const SizedBox(height: 8),
-        const SendAnswersButton(),
-        const SizedBox(height: 12),
-        OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(56),
-          ),
-          onPressed: () => Navigator.maybePop(context),
-          child: const Text('Back to levels'),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/logo.svg',
+                      height: 80,
+                      semanticsLabel: 'BridgeIt logo',
+                    ),
+                    const SizedBox(height: 8),
+                    const _LevelSigns(),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/girl_wave.svg',
+                          width: 130,
+                          semanticsLabel: 'Your guide, waving goodbye',
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SpeechBubble(
+                                'Congratulations, Bridge Builder! We have '
+                                'finally reached the end of our journey. I '
+                                'hope you had a fantastic trip and learned a '
+                                'lot along the way!',
+                              ),
+                              SpeechBubble(
+                                'May this adventure inspire you to build '
+                                'strong, coherent sentences using '
+                                'coordinating conjunctions wherever your '
+                                'writing takes you.',
+                              ),
+                              SpeechBubble(
+                                'Thank you for traveling with me!',
+                                strong: true,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              decoration: const BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+                border: Border(top: BorderSide(color: AppColors.ink, width: 3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SendAnswersButton(),
+                  const SizedBox(height: 10),
+                  OutlinedButton(
+                    onPressed: () => Navigator.maybePop(context),
+                    child: const Text('Back to levels'),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+}
+
+/// Three small road signs, one per finished level.
+class _LevelSigns extends StatelessWidget {
+  const _LevelSigns();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Level 1, Level 2 and Level 3 complete',
+      excludeSemantics: true,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (final level in [1, 2, 3])
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.lightTeal,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: AppColors.ink, width: 2),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'LEVEL $level',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.check, size: 14, color: AppColors.ink),
+                      ],
+                    ),
+                  ),
+                  Container(width: 3, height: 10, color: AppColors.ink),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -261,6 +439,7 @@ class _Story extends StatelessWidget {
     required this.lines,
     required this.button,
     required this.onPressed,
+    this.scene = false,
   });
 
   final String picture;
@@ -269,27 +448,76 @@ class _Story extends StatelessWidget {
   final String button;
   final VoidCallback onPressed;
 
+  /// [picture] is a full-screen windshield scene, not the guide.
+  final bool scene;
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SvgPicture.asset(
-              picture,
-              height: 200,
-              semanticsLabel: pictureLabel,
+    if (scene) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          SvgPicture.asset(
+            picture,
+            fit: BoxFit.cover,
+            alignment: Alignment.bottomCenter,
+            semanticsLabel: pictureLabel,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final line in lines) SpeechBubble(line, strong: true),
+              ],
             ),
-            const SizedBox(height: 12),
-            for (final line in lines) SpeechBubble(line),
-            const SizedBox(height: 8),
-            FilledButton(onPressed: onPressed, child: Text(button)),
-          ],
+          ),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(120, 52),
+                backgroundColor: AppColors.lightTeal,
+                foregroundColor: AppColors.ink,
+                side: const BorderSide(color: AppColors.ink, width: 2),
+              ),
+              onPressed: onPressed,
+              child: Text(button),
+            ),
+          ),
+        ],
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SvgPicture.asset(
+                    picture,
+                    height: 220,
+                    semanticsLabel: pictureLabel,
+                  ),
+                  const SizedBox(height: 12),
+                  for (final (i, line) in lines.indexed)
+                    SpeechBubble(line, strong: i == lines.length - 1),
+                ],
+              ),
+            ),
+          ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: FilledButton(onPressed: onPressed, child: Text(button)),
+        ),
+      ],
     );
   }
 }

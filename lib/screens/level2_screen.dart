@@ -316,33 +316,49 @@ class _Level2ScreenState extends State<Level2Screen> {
   }
 
   Widget _buildStory() {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SvgPicture.asset(
-              'assets/images/girl_drive.svg',
-              height: 200,
-              semanticsLabel: 'Your guide, driving',
-            ),
-            const SizedBox(height: 12),
-            const SpeechBubble(
-              'Oh no! The bridge is broken, so I cannot cross.\n\nTo cross the '
-              'broken bridge, drag the right coordinating conjunction to '
-              'connect the two independent clauses from each side of the '
-              'bridge.',
-            ),
-            const SizedBox(height: 8),
-            FilledButton(
-              onPressed: () => setState(() => _step = _Step.build),
-              child: const Text('Next'),
-            ),
-          ],
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        SvgPicture.asset(
+          'assets/images/scenes/broken_bridge.svg',
+          fit: BoxFit.cover,
+          alignment: Alignment.bottomCenter,
+          semanticsLabel:
+              'Through the windshield, the bridge ahead has collapsed and a '
+              'barrier blocks the road.',
         ),
-      ),
+        const Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SpeechBubble(
+                'Oh no! The bridge is broken, so I cannot cross.',
+                strong: true,
+              ),
+              SpeechBubble(
+                'To cross the broken bridge, drag the right coordinating '
+                'conjunction to connect the two independent clauses from each '
+                'side of the bridge.',
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: FilledButton(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(120, 52),
+              backgroundColor: AppColors.lightTeal,
+              foregroundColor: AppColors.ink,
+              side: const BorderSide(color: AppColors.ink, width: 2),
+            ),
+            onPressed: () => setState(() => _step = _Step.build),
+            child: const Text('Next'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -350,7 +366,8 @@ class _Level2ScreenState extends State<Level2Screen> {
     // New bridge, new scene: the vehicle must not drive back.
     key: ValueKey(_index),
     state: _bridgeState,
-    left: '${_bridge.left},',
+    // While building, the comma is on the piece; after, it joins the clauses.
+    left: _step == _Step.build ? _bridge.left : '${_bridge.left},',
     right: _bridge.right,
     placedWord: _placed,
     gap: gap,
@@ -578,16 +595,20 @@ class _QuickFactsDialog extends StatelessWidget {
             for (final fact in facts)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: fact.word,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                child: Row(
+                  children: [
+                    _FactWord(fact.word),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _punctuation(fact.rule),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      TextSpan(text: ' (${_punctuation(fact.rule)})'),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             const SizedBox(height: 8),
@@ -612,10 +633,7 @@ class _QuickFactsDialog extends StatelessWidget {
           child: const Text('Close'),
         ),
         FilledButton(
-          style: FilledButton.styleFrom(
-            minimumSize: const Size(120, 44),
-            backgroundColor: AppColors.primary,
-          ),
+          style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
           onPressed: () => Navigator.pop(context, true),
           child: const Text('Write now'),
         ),

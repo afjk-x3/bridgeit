@@ -142,7 +142,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.descendant(of: _gap, matching: find.text(word)),
+      find.descendant(of: _gap, matching: find.text(', $word')),
       findsOneWidget,
     );
     expect(_crossEnabled(tester), isTrue);

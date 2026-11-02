@@ -75,10 +75,18 @@ class _WritingPanelState extends State<WritingPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const Padding(
+          padding: EdgeInsets.only(bottom: 6),
+          child: Text(
+            'Your sentence',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+          ),
+        ),
         TextField(
           controller: _controller,
-          minLines: 2,
+          minLines: 3,
           maxLines: 4,
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
           // The capital and spelling are the student's to get right.
           autocorrect: false,
           enableSuggestions: false,
@@ -87,20 +95,34 @@ class _WritingPanelState extends State<WritingPanel> {
           onChanged: (_) => setState(() => _problem = null),
           decoration: const InputDecoration(
             hintText: 'Write your own sentence here.',
-            filled: true,
-            fillColor: AppColors.card,
-            border: OutlineInputBorder(),
           ),
         ),
         if (problem != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              problem,
-              style: const TextStyle(
-                color: AppColors.wrong,
-                fontWeight: FontWeight.bold,
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+            decoration: const BoxDecoration(
+              color: AppColors.card,
+              border: Border(
+                left: BorderSide(color: AppColors.wrong, width: 5),
               ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.error_outline, color: AppColors.wrong),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    problem,
+                    style: const TextStyle(
+                      color: AppColors.ink,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         const SizedBox(height: 12),

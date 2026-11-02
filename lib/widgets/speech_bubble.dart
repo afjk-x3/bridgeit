@@ -2,24 +2,35 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// What the guide says.
+/// What the guide says. [strong] marks the last, key line in navy.
 class SpeechBubble extends StatelessWidget {
-  const SpeechBubble(this.text, {super.key});
+  const SpeechBubble(this.text, {super.key, this.strong = false});
 
   final String text;
+  final bool strong;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.lightTeal,
+    return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: strong ? AppColors.ink : AppColors.lightTeal,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(14),
+          topRight: Radius.circular(14),
+          bottomRight: Radius.circular(14),
+          bottomLeft: Radius.circular(4),
+        ),
+        border: Border.all(color: AppColors.ink, width: 2),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: strong ? AppColors.card : AppColors.ink,
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+          height: 1.35,
         ),
       ),
     );

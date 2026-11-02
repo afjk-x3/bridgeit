@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844">
+    <path d="M0 300 Q70 270 140 290 Q210 262 280 288 Q340 270 390 292 V310 H0Z" fill="#80C0A8" stroke="#183870" stroke-width="2"/>
+    <rect y="300" width="390" height="544" fill="#CDE6D8"/>
+    <path d="M150 300 H240 L390 560 V844 H0 V560Z" fill="#6F7F9E" stroke="#183870" stroke-width="3"/>
+    <path d="M195 520 V560 M195 590 V630" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+    <path d="M30 262 H360 L344 290 H46Z" fill="#183870"/>
+    <rect x="46" y="290" width="298" height="18" fill="#80C0A8" stroke="#183870" stroke-width="3"/>
+    <text x="195" y="282" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="18" letter-spacing="4" fill="#FFFFFF">TOLL</text>
+    <rect x="66" y="308" width="14" height="190" fill="#D88858" stroke="#183870" stroke-width="3"/>
+    <rect x="310" y="308" width="14" height="190" fill="#D88858" stroke="#183870" stroke-width="3"/>
+    <rect x="74" y="480" width="100" height="14" fill="#8A93A0" stroke="#183870" stroke-width="3"/>
+    <rect x="84" y="330" width="74" height="150" rx="6" fill="#FFFFFF" stroke="#183870" stroke-width="3"/>
+    <rect x="80" y="324" width="82" height="10" rx="3" fill="#309090" stroke="#183870" stroke-width="2"/>
+    <rect x="94" y="346" width="64" height="58" fill="#E6F5FF" stroke="#183870" stroke-width="2"/>
+    <path d="M100 404 V396 Q114 380 128 396 V404Z" fill="#309090" stroke="#183870" stroke-width="2"/>
+    <circle cx="114" cy="372" r="10" fill="#F4C7A1" stroke="#183870" stroke-width="2"/>
+    <path d="M124 392 L160 382" stroke="#309090" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="162" cy="381" r="5" fill="#F4C7A1" stroke="#183870" stroke-width="2"/>
+    <rect x="160" y="364" width="22" height="14" rx="2" transform="rotate(-10 171 371)" fill="#FFFFFF" stroke="#183870" stroke-width="2"/>
+    <path d="M100 420 H142 M100 434 H142" stroke="#80C0A8" stroke-width="3"/>
+    <rect x="160" y="436" width="12" height="46" fill="#183870"/>
+    <rect x="290" y="452" width="8" height="32" fill="#183870"/>
+    <path d="M168 448 H294" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
+    <path d="M168 448 H294" stroke="#D88858" stroke-width="10" stroke-dasharray="14 14"/>    <path d="M0 640 Q195 600 390 640 V844 H0Z" fill="#183870"/>
+    <path d="M120 646 Q195 628 270 646 V666 H120Z" fill="#309090"/>
+    <circle cx="195" cy="750" r="72" fill="none" stroke="#80C0A8" stroke-width="16"/>
+    <path d="M123 750 H267 M195 750 V822" stroke="#80C0A8" stroke-width="12"/>
+    <circle cx="195" cy="750" r="20" fill="#309090"/>
+    <path d="M110 844 Q118 750 142 712 L176 724 Q160 780 156 844Z" fill="#F4C7A1" stroke="#183870" stroke-width="3"/>
+    <path d="M280 844 Q272 750 248 712 L214 724 Q230 780 234 844Z" fill="#F4C7A1" stroke="#183870" stroke-width="3"/>
+  </svg>

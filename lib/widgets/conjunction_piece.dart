@@ -27,7 +27,7 @@ class ConjunctionPiece extends StatelessWidget {
           )
         : (
             selected ? AppColors.piece.withValues(alpha: 0.15) : AppColors.card,
-            AppColors.piece,
+            selected ? AppColors.piece : AppColors.ink,
             AppColors.ink,
           );
     return Container(
@@ -43,8 +43,9 @@ class ConjunctionPiece extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // The comma comes with the piece: it joins two full sentences.
           Text(
-            word,
+            ', $word',
             style: TextStyle(
               color: text,
               fontSize: 20,

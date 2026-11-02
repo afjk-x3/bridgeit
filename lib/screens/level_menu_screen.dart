@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../content/level_summaries.dart';
 import '../progress/progress_store.dart';
 import '../theme/app_theme.dart';
+import '../widgets/level_app_bar.dart';
 import '../widgets/unlock_code_form.dart';
 
 class LevelMenuScreen extends StatelessWidget {
@@ -24,15 +25,7 @@ class LevelMenuScreen extends StatelessWidget {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: IconButton.filled(
-                    icon: const Icon(Icons.arrow_back),
-                    tooltip: 'Back',
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppColors.lightTeal,
-                      foregroundColor: AppColors.ink,
-                    ),
-                    onPressed: () => Navigator.maybePop(context),
-                  ),
+                  child: const SquareBackButton(),
                 ),
                 SvgPicture.asset(
                   'assets/images/logo.svg',

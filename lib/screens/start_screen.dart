@@ -4,67 +4,175 @@ import 'package:provider/provider.dart';
 
 import '../progress/results_store.dart';
 import '../theme/app_theme.dart';
+import '../widgets/level_app_bar.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SvgPicture.asset(
-                'assets/images/logo.svg',
-                width: 260,
-                semanticsLabel: 'BridgeIt logo',
-              ),
-              const SizedBox(height: 24),
-              IconButton.filled(
-                tooltip: 'Play',
-                iconSize: 36,
-                style: IconButton.styleFrom(
-                  backgroundColor: AppColors.lightTeal,
-                  foregroundColor: AppColors.ink,
-                  minimumSize: const Size(112, 56),
-                ),
-                icon: const Icon(Icons.play_arrow),
-                onPressed: () => Navigator.pushNamed(
-                  context,
-                  context.read<ResultsStore>().profile == null
-                      ? '/welcome'
-                      : '/levels',
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => _showCredits(context),
-                child: const Text('Credits'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Future<void> _showCredits(BuildContext context) async {
     final credits = await DefaultAssetBundle.of(context)
         .loadString('assets/content/credits.txt');
     if (!context.mounted) return;
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Credits'),
-        content: SingleChildScrollView(child: Text(credits)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (_) => CreditsScreen(credits)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          const Positioned(left: 0, right: 0, bottom: 0, child: BridgeStrip()),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 160),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/logo.svg',
+                      width: 260,
+                      semanticsLabel: 'BridgeIt logo',
+                    ),
+                    const SizedBox(height: 32),
+                    Tooltip(
+                      message: 'Play',
+                      child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(140, 64),
+                          textStyle: const TextStyle(
+                            fontFamily: 'Nunito',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        icon: const Icon(Icons.play_arrow, size: 28),
+                        label: const Text('Play'),
+                        onPressed: () => Navigator.pushNamed(
+                          context,
+                          context.read<ResultsStore>().profile == null
+                              ? '/welcome'
+                              : '/levels',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(140, 48),
+                      ),
+                      onPressed: () => _showCredits(context),
+                      child: const Text('Credits'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The bridge with her car crossing it, along the bottom of a screen.
+class BridgeStrip extends StatelessWidget {
+  const BridgeStrip({super.key});
+
+  @override
+  Widget build(BuildContext context) => SvgPicture.asset(
+    'assets/images/scenes/bridge_strip.svg',
+    fit: BoxFit.fitWidth,
+    excludeFromSemantics: true,
+  );
+}
+
+/// The photo, music, word list and font sources, one card per group.
+class CreditsScreen extends StatelessWidget {
+  const CreditsScreen(this.credits, {super.key});
+
+  final String credits;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leadingWidth: 72,
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 16),
+          child: Center(child: SquareBackButton()),
+        ),
+        title: const Text(
+          'Credits',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+        ),
+      ),
+      body: Builder(
+        builder: (context) {
+          final groups = credits
+              .trim()
+              .split(RegExp(r'\n\s*\n'))
+              .where((g) => g.trim().isNotEmpty)
+              .map((g) => g.trim().split('\n'))
+              .toList();
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (groups.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      groups.first.join(' '),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                for (final group in groups.skip(1))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            group.first,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          for (final line in group.skip(1))
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                line,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.35,
+                                  color: AppColors.ink,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -10,9 +10,16 @@ class JourneyButton extends StatelessWidget {
   const JourneyButton({super.key});
 
   @override
-  Widget build(BuildContext context) => IconButton(
+  Widget build(BuildContext context) => IconButton.outlined(
     icon: const Icon(Icons.map),
     tooltip: 'Journey',
+    style: IconButton.styleFrom(
+      backgroundColor: AppColors.card,
+      foregroundColor: AppColors.ink,
+      fixedSize: const Size(48, 48),
+      side: const BorderSide(color: AppColors.ink, width: 2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
     onPressed: () => showModalBottomSheet<void>(
       context: context,
       builder: (_) => const JourneySheet(),

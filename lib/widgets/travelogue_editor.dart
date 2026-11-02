@@ -119,22 +119,34 @@ class _TravelogueEditorState extends State<TravelogueEditor> {
             enableSuggestions: false,
             textAlignVertical: TextAlignVertical.top,
             onChanged: _changed,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              height: 1.6,
+            ),
             decoration: const InputDecoration(
               hintText: 'Write your travelogue entry here.',
-              filled: true,
-              fillColor: AppColors.card,
-              border: OutlineInputBorder(),
             ),
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          'Sentences: ${result.sentenceCount} of '
-          '${rules.minSentences}–${rules.maxSentences}   ·   '
-          'Conjunctions: ${result.counted.length} of ${rules.minConjunctions}',
+        Row(
           key: const ValueKey('travelogue-counter'),
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          children: [
+            _Meter(
+              label:
+                  'Sentences: ${result.sentenceCount} of '
+                  '${rules.minSentences}–${rules.maxSentences}',
+              value: result.sentenceCount / rules.minSentences,
+            ),
+            const SizedBox(width: 8),
+            _Meter(
+              label:
+                  'Conjunctions: ${result.counted.length} of '
+                  '${rules.minConjunctions}',
+              value: result.counted.length / rules.minConjunctions,
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         FilledButton(
@@ -144,6 +156,45 @@ class _TravelogueEditorState extends State<TravelogueEditor> {
           child: const Text('Submit'),
         ),
       ],
+    );
+  }
+}
+
+/// One progress box under the journal: a label and a bar toward the minimum.
+class _Meter extends StatelessWidget {
+  const _Meter({required this.label, required this.value});
+
+  final String label;
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.ink, width: 2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 5),
+            LinearProgressIndicator(
+              value: value.clamp(0.0, 1.0),
+              minHeight: 8,
+              borderRadius: BorderRadius.circular(4),
+              color: AppColors.teal,
+              backgroundColor: AppColors.sky,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

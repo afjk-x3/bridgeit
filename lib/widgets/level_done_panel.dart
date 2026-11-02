@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../progress/progress_store.dart';
@@ -29,13 +30,27 @@ class _LevelDonePanelState extends State<LevelDonePanel> {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        const SizedBox(height: 24),
-        const Icon(Icons.check_circle, size: 72, color: AppColors.correct),
-        const SizedBox(height: 16),
+        SvgPicture.asset(
+          'assets/images/girl_wave.svg',
+          height: 200,
+          semanticsLabel: 'Your guide, waving',
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'LEVEL ${widget.level} COMPLETE',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 4),
         Text(
           'Level ${widget.level} done! Ask your teacher for the code.',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 24),
         const SendAnswersButton(),
@@ -50,9 +65,6 @@ class _LevelDonePanelState extends State<LevelDonePanel> {
           UnlockCodeForm(onUnlocked: (l) => setState(() => _unlocked = l)),
         const SizedBox(height: 12),
         OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(56),
-          ),
           onPressed: () => Navigator.maybePop(context),
           child: const Text('Back to levels'),
         ),

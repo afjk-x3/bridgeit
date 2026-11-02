@@ -3,8 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../progress/results_store.dart';
-import '../theme/app_theme.dart';
 import '../widgets/speech_bubble.dart';
+import 'start_screen.dart';
 
 const _maxFieldLength = 40;
 
@@ -38,22 +38,60 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SvgPicture.asset(
-                'assets/images/logo.svg',
-                height: 120,
-                semanticsLabel: 'BridgeIt logo',
-              ),
-              const SizedBox(height: 16),
-              if (_asking) _buildForm() else _buildGreeting(),
-            ],
+      body: Stack(
+        children: [
+          if (!_asking)
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: BridgeStrip(),
+            ),
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/logo.svg',
+                          height: 96,
+                          semanticsLabel: 'BridgeIt logo',
+                        ),
+                        const SizedBox(height: 12),
+                        if (_asking) _buildForm() else _buildGreeting(),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                  child: _asking
+                      ? FilledButton(
+                          onPressed: _submit,
+                          child: const Text(
+                            "Let's get started, Bridge Builder!",
+                          ),
+                        )
+                      : Align(
+                          alignment: Alignment.centerRight,
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(120, 52),
+                            ),
+                            onPressed: () => setState(() => _asking = true),
+                            child: const Text('Next'),
+                          ),
+                        ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -71,7 +109,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           children: [
             SvgPicture.asset(
               'assets/images/girl_wave.svg',
-              width: 150,
+              width: 130,
               semanticsLabel: 'Your guide, waving',
             ),
             const SizedBox(width: 8),
@@ -91,17 +129,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   SpeechBubble(
                     'Are you ready to build the bridges and connect the '
                     'clauses?',
+                    strong: true,
                   ),
                 ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        FilledButton(
-          onPressed: () => setState(() => _asking = true),
-          child: const Text('Next'),
-        ),
+        // Room for the bridge strip under the guide.
+        const SizedBox(height: 120),
       ],
     );
   }
@@ -112,15 +148,52 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SpeechBubble('Before we go, who is helping me today?'),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              SvgPicture.asset(
+                'assets/images/girl_journal.svg',
+                height: 180,
+                semanticsLabel: 'Your guide, holding her journal',
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 40),
+                  child: SpeechBubble('Before we go, who is helping me today?'),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
-          _field(_name, 'Your name', TextInputAction.next),
-          const SizedBox(height: 16),
-          _field(_section, 'Your section', TextInputAction.done),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: _submit,
-            child: const Text("Let's get started, Bridge Builder!"),
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _field(
+                    _name,
+                    'Your name',
+                    'e.g. Juan Dela Cruz',
+                    TextInputAction.next,
+                  ),
+                  const SizedBox(height: 8),
+                  _field(
+                    _section,
+                    'Your section',
+                    'e.g. Grade 8 - Rizal',
+                    TextInputAction.done,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Your teacher sees these with your answers.',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -130,21 +203,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _field(
     TextEditingController controller,
     String label,
+    String hint,
     TextInputAction action,
   ) {
-    return TextFormField(
-      controller: controller,
-      maxLength: _maxFieldLength,
-      textCapitalization: TextCapitalization.words,
-      textInputAction: action,
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: AppColors.card,
-        border: const OutlineInputBorder(),
-      ),
-      validator: (value) =>
-          value == null || value.trim().isEmpty ? 'Please fill this in.' : null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          maxLength: _maxFieldLength,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: action,
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          decoration: InputDecoration(hintText: hint),
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Please fill this in.'
+              : null,
+        ),
+      ],
     );
   }
 }

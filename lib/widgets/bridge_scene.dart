@@ -197,7 +197,8 @@ class _SentenceCard extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           children: [
-            TextSpan(text: '$left '),
+            // The deck leaves the comma to the piece; the sentence keeps it.
+            TextSpan(text: left.endsWith(',') ? '$left ' : '$left, '),
             word == null
                 ? const TextSpan(
                     text: '_____',

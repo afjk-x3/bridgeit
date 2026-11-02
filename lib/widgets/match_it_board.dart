@@ -82,20 +82,57 @@ class _MatchItBoardState extends State<MatchItBoard> {
         // Only the slots scroll: a scroll view around the tray would take the
         // vertical drags away from the functions.
         Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                for (final pair in widget.pairs)
-                  _SlotRow(
-                    conjunction: pair.conjunction,
-                    function: _round.placed[pair.conjunction],
-                    locked: _round.isLocked(pair.conjunction),
-                    wrong: _wrong.contains(pair.conjunction),
-                    armed: _selected != null,
-                    onDrop: (function) => _place(pair.conjunction, function),
-                    onTap: () => _tapSlot(pair.conjunction),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.ink, width: 3),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 84,
+                          child: Text(
+                            'Coordinating Conjunctions',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Functions',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-              ],
+                  for (final pair in widget.pairs)
+                    _SlotRow(
+                      conjunction: pair.conjunction,
+                      function: _round.placed[pair.conjunction],
+                      locked: _round.isLocked(pair.conjunction),
+                      wrong: _wrong.contains(pair.conjunction),
+                      armed: _selected != null,
+                      onDrop: (function) => _place(pair.conjunction, function),
+                      onTap: () => _tapSlot(pair.conjunction),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -157,12 +194,21 @@ class _SlotRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
-          SizedBox(
-            width: 72,
+          Container(
+            width: 84,
+            height: 48,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.ink,
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Text(
               conjunction,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: AppColors.card,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -249,7 +295,11 @@ class _FunctionChip extends StatelessWidget {
     child: Text(
       function,
       textAlign: TextAlign.center,
-      style: const TextStyle(color: AppColors.ink, fontSize: 13),
+      style: const TextStyle(
+        color: AppColors.ink,
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+      ),
     ),
   );
 
