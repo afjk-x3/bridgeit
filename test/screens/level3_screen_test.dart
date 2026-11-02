@@ -103,6 +103,26 @@ void main() {
     expect(find.text('Next'), findsNothing);
   });
 
+  testWidgets('the montage shows its place, progress and a way back to the '
+      'map', (tester) async {
+    await _reachMontage(tester);
+    final place = _content(tester).places.first;
+
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text(place.name)),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel('Photo 1 of ${place.pictures.length}'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Map'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text("LET'S EXPLORE TOGETHER!"), findsOneWidget);
+  });
+
   testWidgets('captions change and Next appears after one pass', (
     tester,
   ) async {

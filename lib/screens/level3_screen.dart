@@ -89,12 +89,14 @@ class _Level3ScreenState extends State<Level3Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: levelAppBar(
-        context,
-        3,
-        'Travelogue',
-        journey: _step != _Step.ending,
-      ),
+      appBar: _step == _Step.montage
+          ? levelAppBar(context, 3, _place!.name, kicker: 'LEVEL 3', dark: true)
+          : levelAppBar(
+              context,
+              3,
+              'Travelogue',
+              journey: _step != _Step.ending,
+            ),
       body: SafeArea(child: _buildStep()),
     );
   }
@@ -129,6 +131,7 @@ class _Level3ScreenState extends State<Level3Screen> {
       place: _place!,
       musicAsset: _content.musicAsset,
       onDone: () => _go(_Step.goodbye),
+      onMap: () => _go(_Step.map),
     ),
     _Step.goodbye => _Story(
       picture: 'assets/images/girl_journal.svg',

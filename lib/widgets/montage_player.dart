@@ -8,18 +8,21 @@ const _pictureTime = Duration(seconds: 4);
 const _zoom = 0.12;
 
 /// Plays a place's pictures with a slow zoom, a fade and captions, looping
-/// over background music. [onDone] is offered once after one full pass.
+/// over background music. [onDone] is offered once after one full pass;
+/// [onMap] goes back to the map at any time.
 class MontagePlayer extends StatefulWidget {
   const MontagePlayer({
     super.key,
     required this.place,
     required this.musicAsset,
     required this.onDone,
+    required this.onMap,
   });
 
   final Place place;
   final String musicAsset;
   final VoidCallback onDone;
+  final VoidCallback onMap;
 
   @override
   State<MontagePlayer> createState() => _MontagePlayerState();
@@ -109,22 +112,57 @@ class _MontagePlayerState extends State<MontagePlayer>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Semantics(
+                  label: 'Photo ${_index + 1} of ${_pictures.length}',
+                  excludeSemantics: true,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      for (var i = 0; i < _pictures.length; i++)
+                        Container(
+                          width: i == _index ? 24 : 10,
+                          height: 10,
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          decoration: BoxDecoration(
+                            color: i == _index
+                                ? AppColors.card
+                                : AppColors.lightTeal,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
                 Text(
                   picture.caption,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: AppColors.card, fontSize: 16),
                 ),
-                if (_passed) ...[
-                  const SizedBox(height: 12),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.lightTeal,
-                      foregroundColor: AppColors.ink,
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: widget.onMap,
+                        child: const Text('Map'),
+                      ),
                     ),
-                    onPressed: widget.onDone,
-                    child: const Text('Next'),
-                  ),
-                ],
+                    if (_passed) ...[
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppColors.lightTeal,
+                            foregroundColor: AppColors.ink,
+                          ),
+                          onPressed: widget.onDone,
+                          child: const Text('Next'),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ],
             ),
           ),
