@@ -18,6 +18,10 @@ abstract final class AppColors {
   static const deck = Color(0xFF5B6472);
   static const water = Color(0xFF56B9D6);
   static const rock = Color(0xFF6F7B6A);
+  // Small teal headings on white (5:1; plain teal is too light for text).
+  static const tealText = Color(0xFF237A7C);
+  // The guide's skin, for the pointing finger in the MatchIt example.
+  static const skin = Color(0xFFF4C7A1);
   // Bank walls, tower footings and the student's sentence piers.
   static const stone = Color(0xFF6F7F9E);
   static const correct = Color(0xFF22C55E);

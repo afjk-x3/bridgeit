@@ -323,6 +323,46 @@ void main() {
     );
   });
 
+  testWidgets('the board keeps its height as the tray empties', (tester) async {
+    // Real glyph widths: the test font's squares make the tray far taller.
+    final nunito = rootBundle.load('assets/fonts/Nunito-Variable.ttf');
+    await (FontLoader('Nunito')..addFont(nunito)).load();
+    await _openLevel(tester);
+    await _reachMatchIt(tester);
+    final board = find.byKey(const ValueKey('match-board'));
+    final before = tester.getSize(board).height;
+
+    final pairs = _content(tester).matchIt;
+    for (final pair in pairs.take(4)) {
+      await _tapPlace(tester, pair.conjunction, pair.function);
+    }
+
+    expect(tester.getSize(board).height, before);
+  });
+
+  testWidgets('the MatchIt instructions follow Wireframes v3', (tester) async {
+    await _openLevel(tester);
+    for (var i = 0; i < 3; i++) {
+      await _playOnce(tester);
+    }
+    await _tapText(tester, 'Next');
+
+    expect(
+      find.text(
+        'Drag the right function to its coordinating conjunction, or tap '
+        'the function and then its slot.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('match-example')), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(
+        "Example: the function 'to add' moves into the slot next to 'and'",
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('every MatchIt slot is visible without scrolling', (
     tester,
   ) async {

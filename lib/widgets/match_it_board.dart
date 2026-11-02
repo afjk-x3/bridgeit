@@ -73,58 +73,64 @@ class _MatchItBoardState extends State<MatchItBoard> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Only the slots scroll: a scroll view around the tray would take the
-        // vertical drags away from the functions.
+        // vertical drags away from the functions. The board keeps its own
+        // height as the tray empties; it scrolls only on very short screens.
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.ink, width: 3),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 84,
-                          child: Text(
-                            'Coordinating Conjunctions',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              key: const ValueKey('match-board'),
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.ink, width: 3),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 6),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 84,
+                            child: Text(
+                              'Coordinating Conjunctions',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Functions',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Functions',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  for (final pair in widget.pairs)
-                    _SlotRow(
-                      conjunction: pair.conjunction,
-                      function: _round.placed[pair.conjunction],
-                      locked: _round.isLocked(pair.conjunction),
-                      wrong: _wrong.contains(pair.conjunction),
-                      armed: _selected != null,
-                      onDrop: (function) => _place(pair.conjunction, function),
-                      onTap: () => _tapSlot(pair.conjunction),
-                    ),
-                ],
+                    for (final pair in widget.pairs)
+                      _SlotRow(
+                        conjunction: pair.conjunction,
+                        function: _round.placed[pair.conjunction],
+                        locked: _round.isLocked(pair.conjunction),
+                        wrong: _wrong.contains(pair.conjunction),
+                        armed: _selected != null,
+                        onDrop: (function) =>
+                            _place(pair.conjunction, function),
+                        onTap: () => _tapSlot(pair.conjunction),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -495,20 +495,20 @@ class _MatchItIntro extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 12),
                       Text(
                         'INSTRUCTIONS',
                         style: TextStyle(
+                          color: AppColors.tealText,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 1,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      SizedBox(height: 12),
                       Text(
-                        'Drag the right function to its corresponding '
-                        'coordinating conjunction, or tap the function and '
-                        'then its slot.',
+                        'Drag the right function to its coordinating '
+                        'conjunction, or tap the function and then its '
+                        'slot.',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -554,54 +554,114 @@ class _MatchItIntro extends StatelessWidget {
 }
 
 /// The drag shown in the instructions: a function moves into a slot.
+/// A finger drags "to add" along a dashed path into the empty slot beside
+/// "and", as on the Wireframes v3 MatchIt instructions.
 class _MatchExample extends StatelessWidget {
   const _MatchExample();
 
   @override
-  Widget build(BuildContext context) {
-    Widget box(String text, {bool slot = false, bool conj = false}) =>
-        Container(
-          height: 40,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: conj ? AppColors.ink : AppColors.card,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: slot
-                  ? AppColors.lightTeal
-                  : (conj ? AppColors.ink : AppColors.piece),
-              width: 2,
-            ),
-          ),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: conj ? AppColors.card : AppColors.ink,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        );
-    return Semantics(
-      label: "Example: the function 'to add' moves into the slot next to 'and'",
-      excludeSemantics: true,
-      // Scales down on narrow phones instead of overflowing.
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            box('to add'),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6),
-              child: Icon(Icons.arrow_forward, color: AppColors.ink),
-            ),
-            box('and', conj: true),
-            const SizedBox(width: 6),
-            box('to add', slot: true),
-          ],
-        ),
+  Widget build(BuildContext context) => Semantics(
+    label: "Example: the function 'to add' moves into the slot next to 'and'",
+    excludeSemantics: true,
+    child: AspectRatio(
+      aspectRatio: 320 / 104,
+      child: CustomPaint(
+        key: const ValueKey('match-example'),
+        painter: _MatchExamplePainter(),
       ),
+    ),
+  );
+}
+
+class _MatchExamplePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / 320);
+    final line = Paint()
+      ..color = AppColors.ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    void label(String text, Offset centre, Color color) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: text,
+          style: TextStyle(
+            fontFamily: 'Nunito',
+            color: color,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      painter.paint(
+        canvas,
+        centre - Offset(painter.width / 2, painter.height / 2),
+      );
+    }
+
+    void dashed(Path path, double dash, double gap, Paint paint) {
+      for (final metric in path.computeMetrics()) {
+        for (var d = 0.0; d < metric.length; d += dash + gap) {
+          canvas.drawPath(metric.extractPath(d, d + dash), paint);
+        }
+      }
+    }
+
+    // The function being dragged.
+    final chip = RRect.fromLTRBR(4, 8, 132, 48, const Radius.circular(10));
+    canvas.drawRRect(chip, Paint()..color = AppColors.sky);
+    canvas.drawRRect(
+      chip,
+      Paint()
+        ..color = AppColors.piece
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
     );
+    label('to add', const Offset(68, 28), AppColors.ink);
+
+    // Its path to the slot, and the arrowhead.
+    dashed(
+      Path()
+        ..moveTo(100, 52)
+        ..quadraticBezierTo(150, 96, 196, 80),
+      6,
+      6,
+      line,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(188, 72)
+        ..lineTo(200, 80)
+        ..lineTo(188, 88),
+      line,
+    );
+
+    // The conjunction and its empty slot.
+    canvas.drawRRect(
+      RRect.fromLTRBR(204, 62, 248, 98, const Radius.circular(8)),
+      Paint()..color = AppColors.ink,
+    );
+    label('and', const Offset(226, 80), AppColors.card);
+    dashed(
+      Path()
+        ..addRRect(RRect.fromLTRBR(252, 62, 316, 98, const Radius.circular(8))),
+      5,
+      4,
+      line..strokeWidth = 2,
+    );
+
+    // The fingertip.
+    canvas.drawCircle(
+      const Offset(110, 44),
+      9,
+      Paint()..color = AppColors.skin,
+    );
+    canvas.drawCircle(const Offset(110, 44), 9, line);
   }
+
+  @override
+  bool shouldRepaint(_MatchExamplePainter old) => false;
 }
