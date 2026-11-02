@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../content/lexicon.dart';
@@ -117,6 +116,18 @@ class _Level2ScreenState extends State<Level2Screen> {
       _placed != null && _round.triedWrong.contains(_placed!.toLowerCase());
   List<QuickFact> get _facts => _quickFacts[_bridge.conjunction] ?? const [];
   List<String> get _foundations => _written[_index];
+
+  /// The written sentences as piers: the first uses the conjunction, the
+  /// second the Quick Facts word it was written with.
+  List<BridgePier> get _piers => [
+    for (final (i, text) in _foundations.indexed)
+      BridgePier(
+        i == 0
+            ? _bridge.conjunction
+            : findQuickFact(text, _facts)?.word ?? _bridge.conjunction,
+        text,
+      ),
+  ];
 
   @override
   void initState() {
@@ -329,24 +340,23 @@ class _Level2ScreenState extends State<Level2Screen> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        SvgPicture.asset(
-          'assets/images/scenes/broken_bridge.svg',
-          fit: BoxFit.cover,
-          alignment: Alignment.bottomCenter,
-          semanticsLabel:
-              'Through the windshield, the bridge ahead has collapsed and a '
-              'barrier blocks the road.',
-        ),
-        const Padding(
-          padding: EdgeInsets.all(16),
+        Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SpeechBubble(
+              BridgeScene(
+                state: BridgeState.open,
+                left: _bridge.left,
+                right: _bridge.right,
+                gap: const SizedBox.shrink(),
+              ),
+              const SizedBox(height: 12),
+              const SpeechBubble(
                 'Oh no! The bridge is broken, so I cannot cross.',
                 strong: true,
               ),
-              SpeechBubble(
+              const SpeechBubble(
                 'To cross the broken bridge, drag the right coordinating '
                 'conjunction to connect the two independent clauses from each '
                 'side of the bridge.',
@@ -381,7 +391,9 @@ class _Level2ScreenState extends State<Level2Screen> {
     right: _bridge.right,
     placedWord: _placed,
     gap: gap,
-    piers: [for (final s in _foundations) BridgePier(_bridge.conjunction, s)],
+    piers: _piers,
+    // nor has no Quick Facts, so it takes one sentence.
+    piersNeeded: _facts.isEmpty ? 1 : 2,
     crossed: _step == _Step.crossing,
     onCrossed: _crossed,
   );

@@ -111,6 +111,11 @@ Finder _inCaption(String sentence) => find.descendant(
   matching: find.textContaining(sentence, findRichText: true),
 );
 
+Finder _pierKey(int n) => find.byKey(ValueKey('pier-$n'));
+
+double _amplitude(WidgetTester tester) =>
+    tester.widget<BridgeWobble>(find.byKey(const ValueKey('wobble'))).amplitude;
+
 Finder _inBar(String text) =>
     find.descendant(of: find.byType(AppBar), matching: find.text(text));
 
@@ -529,6 +534,74 @@ void main() {
     await tester.ensureVisible(find.text('Submit'));
     await tester.pumpAndSettle();
     expect(find.text('Submit').hitTestable(), findsOneWidget);
+
+    // Two piers and a two-sentence caption still fit.
+    await _write(tester, 'The dog ran far because the cat sat down.');
+    expect(tester.takeException(), isNull);
+    final cross = find.text('Cross the Bridge');
+    await tester.scrollUntilVisible(
+      cross,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(cross.hitTestable(), findsOneWidget);
+  });
+
+  testWidgets('an accepted sentence becomes pier 1', (tester) async {
+    await _openBridge(tester);
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+    await _write(tester, _sentence(0, 'for'));
+
+    expect(find.text('1 · for'), findsOneWidget);
+  });
+
+  testWidgets('resume with one sentence shows pier 1 and half shake', (
+    tester,
+  ) async {
+    await _open(
+      tester,
+      prefs: {
+        'level2_resume_v1': '{"bridgeIndex":0,"written":[["I stayed inside, for it was raining."]]}',
+      },
+    );
+
+    expect(_pierKey(1), findsOneWidget);
+    expect(_pierKey(2), findsNothing);
+    expect(_amplitude(tester), 0.5);
+  });
+
+  testWidgets('the second pier names the Quick Facts word', (tester) async {
+    await _openBridge(tester);
+    await _tryPiece(tester, 'for');
+    await _tap(tester, 'Strengthen the Bridge');
+    await _write(tester, _sentence(0, 'for'));
+    await _write(tester, 'The dog ran far because the cat sat down.');
+
+    expect(find.text('2 · because'), findsOneWidget);
+    expect(_amplitude(tester), 0);
+  });
+
+  testWidgets('nor bridge: one pier, then still', (tester) async {
+    await _open(
+      tester,
+      prefs: {'level2_resume_v1': '{"bridgeIndex":2,"written":[[],[],[]]}'},
+    );
+    await _tryPiece(tester, 'nor');
+    await _tap(tester, 'Strengthen the Bridge');
+    await _write(tester, _sentence(2, 'nor'));
+
+    expect(_pierKey(1), findsOneWidget);
+    expect(_pierKey(2), findsNothing);
+    expect(_amplitude(tester), 0);
+  });
+
+  testWidgets('the story shows the broken bridge', (tester) async {
+    await _open(tester);
+
+    expect(find.byType(BridgeScene), findsOneWidget);
+    expect(find.bySemanticsLabel('Bridge open'), findsOneWidget);
   });
 
   testWidgets('the first sentence leads straight to Write with Quick Facts', (
