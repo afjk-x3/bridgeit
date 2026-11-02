@@ -8,6 +8,7 @@ import '../game/spell_checker.dart';
 import '../game/travelogue_analyzer.dart';
 import '../progress/progress_store.dart';
 import '../progress/results_store.dart';
+import 'start_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/level_app_bar.dart';
 import '../widgets/level_clock.dart';
@@ -116,6 +117,7 @@ class _Level3ScreenState extends State<Level3Screen> {
       onPressed: () => _go(_Step.crossed),
     ),
     _Step.crossed => _Story(
+      footer: const BridgeStrip(crossed: true),
       picture: 'assets/images/girl_drive.svg',
       pictureLabel: 'Your guide, driving',
       lines: const [
@@ -462,6 +464,7 @@ class _Story extends StatelessWidget {
     required this.button,
     required this.onPressed,
     this.scene = false,
+    this.footer,
   });
 
   final String picture;
@@ -472,6 +475,9 @@ class _Story extends StatelessWidget {
 
   /// [picture] is a full-screen windshield scene, not the guide.
   final bool scene;
+
+  /// Drawn full width under the story, above the button.
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -535,6 +541,7 @@ class _Story extends StatelessWidget {
             ),
           ),
         ),
+        ?footer,
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: FilledButton(onPressed: onPressed, child: Text(button)),

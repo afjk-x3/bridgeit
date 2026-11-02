@@ -6,6 +6,7 @@ import 'package:bridgeit/content/models.dart';
 import 'package:bridgeit/progress/progress_store.dart';
 import 'package:bridgeit/progress/results_store.dart';
 import 'package:bridgeit/screens/level3_screen.dart';
+import 'package:bridgeit/screens/start_screen.dart';
 import 'package:bridgeit/widgets/travelogue_editor.dart';
 
 import '../support/pump_app.dart';
@@ -97,6 +98,10 @@ void main() {
 
     await _tap(tester, 'Next');
     expect(find.textContaining('I have finally crossed'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate((w) => w is BridgeStrip && w.crossed),
+      findsOneWidget,
+    );
 
     await _tap(tester, 'Proceed');
     expect(find.text("LET'S EXPLORE TOGETHER!"), findsOneWidget);

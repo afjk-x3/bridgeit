@@ -88,13 +88,18 @@ class StartScreen extends StatelessWidget {
   }
 }
 
-/// The bridge with her car crossing it, along the bottom of a screen.
+/// The finished bridge with her car on it, along the bottom of a screen.
+/// [crossed] puts the car on the far bank.
 class BridgeStrip extends StatelessWidget {
-  const BridgeStrip({super.key});
+  const BridgeStrip({super.key, this.crossed = false});
+
+  final bool crossed;
 
   @override
   Widget build(BuildContext context) => SvgPicture.asset(
-    'assets/images/scenes/bridge_strip.svg',
+    crossed
+        ? 'assets/images/scenes/bridge_strip_crossed.svg'
+        : 'assets/images/scenes/bridge_strip.svg',
     fit: BoxFit.fitWidth,
     excludeFromSemantics: true,
   );
