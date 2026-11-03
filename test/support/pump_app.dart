@@ -36,6 +36,10 @@ Future<void> pumpApp(
   tester.view.physicalSize = const Size(411, 891);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
+  // The car loops on Start and Welcome, which pumpAndSettle would wait out.
+  tester.platformDispatcher.accessibilityFeaturesTestValue =
+      const FakeAccessibilityFeatures(disableAnimations: true);
+  addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
   SharedPreferences.setMockInitialValues({
     if (!newStudent) ..._profile,
     ...prefs,
@@ -63,8 +67,12 @@ Future<void> pumpApp(
   );
 }
 
-/// Taps play on the start screen to reach the level menu.
+/// Taps play on the start screen, then Next past a returning student's
+/// greeting, to reach the level menu. A new student stays on the greeting.
 Future<void> openMenu(WidgetTester tester) async {
   await tester.tap(find.byTooltip('Play'));
+  await tester.pumpAndSettle();
+  if (find.textContaining('Hi, Bridge Builder!').evaluate().isNotEmpty) return;
+  await tester.tap(find.text('Next'));
   await tester.pumpAndSettle();
 }

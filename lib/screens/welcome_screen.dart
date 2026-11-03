@@ -8,7 +8,9 @@ import 'start_screen.dart';
 
 const _maxFieldLength = 40;
 
-/// The character's greeting, then the name and section form. Shown once.
+/// The character's greeting on every Play. A new player then fills in the
+/// name and section form; a returning one is greeted by name and goes on to
+/// the level menu.
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -83,7 +85,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             style: FilledButton.styleFrom(
                               minimumSize: const Size(120, 52),
                             ),
-                            onPressed: () => setState(() => _asking = true),
+                            onPressed: () =>
+                                context.read<ResultsStore>().profile == null
+                                ? setState(() => _asking = true)
+                                : Navigator.pushReplacementNamed(
+                                    context,
+                                    '/levels',
+                                  ),
                             child: const Text('Next'),
                           ),
                         ),
@@ -97,12 +105,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildGreeting() {
+    final name = context.read<ResultsStore>().profile?.name ?? 'Bridge Builder';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SpeechBubble(
-          "Hi, Bridge Builder! I'm ready to go on an adventure, but I need "
-          'your help to reach my destination!',
+        SpeechBubble(
+          "Hi, $name! I'm ready to go on an adventure, but I need your help "
+          'to reach my destination!',
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,

@@ -57,6 +57,22 @@ void main() {
     expect(find.text('Choose a level'), findsOneWidget);
   });
 
+  testWidgets('a returning student is greeted by name, then sees the menu', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Play'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Hi, Ana!'), findsOneWidget);
+    expect(find.textContaining('Bridge Builder'), findsNothing);
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose a level'), findsOneWidget);
+    expect(find.byType(TextFormField), findsNothing);
+  });
+
   testWidgets('fits a 360x640 phone', (tester) async {
     await pumpApp(tester, newStudent: true);
     tester.view.physicalSize = const Size(360, 640);

@@ -321,6 +321,101 @@ class BridgeScene extends StatelessWidget {
   );
 }
 
+/// The finished Level 2 bridge with no words on it, for screen backdrops.
+/// When [looping], the car drives across and comes back in from the left;
+/// otherwise it waits by the left tower, or on the far bank when [crossed].
+/// The car keeps still when animations are off or a screen reader is on.
+class BuiltBridge extends StatefulWidget {
+  const BuiltBridge({super.key, this.crossed = false, this.looping = false});
+
+  final bool crossed;
+  final bool looping;
+
+  @override
+  State<BuiltBridge> createState() => _BuiltBridgeState();
+}
+
+class _BuiltBridgeState extends State<BuiltBridge>
+    with SingleTickerProviderStateMixin {
+  late final _lap = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 6),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(BuiltBridge old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  void _sync() {
+    final moving =
+        widget.looping &&
+        !MediaQuery.disableAnimationsOf(context) &&
+        !MediaQuery.accessibleNavigationOf(context);
+    if (moving && !_lap.isAnimating) _lap.repeat();
+    if (!moving && _lap.isAnimating) _lap.reset();
+  }
+
+  @override
+  void dispose() {
+    _lap.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: AspectRatio(
+      aspectRatio: _size.width / _size.height,
+      child: ClipRect(
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final s = box.maxWidth / _size.width;
+            return Stack(
+              children: [
+                Positioned.fill(
+                  child: CustomPaint(painter: _BackPainter(true, 0)),
+                ),
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: _DeckPainter(BridgeState.built, 0),
+                  ),
+                ),
+                AnimatedBuilder(
+                  animation: _lap,
+                  builder: (context, car) {
+                    // From just off the left edge to just off the right.
+                    final x = _lap.isAnimating
+                        ? -_carSize.width +
+                              _lap.value * (box.maxWidth + _carSize.width)
+                        : (widget.crossed ? 330.0 : _carStart) * s;
+                    return Positioned(
+                      left: x,
+                      top: _slabTop * s - _carSize.height,
+                      child: car!,
+                    );
+                  },
+                  child: CustomPaint(
+                    key: const ValueKey('bridge-car'),
+                    size: _carSize,
+                    painter: _CarPainter(),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    ),
+  );
+}
+
 /// Shakes [child] by up to 2 px times [amplitude]; still when animations are
 /// off, a screen reader is on (moving nodes unsettle its focus), or
 /// [amplitude] is 0.

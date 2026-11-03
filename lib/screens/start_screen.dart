@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
 
-import '../progress/results_store.dart';
 import '../theme/app_theme.dart';
+import '../widgets/bridge_scene.dart';
 import '../widgets/level_app_bar.dart';
 
 class StartScreen extends StatelessWidget {
@@ -61,12 +60,8 @@ class StartScreen extends StatelessWidget {
                         ),
                         icon: const Icon(Icons.play_arrow, size: 28),
                         label: const Text('Play'),
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          context.read<ResultsStore>().profile == null
-                              ? '/welcome'
-                              : '/levels',
-                        ),
+                        onPressed: () =>
+                            Navigator.pushNamed(context, '/welcome'),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -88,21 +83,17 @@ class StartScreen extends StatelessWidget {
   }
 }
 
-/// The finished bridge with her car on it, along the bottom of a screen.
-/// [crossed] puts the car on the far bank.
+/// The built Level 2 bridge along the bottom of a screen, with her car
+/// driving across it. Under reduce motion the car waits by the left tower,
+/// or on the far bank when [crossed].
 class BridgeStrip extends StatelessWidget {
   const BridgeStrip({super.key, this.crossed = false});
 
   final bool crossed;
 
   @override
-  Widget build(BuildContext context) => SvgPicture.asset(
-    crossed
-        ? 'assets/images/scenes/bridge_strip_crossed.svg'
-        : 'assets/images/scenes/bridge_strip.svg',
-    fit: BoxFit.fitWidth,
-    excludeFromSemantics: true,
-  );
+  Widget build(BuildContext context) =>
+      BuiltBridge(crossed: crossed, looping: true);
 }
 
 /// The photo, music, word list and font sources, one card per group.

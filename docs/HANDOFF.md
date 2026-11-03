@@ -21,12 +21,12 @@ Context for picking up this work in a new session. Read the latest session below
    - Wireframes v3 version 44 has a "Bridge sheet" board showing every state.
    - In the app, `BridgeScene` draws it. Each accepted sentence becomes a numbered pier ("1 · for", "2 · because"), with the sentences in a caption.
    - `BridgeWobble` shakes the deck until the piers are in. It stops under reduce-motion or a screen reader.
-   - Start, Welcome and Level 3 "crossed" use `bridge_strip*.svg`. Regenerate them with `node tool/bridge_art/make_assets.js`.
+   - Start, Welcome and Level 3 "crossed" show `BuiltBridge`, the same painters in their built state with no words. The car loops across on all three and stays still under reduce motion.
 3. **Owner feedback after that:**
    - The Ending keeps its road and car.
    - The map hint line on Level 3 "crossed" is gone.
    - Wrong tries crack the left, then the right tower support; the third collapses the deck and the car falls in.
-   - The car sits on the deck between the towers, and posts hold the railing.
+   - The car sits on the deck between the towers. The railing was later removed.
    - "1 try left" wording.
    - The small car has light wheel rims, so it shows on navy.
    - The map spreads its stops to fit the screen (no scrolling on a standard phone).

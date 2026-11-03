@@ -229,4 +229,46 @@ void main() {
       );
     }
   });
+
+  Future<double> carX(WidgetTester tester, {required bool still}) async {
+    tester.view.physicalSize = const Size(390, 400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          data: MediaQueryData(disableAnimations: still),
+          child: const Scaffold(body: BuiltBridge(looping: true)),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 2));
+    return tester.getTopLeft(find.byKey(const ValueKey('bridge-car'))).dx;
+  }
+
+  testWidgets('the backdrop car loops across the bridge', (tester) async {
+    final first = await carX(tester, still: false);
+    await tester.pump(const Duration(seconds: 2));
+    final later = tester
+        .getTopLeft(find.byKey(const ValueKey('bridge-car')))
+        .dx;
+    expect(later, greaterThan(first));
+    // A full lap later it is back where it was.
+    await tester.pump(const Duration(seconds: 4));
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('bridge-car'))).dx,
+      closeTo(first, 1),
+    );
+  });
+
+  testWidgets('the backdrop car keeps still under reduce motion', (
+    tester,
+  ) async {
+    final first = await carX(tester, still: true);
+    await tester.pump(const Duration(seconds: 2));
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('bridge-car'))).dx,
+      first,
+    );
+  });
 }
