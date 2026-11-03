@@ -26,13 +26,23 @@ class Level2Resume {
   final List<Map<String, dynamic>> stats;
 }
 
+/// The Level 3 place a student is held to once its montage has played
+/// through, and their travelogue draft so far.
+class Level3Resume {
+  const Level3Resume({required this.placeId, this.draft = ''});
+
+  final String placeId;
+  final String draft;
+}
+
 /// Owns what the student enters: their profile, shown on the answer report,
-/// and their place in Level 2.
+/// and their place in Levels 2 and 3.
 class ResultsStore extends ChangeNotifier {
   ResultsStore(this._prefs) : _profile = _readProfile(_prefs);
 
   static const _profileKey = 'profile_v1';
   static const _level2Key = 'level2_resume_v1';
+  static const _level3Key = 'level3_resume_v1';
   static const _level1PlaysKey = 'level1_plays_v1';
   static const _resultsKey = 'results_v1';
 
@@ -73,6 +83,28 @@ class ResultsStore extends ChangeNotifier {
   );
 
   Future<void> clearLevel2Resume() => _prefs.remove(_level2Key);
+
+  /// A corrupt value reads as no place chosen yet.
+  Level3Resume? get level3Resume {
+    final raw = _prefs.getString(_level3Key);
+    if (raw == null) return null;
+    try {
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      return Level3Resume(
+        placeId: json['placeId'] as String,
+        draft: json['draft'] as String? ?? '',
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> saveLevel3Resume(Level3Resume resume) => _prefs.setString(
+    _level3Key,
+    jsonEncode({'placeId': resume.placeId, 'draft': resume.draft}),
+  );
+
+  Future<void> clearLevel3Resume() => _prefs.remove(_level3Key);
 
   /// Full plays of the Level 1 song so far, kept when the student leaves.
   int get level1Plays => _prefs.getInt(_level1PlaysKey) ?? 0;

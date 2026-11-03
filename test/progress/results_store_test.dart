@@ -85,4 +85,23 @@ void main() {
       expect((await _store({'profile_v1': bad})).profile, isNull, reason: bad);
     }
   });
+
+  test(
+    'the Level 3 place and draft are kept, and a corrupt one reads as none',
+    () async {
+      final store = await _store({});
+      expect(store.level3Resume, isNull);
+      await store.saveLevel3Resume(
+        const Level3Resume(placeId: 'la_paz', draft: 'We went.'),
+      );
+      expect(store.level3Resume?.placeId, 'la_paz');
+      expect(store.level3Resume?.draft, 'We went.');
+      await store.clearLevel3Resume();
+      expect(store.level3Resume, isNull);
+      expect(
+        (await _store({'level3_resume_v1': '{nope'})).level3Resume,
+        isNull,
+      );
+    },
+  );
 }

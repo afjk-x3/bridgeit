@@ -8,8 +8,9 @@ const _pictureTime = Duration(seconds: 4);
 const _zoom = 0.12;
 
 /// Plays a place's pictures with a slow zoom, a fade and captions, looping
-/// over background music. [onDone] is offered once after one full pass;
-/// [onMap] goes back to the map at any time.
+/// over background music. [onMap] goes back to the map until one full pass
+/// has played; then [onPassed] is called, the Map button goes and [onDone]
+/// is offered, since the student must write about this place.
 class MontagePlayer extends StatefulWidget {
   const MontagePlayer({
     super.key,
@@ -17,12 +18,18 @@ class MontagePlayer extends StatefulWidget {
     required this.musicAsset,
     required this.onDone,
     required this.onMap,
+    this.onPassed,
+    this.passed = false,
   });
 
   final Place place;
   final String musicAsset;
   final VoidCallback onDone;
   final VoidCallback onMap;
+  final VoidCallback? onPassed;
+
+  /// A pass already played earlier, so Next shows from the start.
+  final bool passed;
 
   @override
   State<MontagePlayer> createState() => _MontagePlayerState();
@@ -33,7 +40,7 @@ class _MontagePlayerState extends State<MontagePlayer>
   late final AnimationController _clock;
   AudioPlayer? _music;
   int _index = 0;
-  bool _passed = false;
+  late bool _passed = widget.passed;
 
   List<PlacePicture> get _pictures => widget.place.pictures;
 
@@ -41,9 +48,15 @@ class _MontagePlayerState extends State<MontagePlayer>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _clock = AnimationController(vsync: this, duration: _pictureTime)
-      ..addStatusListener(_pictureEnded)
-      ..forward();
+    // preserve: reduce motion must not make each picture flash past.
+    _clock =
+        AnimationController(
+            vsync: this,
+            duration: _pictureTime,
+            animationBehavior: AnimationBehavior.preserve,
+          )
+          ..addStatusListener(_pictureEnded)
+          ..forward();
     _playMusic();
   }
 
@@ -61,10 +74,12 @@ class _MontagePlayerState extends State<MontagePlayer>
 
   void _pictureEnded(AnimationStatus status) {
     if (status != AnimationStatus.completed) return;
+    final firstPass = !_passed && _index == _pictures.length - 1;
     setState(() {
       _index = (_index + 1) % _pictures.length;
       if (_index == 0) _passed = true;
     });
+    if (firstPass) widget.onPassed?.call();
     _clock.forward(from: 0);
   }
 
@@ -142,14 +157,14 @@ class _MontagePlayerState extends State<MontagePlayer>
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: widget.onMap,
-                        child: const Text('Map'),
-                      ),
-                    ),
-                    if (_passed) ...[
-                      const SizedBox(width: 12),
+                    if (!_passed)
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: widget.onMap,
+                          child: const Text('Map'),
+                        ),
+                      )
+                    else
                       Expanded(
                         child: FilledButton(
                           style: FilledButton.styleFrom(
@@ -160,7 +175,6 @@ class _MontagePlayerState extends State<MontagePlayer>
                           child: const Text('Next'),
                         ),
                       ),
-                    ],
                   ],
                 ),
               ],

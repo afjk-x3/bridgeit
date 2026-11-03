@@ -40,7 +40,8 @@ class TravelogueResult {
   /// FANBOYS words that join two clauses.
   final List<EntrySpan> counted;
 
-  /// FANBOYS words after a comma that don't join two clauses.
+  /// FANBOYS words after a comma that don't join two clauses, and ones that
+  /// join two clauses but have no comma.
   final List<EntrySpan> uncounted;
   final bool canSubmit;
 }
@@ -74,6 +75,10 @@ class TravelogueAnalyzer {
   );
   static final _candidate = RegExp(
     r',\s*(for|and|nor|but|or|yet|so)\b',
+    caseSensitive: false,
+  );
+  static final _word = RegExp(
+    r'\b(for|and|nor|but|or|yet|so)\b',
     caseSensitive: false,
   );
 
@@ -138,6 +143,26 @@ class TravelogueAnalyzer {
         boundary = match.end;
       } else {
         uncounted.add(range);
+      }
+    }
+
+    // A join with no comma is marked as seen but never counted. Both sides
+    // must clearly be clauses, so "rode and arrived" stays unmarked.
+    final words = _word.allMatches(sentence).toList();
+    for (var i = 0; i < words.length; i++) {
+      final word = words[i];
+      if (sentence.substring(0, word.start).trimRight().endsWith(',')) continue;
+      final left = sentence.substring(
+        i == 0 ? 0 : words[i - 1].end,
+        word.start,
+      );
+      final right = sentence.substring(
+        word.end,
+        i + 1 < words.length ? words[i + 1].start : sentence.length,
+      );
+      if (_clauses.check(left, imperativeAllowed: i == 0) == ClauseVerdict.ok &&
+          _clauses.check(right) == ClauseVerdict.ok) {
+        uncounted.add(EntrySpan(start + word.start, start + word.end));
       }
     }
   }

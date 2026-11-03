@@ -167,7 +167,14 @@ void main() {
     await _tap(tester, 'Next');
 
     expect(find.textContaining('5 to 7 sentences'), findsOneWidget);
-    expect(find.textContaining('at least 4'), findsOneWidget);
+    expect(
+      find.textContaining('at least 4 coordinating conjunctions'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('a comma before each conjunction'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Submit opens when the counters are met, and the level ends', (
@@ -193,6 +200,13 @@ void main() {
 
     expect(find.textContaining('Congratulations'), findsOneWidget);
     expect(progress.isCompleted(3), isTrue);
+    expect(
+      tester
+          .element(find.byType(Level3Screen))
+          .read<ResultsStore>()
+          .level3Resume,
+      isNull,
+    );
 
     final result =
         tester
@@ -267,5 +281,81 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Write about:'), findsNothing);
     expect(find.byType(TextField).hitTestable(), findsOneWidget);
+  });
+
+  testWidgets('Drive to stops taking taps once the car sets off', (
+    tester,
+  ) async {
+    await _reachMap(tester);
+    final pin = find.byKey(const ValueKey('pin-la_paz'));
+    await tester.ensureVisible(pin);
+    await tester.pump();
+    await tester.tap(pin);
+    await tester.pump();
+    final drive = find.ancestor(
+      of: find.textContaining('Drive to'),
+      matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+    );
+    await tester.tap(drive);
+    await tester.pump();
+
+    expect(tester.widget<ButtonStyleButton>(drive).onPressed, isNull);
+  });
+
+  testWidgets('back from the travelogue returns to the instructions', (
+    tester,
+  ) async {
+    await _reachEditor(tester);
+    await tester.enterText(find.byType(TextField), 'We went to the dunes.');
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TravelogueEditor), findsNothing);
+    expect(find.byType(Level3Screen), findsOneWidget);
+    expect(find.text('YOUR ENTRY NEEDS'), findsOneWidget);
+
+    await _tap(tester, 'Next');
+    expect(find.text('We went to the dunes.'), findsOneWidget);
+  });
+
+  testWidgets('after one pass the place is held: no Map, only Next', (
+    tester,
+  ) async {
+    await _reachMontage(tester);
+    expect(find.text('Map'), findsOneWidget);
+
+    await _pumpPass(tester);
+    expect(find.text('Map'), findsNothing);
+    expect(find.text('Next'), findsOneWidget);
+    expect(
+      tester
+          .element(find.byType(Level3Screen))
+          .read<ResultsStore>()
+          .level3Resume
+          ?.placeId,
+      'la_paz',
+    );
+  });
+
+  testWidgets('a held place reopens at its instructions with the draft', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      prefs: {
+        'unlocked_levels': ['3'],
+        'level3_resume_v1':
+            '{"placeId":"la_paz","draft":"We went to the dunes."}',
+      },
+    );
+    await openMenu(tester);
+    await tester.tap(find.text('Travelogue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('YOUR ENTRY NEEDS'), findsOneWidget);
+    await _tap(tester, 'Next');
+    expect(find.text('We went to the dunes.'), findsOneWidget);
+    expect(find.textContaining('Laoag La Paz Sand Dunes'), findsOneWidget);
   });
 }

@@ -75,9 +75,13 @@ class _PlaceMapState extends State<PlaceMap>
     super.dispose();
   }
 
+  // Set before the drive starts so a second tap can't restart it.
+  bool _driving = false;
+
   Future<void> _go() async {
     final place = _selected;
-    if (place == null) return;
+    if (place == null || _driving) return;
+    setState(() => _driving = true);
     await _drive.forward(from: 0);
     if (mounted) widget.onChosen(place);
   }
@@ -107,7 +111,7 @@ class _PlaceMapState extends State<PlaceMap>
   @override
   Widget build(BuildContext context) {
     final selected = _selected;
-    final driving = _drive.isAnimating;
+    final driving = _driving;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

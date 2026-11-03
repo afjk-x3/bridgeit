@@ -68,12 +68,18 @@ class TravelogueEditor extends StatefulWidget {
     required this.rules,
     required this.spelling,
     required this.onSubmit,
+    this.initialText = '',
+    this.onChanged,
   });
 
   final TravelogueAnalyzer analyzer;
   final TravelogueRules rules;
   final SpellChecker spelling;
   final ValueChanged<String> onSubmit;
+
+  /// A draft to continue, and where each change is reported to keep it.
+  final String initialText;
+  final ValueChanged<String>? onChanged;
 
   @override
   State<TravelogueEditor> createState() => _TravelogueEditorState();
@@ -86,7 +92,9 @@ class _TravelogueEditorState extends State<TravelogueEditor> {
   @override
   void initState() {
     super.initState();
-    _controller = TravelogueController(widget.spelling);
+    _controller = TravelogueController(widget.spelling)
+      ..text = widget.initialText
+      ..result = widget.analyzer.analyze(widget.initialText);
   }
 
   @override
@@ -97,6 +105,7 @@ class _TravelogueEditorState extends State<TravelogueEditor> {
   }
 
   void _changed(String text) {
+    widget.onChanged?.call(text);
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       setState(() => _controller.result = widget.analyzer.analyze(text));

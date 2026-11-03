@@ -75,8 +75,20 @@ void main() {
     expect(text.substring(span.start, span.end), 'and');
   });
 
-  test('a conjunction without a comma is ignored', () {
-    final result = analyzer.analyze('We ran and they sat.');
+  test('a clause join without a comma is shown but not counted', () {
+    const text =
+        'The cool breeze drifted through the courtyard so the atmosphere '
+        'felt serene.';
+    final result = analyzer.analyze(text);
+    expect(result.counted, isEmpty);
+    final span = result.uncounted.single;
+    expect(text.substring(span.start, span.end), 'so');
+  });
+
+  test('two verbs joined without a comma are left unmarked', () {
+    final result = analyzer.analyze(
+      'John rode his motorcycle along the highway and arrived at the church.',
+    );
     expect(result.counted, isEmpty);
     expect(result.uncounted, isEmpty);
   });

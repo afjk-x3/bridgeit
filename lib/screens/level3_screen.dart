@@ -45,6 +45,8 @@ class _Level3ScreenState extends State<Level3Screen> {
   final _clock = LevelClock();
   _Step _step = _Step.tollGate;
   Place? _place;
+  // Kept here so going back to the instructions doesn't lose the entry.
+  String _draft = '';
 
   @override
   void initState() {
@@ -53,7 +55,20 @@ class _Level3ScreenState extends State<Level3Screen> {
     final writing = context.read<WritingTools>();
     _analyzer = TravelogueAnalyzer(writing.clauses, _content.travelogue);
     _baseSpelling = writing.spelling;
+    // A student who has watched a place's montage must write about that
+    // place before choosing another, so they pick up at the instructions.
+    final resume = context.read<ResultsStore>().level3Resume;
+    final held = _content.places.where((p) => p.id == resume?.placeId);
+    if (held.isNotEmpty) {
+      _place = held.first;
+      _draft = resume!.draft;
+      _step = _Step.instructions;
+    }
   }
+
+  void _hold({String draft = ''}) => context
+      .read<ResultsStore>()
+      .saveLevel3Resume(Level3Resume(placeId: _place!.id, draft: draft));
 
   @override
   void dispose() {
@@ -71,8 +86,9 @@ class _Level3ScreenState extends State<Level3Screen> {
 
   Future<void> _submit(String entry) async {
     final progress = context.read<ProgressStore>();
+    final results = context.read<ResultsStore>();
     final result = _analyzer.analyze(entry);
-    await context.read<ResultsStore>().saveResult(3, {
+    await results.saveResult(3, {
       'place': _place?.name,
       'entry': entry.trim(),
       'sentences': result.sentenceCount,
@@ -84,21 +100,35 @@ class _Level3ScreenState extends State<Level3Screen> {
       'activeMs': _clock.elapsedMs,
     });
     await progress.markCompleted(3);
+    await results.clearLevel3Resume();
     if (mounted) _go(_Step.ending);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _step == _Step.montage
-          ? levelAppBar(context, 3, _place!.name, kicker: 'LEVEL 3', dark: true)
-          : levelAppBar(
-              context,
-              3,
-              'Travelogue',
-              journey: _step != _Step.ending,
-            ),
-      body: SafeArea(child: _buildStep()),
+    // Back on the travelogue returns to its instructions, not the menu.
+    return PopScope(
+      canPop: _step != _Step.travelogue,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _go(_Step.instructions);
+      },
+      child: Scaffold(
+        appBar: _step == _Step.montage
+            ? levelAppBar(
+                context,
+                3,
+                _place!.name,
+                kicker: 'LEVEL 3',
+                dark: true,
+              )
+            : levelAppBar(
+                context,
+                3,
+                'Travelogue',
+                journey: _step != _Step.ending,
+              ),
+        body: SafeArea(child: _buildStep()),
+      ),
     );
   }
 
@@ -133,6 +163,7 @@ class _Level3ScreenState extends State<Level3Screen> {
       musicAsset: _content.musicAsset,
       onDone: () => _go(_Step.goodbye),
       onMap: () => _go(_Step.map),
+      onPassed: _hold,
     ),
     _Step.goodbye => _Story(
       picture: 'assets/images/girl_journal.svg',
@@ -162,6 +193,8 @@ class _Level3ScreenState extends State<Level3Screen> {
               rules: _content.travelogue,
               spelling: _spelling,
               onSubmit: _submit,
+              initialText: _draft,
+              onChanged: (text) => _hold(draft: _draft = text),
             ),
           ),
         ],
@@ -240,20 +273,20 @@ class _Level3ScreenState extends State<Level3Screen> {
                       semanticsLabel: 'Your guide, holding her journal',
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
+                    const Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
+                        padding: EdgeInsets.only(bottom: 16),
                         child: SpeechBubble(
-                          'Your entry must have ${rules.minSentences} to '
-                          '${rules.maxSentences} sentences, with at least '
-                          '${rules.minConjunctions} coordinating conjunctions '
-                          'joining clauses.',
+                          "Now it's your turn to write about our trip! Here "
+                          'is what your entry needs.',
                           strong: true,
                         ),
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+                _EntryNeeds(rules),
                 const SizedBox(height: 12),
                 const Card(
                   margin: EdgeInsets.zero,
@@ -263,14 +296,6 @@ class _Level3ScreenState extends State<Level3Screen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Travelogue Entry',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
                           'INSTRUCTIONS',
                           style: TextStyle(
                             fontSize: 13,
@@ -279,12 +304,32 @@ class _Level3ScreenState extends State<Level3Screen> {
                           ),
                         ),
                         SizedBox(height: 4),
-                        Text(
-                          'Write a travelogue entry describing your '
-                          'travelling experience. Include where you went, the '
-                          'activities you enjoyed, the sights you saw, how you '
-                          'felt during the trip, and the lessons or memories '
-                          'you took away.',
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text:
+                                    'Write a travelogue entry describing your '
+                                    'travelling experience. Include ',
+                              ),
+                              TextSpan(text: 'where you went', style: _topic),
+                              TextSpan(text: ', the '),
+                              TextSpan(
+                                text: 'activities you enjoyed',
+                                style: _topic,
+                              ),
+                              TextSpan(text: ', the '),
+                              TextSpan(text: 'sights you saw', style: _topic),
+                              TextSpan(text: ', '),
+                              TextSpan(text: 'how you felt', style: _topic),
+                              TextSpan(text: ' during the trip, and the '),
+                              TextSpan(
+                                text: 'lessons or memories',
+                                style: _topic,
+                              ),
+                              TextSpan(text: ' you took away.'),
+                            ],
+                          ),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -548,6 +593,209 @@ class _Story extends StatelessWidget {
       ],
     );
   }
+}
+
+// The topics in the instructions, matching the "Write about" chips.
+const _topic = TextStyle(
+  fontWeight: FontWeight.w800,
+  color: AppColors.tealText,
+);
+const _conjunctions = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
+
+/// The three things a travelogue is checked for, each with its number
+/// picked out, and an example of a comma and conjunction joining clauses.
+class _EntryNeeds extends StatelessWidget {
+  const _EntryNeeds(this.rules);
+
+  final TravelogueRules rules;
+
+  @override
+  Widget build(BuildContext context) {
+    const base = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      height: 1.35,
+    );
+    const strong = TextStyle(fontWeight: FontWeight.w900);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'YOUR ENTRY NEEDS',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1,
+              ),
+            ),
+            const SizedBox(height: 10),
+            _Need(
+              1,
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          '${rules.minSentences} to ${rules.maxSentences} '
+                          'sentences',
+                      style: strong,
+                    ),
+                    const TextSpan(text: ', each ending with . ! or ?'),
+                  ],
+                ),
+                style: base,
+              ),
+            ),
+            _Need(
+              2,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(text: 'at least '),
+                        TextSpan(
+                          text:
+                              '${rules.minConjunctions} coordinating '
+                              'conjunctions',
+                          style: strong,
+                        ),
+                        const TextSpan(text: ' joining two clauses:'),
+                      ],
+                    ),
+                    style: base,
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final word in _conjunctions)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.lightTeal,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.ink),
+                          ),
+                          child: Text(
+                            word,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            _Need(
+              3,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(text: 'a '),
+                        TextSpan(
+                          text: 'comma',
+                          style: strong.copyWith(color: AppColors.accent),
+                        ),
+                        const TextSpan(text: ' before each conjunction, like:'),
+                      ],
+                    ),
+                    style: base,
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.note,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Semantics(
+                      label:
+                          'Example: The sand was hot, but the wind was cool.',
+                      excludeSemantics: true,
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            const TextSpan(text: 'The sand was hot'),
+                            TextSpan(
+                              text: ',',
+                              style: strong.copyWith(
+                                color: AppColors.accent,
+                                fontSize: 22,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' but',
+                              style: strong.copyWith(color: AppColors.cliff),
+                            ),
+                            const TextSpan(text: ' the wind was cool.'),
+                          ],
+                        ),
+                        style: base.copyWith(fontSize: 17),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              last: true,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One numbered line of [_EntryNeeds].
+class _Need extends StatelessWidget {
+  const _Need(this.number, this.child, {this.last = false});
+
+  final int number;
+  final Widget child;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(bottom: last ? 0 : 14),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            color: AppColors.ink,
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            '$number',
+            style: const TextStyle(
+              color: AppColors.card,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(child: child),
+      ],
+    ),
+  );
 }
 
 /// Above the journal: the guide with her journal and what to write about.
