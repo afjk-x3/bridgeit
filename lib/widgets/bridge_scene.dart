@@ -560,9 +560,9 @@ class _BackPainter extends CustomPainter {
     } else {
       cables
         ..moveTo(72, 10)
-        ..quadraticBezierTo(120, 100, _halfEnd, _deckTop)
+        ..quadraticBezierTo(120, 100, _halfEnd, _slabTop)
         ..moveTo(318, 10)
-        ..quadraticBezierTo(270, 100, w - _halfEnd, _deckTop);
+        ..quadraticBezierTo(270, 100, w - _halfEnd, _slabTop);
     }
     canvas.drawPath(cables, line..strokeWidth = 3);
     line.strokeWidth = 1.5;
@@ -659,13 +659,7 @@ class _DeckPainter extends CustomPainter {
       canvas.drawPath(path, line);
     }
 
-    // The road line and its railings.
-    final road = Paint()
-      ..color = AppColors.ink
-      ..strokeWidth = 3;
     if (state == BridgeState.built) {
-      canvas.drawLine(const Offset(0, _deckTop), Offset(w, _deckTop), road);
-      _posts(canvas, 0, w);
       draw(Path()..addRect(Rect.fromLTRB(0, _slabTop, w, _slabBottom)));
       draw(Path()..addRect(Rect.fromLTRB(0, _slabBottom, w, _trussBottom)));
       _truss(canvas, 0, w);
@@ -683,12 +677,6 @@ class _DeckPainter extends CustomPainter {
         canvas.translate(w, 0);
         canvas.scale(-1, 1);
       }
-      canvas.drawLine(
-        const Offset(0, _deckTop),
-        const Offset(_halfEnd, _deckTop),
-        road,
-      );
-      _posts(canvas, 0, _halfEnd);
       draw(
         Path()
           ..moveTo(0, _slabTop)
@@ -741,16 +729,6 @@ class _DeckPainter extends CustomPainter {
           ..quadraticBezierTo(x + 10, 218, x + 20, 228),
         splash,
       );
-    }
-  }
-
-  /// Railing posts holding the rail up off the deck.
-  void _posts(Canvas canvas, double from, double to) {
-    final post = Paint()
-      ..color = AppColors.ink
-      ..strokeWidth = 2;
-    for (var x = from + 12; x < to; x += 18) {
-      canvas.drawLine(Offset(x, _deckTop), Offset(x, _slabTop), post);
     }
   }
 

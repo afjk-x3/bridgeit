@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../content/lexicon.dart';
@@ -342,27 +343,27 @@ class _Level2ScreenState extends State<Level2Screen> {
     return Stack(
       fit: StackFit.expand,
       children: [
+        SvgPicture.asset(
+          'assets/images/scenes/broken_bridge.svg',
+          fit: BoxFit.cover,
+          alignment: Alignment.bottomCenter,
+          semanticsLabel: 'The bridge ahead is broken',
+        ),
         // Scrolls for large text; the bottom padding keeps it clear of Next.
-        SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 84),
+        const SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 84),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              BridgeScene(
-                state: BridgeState.open,
-                left: _bridge.left,
-                right: _bridge.right,
-                gap: const SizedBox.shrink(),
-              ),
-              const SizedBox(height: 12),
-              const SpeechBubble(
+              SpeechBubble(
                 'Oh no! The bridge is broken, so I cannot cross.',
-                strong: true,
+                color: AppColors.card,
               ),
-              const SpeechBubble(
+              SpeechBubble(
                 'To cross the broken bridge, drag the right coordinating '
                 'conjunction to connect the two independent clauses from each '
                 'side of the bridge.',
+                strong: true,
               ),
             ],
           ),

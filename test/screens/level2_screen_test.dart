@@ -636,8 +636,8 @@ void main() {
   testWidgets('the story shows the broken bridge', (tester) async {
     await _open(tester);
 
-    expect(find.byType(BridgeScene), findsOneWidget);
-    expect(find.bySemanticsLabel('Bridge open'), findsOneWidget);
+    expect(find.bySemanticsLabel('The bridge ahead is broken'), findsOneWidget);
+    expect(find.byType(BridgeScene), findsNothing);
   });
 
   testWidgets('the first sentence leads straight to Write with Quick Facts', (

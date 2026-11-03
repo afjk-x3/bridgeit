@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" role="img" aria-label="A broken bridge seen from the driver's seat">
+  <title>Broken bridge</title>
+  <rect id="sky" width="400" height="330" fill="#E6F5FF"/>
+  <path id="hills" d="M0 330 C60 290 130 296 200 312 C270 296 340 290 400 330Z" fill="#80C0A8" stroke="#183870" stroke-width="3"/>
+  <rect id="water" y="328" width="400" height="300" fill="#56B9D6"/>
+  <path id="waves" d="M30 386 H58 M330 360 H354 M40 470 H64 M210 452 C218 444 226 444 234 452 M244 452 C252 444 260 444 268 452" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- far half of the bridge, past the gap -->
+  <g id="far-side" stroke="#183870">
+    <rect x="145" y="286" width="10" height="100" fill="#D88858" stroke-width="2.5"/>
+    <rect x="245" y="286" width="10" height="100" fill="#D88858" stroke-width="2.5"/>
+    <path d="M160 352 H240 L256 404 L246 412 L234 404 L222 414 L210 404 L198 414 L186 404 L174 414 L162 404 L150 412 L144 404Z" fill="#5B6472" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+
+  <g id="rubble" fill="#5B6472" stroke="#183870" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M162 434 L180 430 L184 444 L166 448Z"/>
+    <path d="M246 428 L260 430 L258 442 L244 440Z"/>
+    <path d="M190 460 L202 458 L204 470 L192 472Z"/>
+    <path d="M210 454 L226 450 L232 466 L214 470Z"/>
+  </g>
+
+  <!-- near half: road up to a jagged edge -->
+  <path id="road" d="M110 486 L124 474 L140 488 L156 474 L172 488 L188 474 L204 488 L220 474 L236 488 L252 474 L268 488 L284 474 L296 486 L400 640 V800 H0 V640Z" fill="#8A93A3" stroke="#183870" stroke-width="3" stroke-linejoin="round"/>
+  <path id="broken-edge" d="M110 486 L124 474 L140 488 L156 474 L172 488 L188 474 L204 488 L220 474 L236 488 L252 474 L268 488 L284 474 L296 486 L300 504 H100Z" fill="#5B6472" stroke="#183870" stroke-width="3" stroke-linejoin="round"/>
+  <path id="road-line" d="M200 568 V598 M200 616 V648" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+
+  <g id="barrier" stroke="#183870" stroke-width="3">
+    <path d="M146 548 V588 M254 548 V588" fill="none"/>
+    <clipPath id="bar"><rect x="134" y="526" width="132" height="26" rx="2"/></clipPath>
+    <rect x="134" y="526" width="132" height="26" rx="2" fill="#FFFFFF"/>
+    <path clip-path="url(#bar)" d="M134 552 L160 526 H176 L150 552Z M174 552 L200 526 H216 L190 552Z M214 552 L240 526 H256 L230 552Z M254 552 L280 526 H296 L270 552Z" fill="#D88858" stroke="none"/>
+    <rect x="134" y="526" width="132" height="26" rx="2" fill="none"/>
+  </g>
+
+  <!-- near towers and cables, cut off by the windscreen -->
+  <g id="near-side" stroke="#183870">
+    <path d="M44 80 C120 200 150 260 150 290 M356 80 C280 200 250 260 250 290" fill="none" stroke-width="3"/>
+    <path d="M66 140 V560 M86 176 V520 M106 210 V500 M334 140 V560 M314 176 V520 M294 210 V500" fill="none" stroke-width="2"/>
+    <rect x="20" y="40" width="28" height="560" fill="#D88858" stroke-width="3"/>
+    <rect x="352" y="40" width="28" height="560" fill="#D88858" stroke-width="3"/>
+    <path d="M366 400 L388 422 L366 444 L344 422Z" fill="#D88858" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M366 410 V426" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="366" cy="434" r="2.5" fill="#183870" stroke="none"/>
+  </g>
+
+  <g id="dashboard">
+    <path d="M0 610 C80 580 320 580 400 610 V800 H0Z" fill="#183870"/>
+    <rect x="120" y="606" width="160" height="22" rx="4" fill="#309090"/>
+  </g>
+  <g id="wheel" fill="none" stroke="#80C0A8">
+    <circle cx="200" cy="716" r="84" stroke-width="20"/>
+    <path d="M122 716 H278 M200 716 V800" stroke-width="18"/>
+    <circle cx="200" cy="716" r="24" fill="#309090" stroke-width="6"/>
+  </g>
+  <g id="hands" fill="#F4C7A1" stroke="#183870" stroke-width="4" stroke-linejoin="round">
+    <path d="M92 800 C96 750 100 716 112 688 C118 672 142 672 146 688 C150 704 138 730 132 800Z"/>
+    <path d="M308 800 C304 750 300 716 288 688 C282 672 258 672 254 688 C250 704 262 730 268 800Z"/>
+  </g>
+</svg>
