@@ -2,9 +2,39 @@
 
 Context for picking up this work in a new session. Read the latest session below first, then the older notes, [PRD.md](PRD.md) (client view) and [DEV-PRD.md](DEV-PRD.md) (build plan).
 
-## Latest session: 3 November 2026
+## Latest session: 3 November 2026 (afternoon)
 
-**State of `v2`:** pushed to `origin/v2` with nothing uncommitted. `flutter analyze` is clean and 326 tests pass. The release APK was walked on the emulator after each change.
+**State of `v2`:** pushed to `origin/v2` with nothing uncommitted. `flutter analyze` is clean and 331 tests pass. The release APK on the [v0.2.0-test.1 release](https://github.com/afjk-x3/bridgeit/releases/tag/v0.2.0-test.1) (`BridgeIt-v0.2.0-test1.apk`) was replaced with a build of `1c3f200`. It is signed with the release key, so it installs over last night's build. The version is still `0.2.0+2`, the tag still points at its older commit, and the release notes don't mention this session's changes.
+
+**Next step:** unchanged, client task 10 when their files arrive on 7 November (see below). Before sending the progress report, add this session's changes and ask the client to confirm the comma rule and approve the new logo.
+
+**Done this session** (commits `68e7cef`, `a6775cf`, `be5ac47`, `1c3f200`):
+1. **Logo** (`assets/images/logo.svg`): the owner's Gemini-made SVG traced from the client's resent logo (Google Drive), keeping their wordmark (the `3`-like B, the lunate `Є`). I fixed its ring weave: every arc endpoint now sits on its 30×24.5 ellipse (orange cx 309.5, teal cx 262.5, cy 127.5), so the orange arch redrawn over the teal has no seams. The letters use `C` curves; the owner preferred them to my H/V/A-only version. No `<mask>` or `<filter>` (flutter_svg).
+2. **Level 2 story:** a new driver's-view `scenes/broken_bridge.svg` fills the screen behind the bubbles. "Oh no!…" is a white bubble with navy text (new `SpeechBubble.color`); "To cross…" is navy (`strong`).
+3. **Deck railing removed** from `BridgeScene`; the main cables now end on the slab.
+4. **One bridge everywhere:** `BridgeStrip` now shows `BuiltBridge` (in `bridge_scene.dart`), the same painters in their built state with no words. `bridge_strip*.svg` and `tool/bridge_art/` are deleted. The car loops on Start, Welcome and Level 3 "crossed" (6 s a lap) and stays still under reduce motion or a screen reader.
+5. **Welcome on every Play:** a returning student sees "Hi, <name>!" and Next goes to the menu; a new student still gets the form.
+6. **Travelogue comma rule kept:** a conjunction counts only with a comma before it and a full clause on each side. A comma-less clause join now shows greyed, without counting; both sides must pass the clause check as `ok`, so "rode and arrived" stays unmarked. The owner agreed; **the client hasn't confirmed it**.
+7. **Map Drive button:** it locks once the car sets off. It used to stay enabled, and repeat taps restarted the drive.
+8. **Back from the travelogue** (app bar or phone) goes to its instructions; the draft is kept.
+9. **Place held after one montage pass:** Map hides and only Next shows. The place id and the draft are saved under prefs key `level3_resume_v1` (`ResultsStore.level3Resume`). Reopening Level 3 goes straight to the instructions until the travelogue is submitted, which clears the key.
+10. **Instructions screen:** a numbered "Your entry needs" card (5 to 7 sentences; at least 4 conjunctions, shown as FANBOYS chips; a comma before each, with an example where the comma is orange and "but" is the editor's counted green). The five topics are bold teal.
+11. **Montage timer** uses `AnimationBehavior.preserve`. Under the phone's reduce-motion setting, Flutter had been running it 20× faster, so each picture flashed past.
+
+**Open from this session:**
+- The Level 3 "crossed" bubble still says "Thank you, Bridge Builder!" rather than the student's name; the owner may want that too.
+- `assets/images/icon.svg` (launcher icon) still follows the old logo drawing.
+- The Wireframes v3 canvas doesn't show the driver's-view Level 2 story, the new instructions card, the hidden Map after a pass, or the removed railing.
+- The client hasn't approved the new logo.
+- The round "≡" button over the guide while typing on the emulator is Android's, not the app's.
+
+**Testing notes from this session:**
+- `test/support/pump_app.dart` now turns on reduce motion for every app test, because the looping car would stop `pumpAndSettle` from finishing. Anything timed that must not speed up under reduce motion needs `AnimationBehavior.preserve`.
+- `openMenu` taps Play, then Next past a returning student's greeting. A new student stays on the greeting.
+- **Emulator** (`Medium_Phone_API_36.1`, `emulator-5554`): `flutter run -d emulator-5554` from a terminal tab worked this time, including first launch. adb is at `$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe`. Drive the app with `adb shell input tap X Y`; screen pixels are 1.2× the 900-wide screenshots. In Git Bash, prefix `adb pull /sdcard/...` with `MSYS_NO_PATHCONV=1` and give a Windows-style local path. Local `sleep` is blocked, so wait with `adb shell sleep N`.
+- The emulator's progress has a profile (Ana), Level 3 completed, and Saud Beach held with an empty draft.
+
+## Earlier on 3 November 2026
 
 **Next step:** client task 10 when their files arrive on 7 November (the 7 Level 2 sentence pairs, the song MP3 and the lyric timings). Then send the client [client/BridgeIt-Progress-Report-2026-11-03.md](client/BridgeIt-Progress-Report-2026-11-03.md). It lists what changed and what we still need from them.
 
