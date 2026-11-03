@@ -1,71 +1,175 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="34 40 720 520" role="img" aria-label="BridgeIt">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="38 54 506 358" role="img" aria-label="BridgeIt">
   <title>BridgeIt</title>
   <defs>
-    <linearGradient id="tower" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#80C0A8"/>
-      <stop offset="1" stop-color="#309090"/>
+    <linearGradient id="teal" gradientUnits="userSpaceOnUse" x1="0" y1="62" x2="0" y2="185">
+      <stop offset="0" stop-color="#83C6AA" />
+      <stop offset="1" stop-color="#2D9090" />
     </linearGradient>
+    <linearGradient id="ring-teal" gradientUnits="userSpaceOnUse" x1="0" y1="96" x2="0" y2="159">
+      <stop offset="0" stop-color="#85C2A6" />
+      <stop offset="1" stop-color="#3B8A94" />
+    </linearGradient>
+    <linearGradient id="ring-orange" gradientUnits="userSpaceOnUse" x1="0" y1="96" x2="0" y2="159">
+      <stop offset="0" stop-color="#E4AF7A" />
+      <stop offset="1" stop-color="#D5805F" />
+    </linearGradient>
+
     <g id="span-half">
-      <path d="M205 104 Q268 130 334 134 M205 208 Q262 204 322 188" stroke="#183870" stroke-width="15"/>
-      <path d="M224 113 V207 M244 121 V205 M264 126 V201 M284 130 V196" stroke="#183870" stroke-width="9"/>
-      <path d="M224 113 V207 M244 121 V205 M264 126 V201 M284 130 V196" stroke="#55AB9E" stroke-width="4"/>
-      <path d="M205 104 Q268 130 334 134 M205 208 Q262 204 322 188" stroke="#55AB9E" stroke-width="9"/>
+      <path d="M150 77 Q200 100 245 106 M150 164 Q195 145 240 141 M166 82 V160 M190 90 V151 M214 98 V145" stroke="#0E2448" stroke-width="15"/>
+      <path d="M166 82 V160 M190 90 V151 M214 98 V145" stroke="url(#teal)" stroke-width="5" />
+      <path d="M150 77 Q200 100 245 106 M150 164 Q195 145 240 141" stroke="url(#teal)" stroke-width="9" />
     </g>
+
     <g id="pages-half">
-      <path d="M180 242 L155 265 C258 268 334 298 372 346 C338 284 266 253 180 242Z"/>
-      <path d="M150 277 L134 304 C246 298 326 318 369 352 C326 308 240 283 150 277Z"/>
-      <path d="M130 315 L120 344 C224 330 310 336 381 364 V356 C318 324 228 311 130 315Z"/>
+      <path d="M126 181 C170 182 215 194 245 211 C266 224 281 243 287 263 C278 246 262 232 240 214 C210 204 165 199 117 199Z" />
+      <path d="M114 208 C160 207 215 216 245 233 C260 242 268 250 273 258 C262 251 240 238 220 233 C190 226 150 225 105 228Z" />
+      <path d="M90 257 L100 239 C130 233 200 236 240 248 C256 254 268 266 276 270 C280 272 284 272 287 272 H289 V292 H275 V287 C275 284 272 282 268 281 C263 279 259.5 275 257.5 271 C255.5 267 250 264.5 241 262 C222 255 205 251 189 249 C150 246 110 250 90 257Z" />
     </g>
   </defs>
 
-  <g id="mark" transform="translate(0 -8)">
-    <g id="bridge" fill="none">
-      <use href="#span-half"/>
-      <use href="#span-half" transform="matrix(-1 0 0 1 762 0)"/>
-      <rect x="180" y="82" width="26" height="160" fill="url(#tower)" stroke="#183870" stroke-width="4"/>
-      <rect x="556" y="82" width="26" height="160" fill="url(#tower)" stroke="#183870" stroke-width="4"/>
-    </g>
-
-    <!-- woven: teal over orange at the top crossing, orange over teal at the bottom -->
-    <g id="links" fill="none">
-      <ellipse id="link-orange" cx="410" cy="168" rx="44" ry="33" stroke="#183870" stroke-width="20"/>
-      <ellipse cx="410" cy="168" rx="44" ry="33" stroke="#E09A6C" stroke-width="13"/>
-      <ellipse id="link-teal" cx="352" cy="168" rx="44" ry="33" stroke="#183870" stroke-width="20"/>
-      <ellipse cx="352" cy="168" rx="44" ry="33" stroke="#309090" stroke-width="13"/>
-      <path id="link-orange-over" d="M366 168 A44 33 0 0 0 396 199.3" stroke="#183870" stroke-width="20"/>
-      <path d="M367.5 159.5 A44 33 0 0 0 405 200.8" stroke="#E09A6C" stroke-width="13"/>
-    </g>
-
-    <g id="book" fill="#1B3F78">
-      <use href="#pages-half"/>
-      <use href="#pages-half" transform="matrix(-1 0 0 1 762 0)"/>
-    </g>
+  <!-- Bridge Assembly (Towers extended to y=192 behind book so zero white gap appears) -->
+  <g id="bridge" fill="none">
+    <use href="#span-half" />
+    <use href="#span-half" transform="matrix(-1 0 0 1 574 0)" />
+    <rect x="134" y="63" width="21" height="129" fill="url(#teal)" stroke="#0E2448" stroke-width="4" />
+    <rect x="419" y="63" width="21" height="129" fill="url(#teal)" stroke="#0E2448" stroke-width="4" />
   </g>
 
-  <!-- stems 26 wide, x-height 416, baseline 500, caps 388 -->
-  <g id="wordmark" fill="none" stroke-width="26">
-    <g stroke="#1B3F78">
-      <g id="B">
-        <path stroke-width="18" d="M59 388 V500"/>
-        <path d="M50 401 H120 C142 401 152 411 152 423 C152 436 142 444 122 444 H59 M122 444 C146 444 158 453 158 466 C158 479 146 487 122 487 H50"/>
-      </g>
-      <path id="r" d="M205 500 V416 M205 454 C208 434 224 427 246 427"/>
-      <path id="i" d="M275 416 V500"/>
-      <circle id="i-dot" cx="275" cy="392" r="15" fill="#1B3F78" stroke="none"/>
-      <g id="d">
-        <circle cx="348" cy="459" r="33"/>
-        <path d="M381 388 V500"/>
-      </g>
-      <g id="g">
-        <circle cx="458" cy="459" r="33"/>
-        <path d="M491 416 V506 C491 530 474 540 450 540 H428"/>
-      </g>
-      <g id="e">
-        <path d="M607 459 A33 33 0 1 0 599 481"/>
-        <path stroke-width="12" d="M541 461 H620"/>
-      </g>
-    </g>
-    <path id="I" stroke="#1F9385" d="M647 388 V500"/>
-    <path id="t" stroke="#D88858" d="M702 396 V468 C702 484 712 490 736 488 M678 428 H738"/>
+  <!-- Interlocking Open Chain Links (True Over/Under Weave) -->
+  <g id="links" fill="none" stroke-linecap="butt">
+    <!-- Base Orange C-Link (gap at bottom-left, passes under teal at bottom) -->
+    <!-- every endpoint lies on its ellipse (orange cx 309.5, teal cx 262.5, cy 127.5) so the redrawn arch overlays exactly -->
+    <path d="M298.26 150.22 A30 24.5 0 1 0 284.92 141.55" stroke="#0E2448" stroke-width="15" />
+    <path d="M299.49 150.59 A30 24.5 0 1 0 284.92 141.55" stroke="url(#ring-orange)" stroke-width="9" />
+    <!-- Full Teal C-Link (gap at top-right, passes over orange at bottom) -->
+    <path d="M283.71 110.18 A30 24.5 0 1 1 271.27 104.07" stroke="#0E2448" stroke-width="15" />
+    <path d="M284.44 110.79 A30 24.5 0 1 1 269.76 103.73" stroke="url(#ring-teal)" stroke-width="9" />
+    <!-- Upper-Left Orange Arch (redrawn over teal for true interlock) -->
+    <path d="M279.61 125.36 A30 24.5 0 0 1 304.29 103.37" stroke="#0E2448" stroke-width="15" />
+    <path d="M279.54 126.22 A30 24.5 0 0 1 305.32 103.24" stroke="url(#ring-orange)" stroke-width="9" />
+  </g>
+
+  <!-- Open Book -->
+  <g id="book" fill="#183870">
+    <use href="#pages-half" />
+    <use href="#pages-half" transform="matrix(-1 0 0 1 574 0)" />
+  </g>
+
+  <!-- Pixel-Aligned Wordmark -->
+  <g id="wordmark" fill="#183870" fill-rule="evenodd">
+    <!-- B: 3 parallel left bars, outward-curving inner capsule slots (sweep=1), balanced right bowls -->
+    <path id="B" d="
+      M 43 286
+      H 98
+      A 21 21 0 0 1 119 307
+      C 119 317, 113 324, 105 328.5
+      C 115 332.5, 121 340.5, 121 352
+      A 24 24 0 0 1 97 376
+      H 43
+      V 353
+      H 87
+      A 5.5 5.5 0 0 0 92.5 347.5
+      A 5.5 5.5 0 0 0 87 342
+      H 43
+      V 320
+      H 86
+      A 5.5 5.5 0 0 0 91.5 314.5
+      A 5.5 5.5 0 0 0 86 309
+      H 43
+      Z" />
+
+    <!-- r: Crisp vertical stem + smooth upward-sweeping tangent shoulder arch -->
+    <path id="r" d="
+      M 134 313
+      H 156
+      V 321
+      C 161 313.5, 169 310, 178 310
+      C 181.5 310, 184.5 311, 185 313.5
+      L 180.5 332.5
+      C 177.5 331, 173.5 330, 169.5 330
+      C 162 330, 158 335, 158 343.5
+      V 376
+      H 134
+      Z" />
+
+    <!-- i: Stem and circular/oval dot -->
+    <rect id="i" x="196" y="311" width="24.5" height="65" rx="2" />
+    <ellipse id="i-dot" cx="208.25" cy="292" rx="14.5" ry="12.5" />
+
+    <!-- d: Connected smoothly to book spine with symmetric inner oval counter -->
+    <path id="d" d="
+      M 275 284
+      H 299.5
+      V 376
+      H 276
+      V 370
+      C 271 374.5, 264 377, 256 377
+      C 242 377, 233 365.5, 233 344
+      C 233 322.5, 242 311, 256 311
+      C 264 311, 271 313.5, 275 318
+      Z
+      M 265.5 329.5
+      A 9.5 14 0 1 0 265.5 357.5
+      A 9.5 14 0 1 0 265.5 329.5
+      Z" />
+
+    <!-- g: Continuous right vertical wall, centered oval counter, smooth swept descender -->
+    <path id="g" d="
+      M 352 311
+      H 375
+      V 375
+      C 375 394.5, 363 404.5, 342.5 404.5
+      C 332 404.5, 323 402, 319.5 399.5
+      L 323.5 381.5
+      C 328.5 384, 335 385.5, 341.5 385.5
+      C 348.5 385.5, 352 381.5, 352 374
+      V 369.5
+      C 347 373.5, 340.5 375.5, 333.5 375.5
+      C 319.5 375.5, 310 364, 310 343.5
+      C 310 323, 319.5 311, 333.5 311
+      C 340.5 311, 347 313, 352 317.5
+      Z
+      M 342.5 329.5
+      A 9.5 13.5 0 1 0 342.5 356.5
+      A 9.5 13.5 0 1 0 342.5 329.5
+      Z" />
+
+    <!-- Є: True curved Lunate Epsilon with smooth inner U-curve and rounded center bar -->
+    <path id="e" d="
+      M 422 310.5
+      C 431.5 310.5, 440.5 312.5, 446.5 315.5
+      L 443 331.5
+      C 437.5 329.5, 431 328.5, 424.5 328.5
+      C 417 328.5, 412.5 331.5, 411.5 336.5
+      H 433.5
+      A 6.5 6.5 0 0 1 440 343
+      A 6.5 6.5 0 0 1 433.5 349.5
+      H 411.5
+      C 412.5 354.5, 417 357.5, 424.5 357.5
+      C 431 357.5, 437.5 356.5, 443 354.5
+      L 446.5 370.5
+      C 440.5 373.5, 431.5 376.5, 422 376.5
+      C 400.5 376.5, 388 363.5, 388 343.5
+      C 388 323.5, 400.5 310.5, 422 310.5
+      Z" />
+
+    <!-- I: Rounded Teal Bar -->
+    <rect id="I" fill="#00977D" x="462.5" y="290" width="22" height="84" rx="2.5" />
+
+    <!-- t: Clean Stem, Right Crossbar, and Smooth Tapered Bottom Hook -->
+    <path id="t" fill="#D88858" d="
+      M 495.5 296.5
+      H 517.5
+      V 312.5
+      H 529.5
+      V 330
+      H 517.5
+      V 349
+      C 517.5 354, 520 356.5, 525 356.5
+      C 528 356.5, 531 356, 533.5 355
+      L 537 371
+      C 532.5 373, 526.5 374, 520 374
+      C 503.5 374, 495.5 365.5, 495.5 349.5
+      Z" />
   </g>
 </svg>

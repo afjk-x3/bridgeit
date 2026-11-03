@@ -254,7 +254,7 @@ Pin exact versions that support Dart 3.13 and add them in one commit with a note
 
 | Asset | Path | Status |
 |---|---|---|
-| Logo | `assets/images/logo.svg` | Done: our vector redraw in the logo colors |
+| Logo | `assets/images/logo.svg` | Done: vector trace of the client's logo, their wordmark kept |
 | Character | `assets/images/girl_wave.svg`, `girl_drive.svg`, `girl_journal.svg` | Done: three poses drawn as SVG from the same parts |
 | Lyric pictures | `assets/images/lyrics/<word>.svg` | Done: one per FANBOYS line, set in `level1.lyrics` |
 | App icon | `android/app/src/main/res/mipmap-*` | We make a simplified icon-only logo; hangers get too dense at small sizes |

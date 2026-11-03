@@ -18,7 +18,7 @@ Deadline is 21 November 2026, and real-phone testing and client review still hav
 
 ## Rules the art must follow
 
-- **Ownership:** we draw all art, with the client's full permission. The logo is our redraw of their blurry original, and the client hasn't approved it or our other art yet.
+- **Ownership:** we draw all art, with the client's full permission. The logo is a vector trace of their logo (resent 3 November 2026), kept to their design, wordmark included. The client hasn't approved our other art yet.
 - **Format:** hand-written SVG rendered by `flutter_svg`. Allowed: paths, `<use>`, clip paths, gradients. **No `<filter>` or `<mask>`.**
 - **Palette, from the logo:** navy `#183870`, teal `#309090`, light teal `#80C0A8`, orange `#D88858`, app background `#E6F5FF`.
 - **Style:** flat fills with a navy outline, no shading effects.
@@ -55,7 +55,7 @@ The lyric pictures mean:
 
 The owner has already asked for these, so don't suggest undoing them:
 
-- **Logo:** real lowercase `e`, spine on the `B`, flat `d` stem, book clear of the wordmark, interlocking rings, even kerning.
+- **Logo:** trace the client's logo as it is. Their `3`-like `B`, `E`-like `e` and the `d` stem joining the book are their design, not flaws.
 - **Girl:** no creases or center seam on the shorts, no vertical line through the body, outlined skin, heavier motion lines.
 
 ## Known weak spots
